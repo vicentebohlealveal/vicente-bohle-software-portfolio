@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HandTrack Pro Master Edition - AC3E HUD</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #020205; --panel-color: rgba(12, 16, 33, 0.85); --accent-cyan: #00f2fe;
+      --accent-orange: #ff3366; --text-main: #e0f7fa; --bar-empty: #0f172a; --danger-red: #ff1744;
+      --glass-border: rgba(0, 242, 254, 0.15);
+    }
+    body { 
+      font-family: 'Rajdhani', sans-serif; background-color: var(--bg-color); 
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 60%), linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 254, 0.03) 1px, transparent 1px); 
+      background-size: 100% 100%, 40px 40px, 40px 40px; color: var(--text-main); margin: 0; padding: 20px; display: flex; gap: 20px; height: 100vh; box-sizing: border-box; overflow: hidden; backdrop-filter: blur(5px);
+    }
+    
+    h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    h1 { color: var(--accent-cyan); text-shadow: 0 0 15px rgba(0, 242, 254, 0.6); font-size: 24px; }
+    h3 { color: var(--accent-cyan); font-size: 15px; margin-bottom: 10px; }
+    h4 { color: #94a3b8; font-size: 12px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
+    hr { border: 0; border-top: 1px solid var(--glass-border); margin: 15px 0; }
+    
+    .panel { background-color: var(--panel-color); border: 1px solid var(--glass-border); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,242,254,0.05); position: relative; padding: 15px; backdrop-filter: blur(10px); display: flex; flex-direction: column;}
+    
+    #video-panel { flex: 1; position: relative; }
+    #camera-container { position: relative; flex: 1; background-color: #000; border-radius: 6px; border: 1px solid #1e293b; overflow: hidden; transform: scaleX(-1); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    canvas { width: 100%; height: 100%; object-fit: cover; }
+    
+    #control-panel { width: 340px; overflow-y: auto; }
+    #control-panel::-webkit-scrollbar { width: 5px; }
+    #control-panel::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 5px; }
+    
+    /* Botones principales */
+    button.main-btn { background: linear-gradient(90deg, rgba(0, 242, 254, 0.1), rgba(0, 242, 254, 0.05)); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 12px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 15px; }
+    button.main-btn:hover { background: rgba(0, 242, 254, 0.2); box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); }
+    
+    button.pause-btn { display: none; background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00; color: #ffaa00; padding: 10px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 13px; }
+    button.pause-btn:hover { background: rgba(255, 170, 0, 0.2); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+    button.pause-btn.paused { background: rgba(255, 23, 68, 0.2); border-color: var(--danger-red); color: var(--danger-red); box-shadow: 0 0 15px rgba(255, 23, 68, 0.5); }
+    
+    /* Botones secundarios (Pantalla completa y Calibración) */
+    button.sec-btn { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 8px; border-radius: 4px; font-family: 'Share Tech Mono', monospace; font-size: 11px; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 10px; text-transform: uppercase;}
+    button.sec-btn:hover { background: rgba(71, 85, 105, 0.3); color: #fff; border-color: #94a3b8; }
+    
+    .status-text { font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    
+    .finger-telemetry { margin-bottom: 10px; }
+    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+    .bar-container { height: 10px; background-color: var(--bar-empty); border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #1e293b; }
+    .bar-fill { height: 100%; width: 0%; background: #10b981; transition: width 0.1s, background 0.1s; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+    
+    /* Panel de calibración ocultable */
+    #calibration-wrapper { display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #1e293b; margin-top: 10px; }
+    .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+    .calib-label { width: 60px; color: #e0f7fa; }
+    .slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #1e293b; outline: none; margin: 0 10px; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 8px var(--accent-cyan); }
+    .calib-val { width: 30px; text-align: right; color: var(--accent-orange); font-weight: bold;}
+    
+    .deco-line { position: absolute; background: var(--accent-cyan); opacity: 0.5; }
+    .deco-h { width: 30px; height: 2px; top: -1px; left: 20px; }
+    .deco-v { width: 2px; height: 30px; top: 20px; left: -1px; }
+
+    /* Estilo para Logos USM y AC3E (Inversión de color) */
+    #logos-container {
+      position: absolute; top: 15px; right: 20px; z-index: 100;
+      display: flex; align-items: center; gap: 15px; opacity: 0.9;
+    }
+    #logos-container img {
+      max-height: 35px;
+      /* EL TRUCO DE MAGIA: Convierte lo negro en blanco brillante */
+      filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(0, 242, 254, 0.8));
+      transition: 0.3s;
+    }
+    #logos-container img:hover { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(0, 242, 254, 1)); }
+    #logos-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-cyan); letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+  <div id="video-panel" class="panel">
+    <div class="deco-line deco-h"></div>
+    <div class="deco-line deco-v"></div>
+
+    <div id="logos-container">
+        <span id="logos-label">POWERED BY</span>
+        <img src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" alt="">
+        <img src="https://ac3e.usm.cl/wp-content/uploads/2024/03/logo-principal-pagina-web1_1.png" alt="AC3E Logo">
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; max-width: 60%;">
+      <h1>HANDTRACK // MASTER</h1>
+    </div>
+    <div id="camera-container">
+      <video id="input_video" playsinline style="display:none"></video>
+      <canvas id="output_canvas" width="640px" height="480px"></canvas>
+    </div>
+  </div>
+
+  <div id="control-panel" class="panel">
+    <button id="fullscreenBtn" class="sec-btn" onclick="toggleFullScreen()">⛶ PANTALLA COMPLETA</button>
+    <button id="connectBtn" class="main-btn">🔌 INICIAR SECUENCIA (USB)</button>
+    <button id="pauseBtn" class="pause-btn">⏸️ PAUSAR CÁMARA (STANDBY)</button>
+    
+    <div class="status-text">
+      <span style="color:#64748b;">ENLACE DE DATOS:</span>
+      <span id="serialStatus" style="color:var(--danger-red); font-weight:bold; text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);">[ OFFLINE ]</span>
+    </div>
+    
+    <hr>
+    <h3>TELEMÉTRICA DE SERVOS</h3>
+    <div id="bars"></div>
+
+    <hr>
+    <button id="toggleCalibBtn" class="sec-btn" onclick="toggleCalibracion()">⚙️ AJUSTES AVANZADOS ▼</button>
+    
+    <div id="calibration-wrapper">
+      <h4>SENSIBILIDAD EN VIVO</h4>
+      <div id="calibration-panel"></div>
+    </div>
+  </div>
+
+  <script>
+    // Pantalla Completa
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } 
+      else { if (document.exitFullscreen) { document.exitFullscreen(); } }
+    }
+
+    // Toggle Panel de Calibración
+    function toggleCalibracion() {
+      const panel = document.getElementById('calibration-wrapper');
+      const btn = document.getElementById('toggleCalibBtn');
+      if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+        btn.innerHTML = "⚙️ AJUSTES AVANZADOS ▲";
+      } else {
+        panel.style.display = 'none';
+        btn.innerHTML = "⚙️ AJUSTES AVANZADOS ▼";
+      }
+    }
+
+    let port, writer;
+    let targetAngles = [0, 0, 0, 0, 0]; 
+    let smoothedAngles = [0, 0, 0, 0, 0]; 
+    let ultimaVezMano = Date.now();
+    let camaraPausada = false;
+
+    let sensibilidades = [40, 80, 55, 80, 80]; 
+    const NOMBRES_DEDOS = ["PULGAR", "ÍNDICE", "MEDIO", "ANULAR", "MEÑIQUE"];
+
+    const barsContainer = document.getElementById('bars');
+    NOMBRES_DEDOS.forEach((nombre, i) => {
+      barsContainer.innerHTML += `
+        <div class="finger-telemetry">
+          <div class="finger-info"><span style="color:#e0f7fa">${nombre}</span><span id="val-${i}">ABIERTO</span></div>
+          <div class="bar-container"><div class="bar-fill" id="bar-${i}"></div></div>
+        </div>`;
+    });
+
+    const calibContainer = document.getElementById('calibration-panel');
+    NOMBRES_DEDOS.forEach((nombre, i) => {
+      calibContainer.innerHTML += `
+        <div class="calib-row">
+          <span class="calib-label">${nombre.substring(0,3)}</span>
+          <input type="range" min="20" max="120" value="${sensibilidades[i]}" class="slider" id="slider-${i}" oninput="updateSens(${i}, this.value)">
+          <span class="calib-val" id="sval-${i}">${sensibilidades[i]}</span>
+        </div>`;
+    });
+
+    function updateSens(index, value) {
+      sensibilidades[index] = parseInt(value);
+      document.getElementById(`sval-${index}`).innerText = value;
+    }
+
+    document.getElementById('connectBtn').onclick = async () => {
+      try { 
+        port = await navigator.serial.requestPort(); 
+        await port.open({ baudRate: 9600 }); 
+        await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+        writer = port.writable.getWriter(); 
+        
+        document.getElementById('connectBtn').style.display="none"; 
+        document.getElementById('pauseBtn').style.display="block"; 
+        
+        document.getElementById('serialStatus').innerText="[ ONLINE / TX ]"; 
+        document.getElementById('serialStatus').style.color="#00f2fe";
+        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(0, 242, 254, 0.6)";
+        
+        camera.start();
+      } catch (err) { alert("Error: " + err); }
+    };
+
+    document.getElementById('pauseBtn').onclick = () => {
+      camaraPausada = !camaraPausada;
+      const btn = document.getElementById('pauseBtn');
+      if (camaraPausada) {
+        btn.classList.add('paused');
+        btn.innerHTML = "▶️ REANUDAR CÁMARA";
+        targetAngles = [0, 0, 0, 0, 0]; 
+      } else {
+        btn.classList.remove('paused');
+        btn.innerHTML = "⏸️ PAUSAR CÁMARA (STANDBY)";
+      }
+    };
+
+    function vec3(p1, p2) { return { x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z }; }
+    function mag(v) { return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z); }
+    function dot(v1, v2) { return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z; }
+    function getFingerAngle(A, B, C) {
+      const vBA = vec3(B, A), vBC = vec3(B, C);
+      return Math.acos(Math.max(-1, Math.min(1, dot(vBA, vBC) / (mag(vBA) * mag(vBC))))) * (180 / Math.PI);
+    }
+
+    setInterval(async () => {
+      let comandoArduino = "";
+      
+      if (!camaraPausada && Date.now() - ultimaVezMano > 1500) { targetAngles = [0, 0, 0, 0, 0]; }
+      
+      for (let i = 0; i < 5; i++) {
+        smoothedAngles[i] += (targetAngles[i] - smoothedAngles[i]) * 0.45; 
+
+        let dedoCerrado = smoothedAngles[i] > 80;
+        comandoArduino += dedoCerrado ? "0" : "1";
+        
+        const bar = document.getElementById(`bar-${i}`);
+        let porcentajeVisual = Math.min(100, (smoothedAngles[i] / 180) * 100);
+        
+        document.getElementById(`val-${i}`).innerText = dedoCerrado ? "CERRADO" : "ABIERTO";
+        bar.style.width = porcentajeVisual + "%";
+        
+        if (dedoCerrado) {
+          bar.style.background = "var(--accent-orange)";
+          bar.style.boxShadow = "0 0 10px rgba(255, 51, 102, 0.6)";
+        } else {
+          bar.style.background = "#10b981";
+          bar.style.boxShadow = "0 0 10px rgba(16, 185, 129, 0.4)";
+        }
+      }
+      
+      if (writer) {
+        const data = new TextEncoder().encode(comandoArduino + "\n");
+        await writer.write(data);
+      }
+    }, 50); 
+
+    const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+    
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.85, minTrackingConfidence: 0.40 });
+    
+    hands.onResults((results) => {
+      const canvasCtx = document.getElementById('output_canvas').getContext('2d');
+      canvasCtx.clearRect(0, 0, 640, 480);
+      canvasCtx.drawImage(results.image, 0, 0, 640, 480);
+
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        ultimaVezMano = Date.now();
+        const h = results.multiHandLandmarks[0];
+        
+        let lineColor = camaraPausada ? 'rgba(255, 23, 68, 0.4)' : 'rgba(0, 242, 254, 0.6)';
+        let pointColor = camaraPausada ? 'rgba(255, 23, 68, 0.8)' : '#ff3366';
+        
+        drawConnectors(canvasCtx, h, HAND_CONNECTIONS, {color: lineColor, lineWidth: 4});
+        drawLandmarks(canvasCtx, h, {color: '#fff', fillColor: pointColor, lineWidth: 2, radius: 4});
+
+        if (!camaraPausada) {
+          const mapear = (nudilloA, baseB, tipC, sensibilidadIndex) => {
+            let flex = getFingerAngle(h[nudilloA], h[baseB], h[tipC]);
+            return Math.max(0, Math.min(180, (180 - flex) * (180 / sensibilidades[sensibilidadIndex]))); 
+          };
+          
+          targetAngles[0] = mapear(0, 2, 4, 0); 
+          targetAngles[1] = mapear(0, 5, 8, 1);
+          targetAngles[2] = mapear(0, 9, 12, 2);
+          targetAngles[3] = mapear(0, 13, 16, 3);
+          targetAngles[4] = mapear(0, 17, 20, 4);
+        }
+      }
+    });
+
+    const camera = new Camera(document.getElementById('input_video'), { 
+      onFrame: async () => { await hands.send({image: document.getElementById('input_video')}); }, width: 640, height: 480 
+    });
+  </script>
+</body>
+</html>
