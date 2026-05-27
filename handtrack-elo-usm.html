@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HandTrack Pro Master Edition - ELO HUD</title>
+  <title>HandTrack Pro Master Edition - ELO USM HUD</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -13,105 +13,160 @@
 
   <style>
     :root {
-      /* Nueva paleta ELO: Verde tecnológico y Gris */
-      --bg-color: #020502; 
-      --panel-color: rgba(12, 20, 12, 0.85); 
-      --accent-main: #8BC34A; /* Verde ELO */
-      --accent-secondary: #9E9E9E; /* Gris ELO */
-      --text-main: #f1f8e9; 
-      --bar-empty: #1b2614; 
-      --danger-red: #ff1744;
-      --glass-border: rgba(139, 195, 74, 0.2);
+      /* Paleta Táctica Neón */
+      --bg-deep: #010402;
+      --panel-bg: rgba(2, 10, 5, 0.85);
+      --neon-green: #00ff41;
+      --neon-green-dim: rgba(0, 255, 65, 0.2);
+      --alert-red: #ff003c;
+      --text-muted: #5b8c66;
+      --text-bright: #e0ffe8;
+      --border-hud: rgba(0, 255, 65, 0.25);
     }
+
     body { 
-      font-family: 'Rajdhani', sans-serif; background-color: var(--bg-color); 
-      background-image: radial-gradient(circle at 50% 50%, rgba(139, 195, 74, 0.05) 0%, transparent 60%), linear-gradient(rgba(139, 195, 74, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 195, 74, 0.03) 1px, transparent 1px); 
-      background-size: 100% 100%, 40px 40px, 40px 40px; color: var(--text-main); margin: 0; padding: 20px; display: flex; gap: 20px; height: 100vh; box-sizing: border-box; overflow: hidden; backdrop-filter: blur(5px);
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-deep); 
+      /* Cuadrícula de radar estilo HUD */
+      background-image: 
+        linear-gradient(var(--neon-green-dim) 1px, transparent 1px),
+        linear-gradient(90deg, var(--neon-green-dim) 1px, transparent 1px);
+      background-size: 30px 30px;
+      color: var(--text-bright);
+      margin: 0; padding: 20px;
+      display: flex; gap: 20px; height: 100vh;
+      box-sizing: border-box; overflow: hidden;
+    }
+
+    /* Efecto de Scanlines (Líneas de monitor CRT) */
+    body::after {
+      content: " ";
+      display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 2; background-size: 100% 4px, 6px 100%; pointer-events: none;
     }
     
-    h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
-    h1 { color: var(--accent-main); text-shadow: 0 0 15px rgba(139, 195, 74, 0.6); font-size: 24px; }
-    h3 { color: var(--accent-main); font-size: 15px; margin-bottom: 10px; }
-    h4 { color: #a3b894; font-size: 12px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
-    hr { border: 0; border-top: 1px solid var(--glass-border); margin: 15px 0; }
+    h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; }
+    h1 { color: var(--neon-green); text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); font-size: 22px; }
+    h3 { color: var(--neon-green); font-size: 14px; margin-bottom: 12px; }
+    h4 { color: var(--text-muted); font-size: 11px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
+    hr { border: 0; border-top: 1px solid var(--border-hud); margin: 15px 0; }
     
-    .panel { background-color: var(--panel-color); border: 1px solid var(--glass-border); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(139, 195, 74, 0.05); position: relative; padding: 15px; backdrop-filter: blur(10px); display: flex; flex-direction: column;}
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-hud);
+      border-radius: 4px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,255,65,0.02);
+      position: relative; padding: 20px; backdrop-filter: blur(8px);
+      display: flex; flex-direction: column; z-index: 10;
+    }
     
     #video-panel { flex: 1; position: relative; }
-    #camera-container { position: relative; flex: 1; background-color: #000; border-radius: 6px; border: 1px solid #2e3b1e; overflow: hidden; transform: scaleX(-1); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    #camera-container {
+      position: relative; flex: 1; background-color: #000;
+      border-radius: 4px; border: 1px solid rgba(0, 255, 65, 0.15);
+      overflow: hidden; transform: scaleX(-1);
+    }
     canvas { width: 100%; height: 100%; object-fit: cover; }
     
     #control-panel { width: 340px; overflow-y: auto; }
-    #control-panel::-webkit-scrollbar { width: 5px; }
-    #control-panel::-webkit-scrollbar-thumb { background: var(--accent-main); border-radius: 5px; }
+    #control-panel::-webkit-scrollbar { width: 4px; }
+    #control-panel::-webkit-scrollbar-thumb { background: var(--neon-green); }
     
-    /* Botones principales */
-    button.main-btn { background: linear-gradient(90deg, rgba(139, 195, 74, 0.1), rgba(139, 195, 74, 0.05)); border: 1px solid var(--accent-main); color: var(--accent-main); padding: 12px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 15px; }
-    button.main-btn:hover { background: rgba(139, 195, 74, 0.2); box-shadow: 0 0 20px rgba(139, 195, 74, 0.4); }
-    
-    button.pause-btn { display: none; background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00; color: #ffaa00; padding: 10px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 13px; }
-    button.pause-btn:hover { background: rgba(255, 170, 0, 0.2); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
-    button.pause-btn.paused { background: rgba(255, 23, 68, 0.2); border-color: var(--danger-red); color: var(--danger-red); box-shadow: 0 0 15px rgba(255, 23, 68, 0.5); }
-    
-    /* Botones secundarios */
-    button.sec-btn { background: transparent; border: 1px solid #556947; color: #a3b894; padding: 8px; border-radius: 4px; font-family: 'Share Tech Mono', monospace; font-size: 11px; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 10px; text-transform: uppercase;}
-    button.sec-btn:hover { background: rgba(85, 105, 71, 0.3); color: #fff; border-color: #a3b894; }
-    
-    .status-text { font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
-    
-    .finger-telemetry { margin-bottom: 10px; }
-    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #a3b894; margin-bottom: 5px; }
-    .bar-container { height: 10px; background-color: var(--bar-empty); border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #2e3b1e; }
-    .bar-fill { height: 100%; width: 0%; background: var(--accent-main); transition: width 0.1s, background 0.1s; box-shadow: 0 0 10px rgba(139, 195, 74, 0.5); }
-    
-    /* Panel de calibración ocultable */
-    #calibration-wrapper { display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #2e3b1e; margin-top: 10px; }
-    .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
-    .calib-label { width: 60px; color: #f1f8e9; }
-    .slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #2e3b1e; outline: none; margin: 0 10px; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-main); cursor: pointer; box-shadow: 0 0 8px var(--accent-main); }
-    .calib-val { width: 30px; text-align: right; color: var(--accent-secondary); font-weight: bold;}
-    
-    .deco-line { position: absolute; background: var(--accent-main); opacity: 0.5; }
-    .deco-h { width: 30px; height: 2px; top: -1px; left: 20px; }
-    .deco-v { width: 2px; height: 30px; top: 20px; left: -1px; }
+    /* Botones Tácticos */
+    button {
+      font-family: 'Share Tech Mono', monospace;
+      text-transform: uppercase; letter-spacing: 2px;
+      cursor: pointer; transition: all 0.2s ease;
+      width: 100%; font-weight: bold;
+    }
 
-    /* Estilo para Logos USM y ELO */
-    #logos-container {
-      position: absolute; top: 15px; right: 20px; z-index: 100;
-      display: flex; align-items: center; gap: 15px; opacity: 0.9;
+    button.main-btn {
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid var(--neon-green); color: var(--neon-green);
+      padding: 12px; border-radius: 2px; font-size: 13px; margin-bottom: 15px;
     }
-    /* Logo USM se mantiene blanco */
-    #logos-container img.logo-blanco {
-      max-height: 35px;
-      filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(139, 195, 74, 0.8));
-      transition: 0.3s;
+    button.main-btn:hover {
+      background: rgba(0, 255, 65, 0.15);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+      text-shadow: 0 0 5px var(--neon-green);
     }
-    /* Logo ELO mantiene sus colores originales pero con glow */
-    #logos-container img.logo-color {
-      max-height: 40px; /* Un poco más grande para compensar proporciones */
-      filter: drop-shadow(0 0 5px rgba(139, 195, 74, 0.5));
-      transition: 0.3s;
+    
+    button.pause-btn {
+      display: none; background: rgba(255, 170, 0, 0.05); border: 1px solid #ffaa00;
+      color: #ffaa00; padding: 12px; border-radius: 2px;
+      margin-bottom: 15px; font-size: 13px;
     }
-    #logos-container img:hover { filter: drop-shadow(0 0 10px rgba(139, 195, 74, 1)); }
-    #logos-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-main); letter-spacing: 1px; }
+    button.pause-btn:hover { background: rgba(255, 170, 0, 0.15); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+    button.pause-btn.paused { background: rgba(255, 0, 60, 0.1); border-color: var(--alert-red); color: var(--alert-red); box-shadow: 0 0 15px rgba(255, 0, 60, 0.4); }
+    
+    button.sec-btn {
+      background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+      padding: 8px; border-radius: 2px; font-size: 10px; margin-bottom: 15px;
+    }
+    button.sec-btn:hover { color: var(--neon-green); border-color: var(--neon-green); background: rgba(0,255,65,0.05);}
+    
+    /* Estado de conexión */
+    .status-text { font-family: 'Share Tech Mono', monospace; font-size: 12px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* Barras de Telemetría */
+    .finger-telemetry { margin-bottom: 12px; }
+    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+    .bar-container { height: 6px; background-color: rgba(0,0,0,0.5); border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 1px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; width: 0%; background: var(--neon-green); transition: width 0.1s, background 0.1s; box-shadow: 0 0 8px var(--neon-green); }
+    
+    /* Panel de Ajustes */
+    #calibration-wrapper { display: none; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-hud); border-radius: 2px; margin-top: 10px; }
+    .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+    .calib-label { width: 60px; color: var(--text-muted); }
+    .slider { -webkit-appearance: none; width: 100%; height: 2px; background: var(--text-muted); outline: none; margin: 0 10px; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 10px; border-radius: 0; background: var(--neon-green); cursor: pointer; box-shadow: 0 0 5px var(--neon-green); }
+    .calib-val { width: 30px; text-align: right; color: var(--neon-green); }
+
+    /* Decoraciones Esquinas */
+    .deco-corner { position: absolute; width: 15px; height: 15px; border: 2px solid var(--neon-green); opacity: 0.5; }
+    .tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+    .tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+    .bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+    .br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+    /* Contenedor de Logos Refinado */
+    #header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; width: 100%; }
+    
+    #logos-wrapper {
+      display: flex; align-items: center; gap: 15px;
+      padding: 5px 15px; background: rgba(0, 255, 65, 0.05);
+      border: 1px solid var(--border-hud); border-radius: 4px;
+    }
+    
+    #logo-usm { max-height: 25px; filter: brightness(0) invert(1) opacity(0.8); transition: 0.3s; }
+    #logo-usm:hover { filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,0.8)); opacity: 1; }
+
+    #logo-elo { max-height: 28px; filter: grayscale(100%) brightness(200%) opacity(0.8); transition: 0.3s; }
+    #logo-elo:hover { filter: drop-shadow(0 0 8px var(--neon-green)); opacity: 1; }
+
+    .logo-sep { width: 1px; height: 20px; background: var(--border-hud); }
   </style>
 </head>
 <body>
 
   <div id="video-panel" class="panel">
-    <div class="deco-line deco-h"></div>
-    <div class="deco-line deco-v"></div>
+    <div class="deco-corner tl"></div><div class="deco-corner tr"></div>
+    <div class="deco-corner bl"></div><div class="deco-corner br"></div>
 
-    <div id="logos-container">
-        <span id="logos-label">POWERED BY</span>
-        <img src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" class="logo-blanco" alt="USM">
-        <img src="ELO.jpeg" class="logo-color" alt="ELO Logo">
+    <div id="header-container">
+      <div>
+        <h1>HANDTRACK // MASTER</h1>
+        <h4>SISTEMA DE TELEMETRÍA ÓPTICA</h4>
+      </div>
+      
+      <div id="logos-wrapper">
+        <img id="logo-usm" src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" alt="USM">
+        <div class="logo-sep"></div>
+        <img id="logo-elo" src="ELO.jpeg" alt="Depto. Electrónica USM">
+      </div>
     </div>
     
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; max-width: 60%;">
-      <h1>HANDTRACK // ELO MASTER</h1>
-    </div>
     <div id="camera-container">
       <video id="input_video" playsinline style="display:none"></video>
       <canvas id="output_canvas" width="640px" height="480px"></canvas>
@@ -119,13 +174,16 @@
   </div>
 
   <div id="control-panel" class="panel">
-    <button id="fullscreenBtn" class="sec-btn" onclick="toggleFullScreen()">⛶ PANTALLA COMPLETA</button>
-    <button id="connectBtn" class="main-btn">🔌 INICIAR SECUENCIA (USB)</button>
-    <button id="pauseBtn" class="pause-btn">⏸️ PAUSAR CÁMARA (STANDBY)</button>
+    <div class="deco-corner tl"></div><div class="deco-corner tr"></div>
+    <div class="deco-corner bl"></div><div class="deco-corner br"></div>
+
+    <button id="fullscreenBtn" class="sec-btn" onclick="toggleFullScreen()">[  PANTALLA COMPLETA  ]</button>
+    <button id="connectBtn" class="main-btn">INICIAR SECUENCIA (USB)</button>
+    <button id="pauseBtn" class="pause-btn">PAUSAR CÁMARA (STANDBY)</button>
     
     <div class="status-text">
-      <span style="color:#a3b894;">ENLACE DE DATOS:</span>
-      <span id="serialStatus" style="color:var(--danger-red); font-weight:bold; text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);">[ OFFLINE ]</span>
+      <span style="color:var(--text-muted);">ENLACE DE DATOS:</span>
+      <span id="serialStatus" style="color:var(--alert-red); font-weight:bold;">[ OFFLINE ]</span>
     </div>
     
     <hr>
@@ -133,7 +191,7 @@
     <div id="bars"></div>
 
     <hr>
-    <button id="toggleCalibBtn" class="sec-btn" onclick="toggleCalibracion()">⚙️ AJUSTES AVANZADOS ▼</button>
+    <button id="toggleCalibBtn" class="sec-btn" onclick="toggleCalibracion()">AJUSTES AVANZADOS ▼</button>
     
     <div id="calibration-wrapper">
       <h4>SENSIBILIDAD EN VIVO</h4>
@@ -142,22 +200,20 @@
   </div>
 
   <script>
-    // Pantalla Completa
     function toggleFullScreen() {
       if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } 
       else { if (document.exitFullscreen) { document.exitFullscreen(); } }
     }
 
-    // Toggle Panel de Calibración
     function toggleCalibracion() {
       const panel = document.getElementById('calibration-wrapper');
       const btn = document.getElementById('toggleCalibBtn');
       if (panel.style.display === 'none' || panel.style.display === '') {
         panel.style.display = 'block';
-        btn.innerHTML = "⚙️ AJUSTES AVANZADOS ▲";
+        btn.innerHTML = "AJUSTES AVANZADOS ▲";
       } else {
         panel.style.display = 'none';
-        btn.innerHTML = "⚙️ AJUSTES AVANZADOS ▼";
+        btn.innerHTML = "AJUSTES AVANZADOS ▼";
       }
     }
 
@@ -174,7 +230,7 @@
     NOMBRES_DEDOS.forEach((nombre, i) => {
       barsContainer.innerHTML += `
         <div class="finger-telemetry">
-          <div class="finger-info"><span style="color:#f1f8e9">${nombre}</span><span id="val-${i}">ABIERTO</span></div>
+          <div class="finger-info"><span style="color:var(--text-bright);">${nombre}</span><span id="val-${i}">ABIERTO</span></div>
           <div class="bar-container"><div class="bar-fill" id="bar-${i}"></div></div>
         </div>`;
     });
@@ -205,11 +261,11 @@
         document.getElementById('pauseBtn').style.display="block"; 
         
         document.getElementById('serialStatus').innerText="[ ONLINE / TX ]"; 
-        document.getElementById('serialStatus').style.color="var(--accent-main)";
-        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(139, 195, 74, 0.6)";
+        document.getElementById('serialStatus').style.color="var(--neon-green)";
+        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(0, 255, 65, 0.7)";
         
         camera.start();
-      } catch (err) { alert("Error: " + err); }
+      } catch (err) { alert("Error de conexión: " + err); }
     };
 
     document.getElementById('pauseBtn').onclick = () => {
@@ -217,11 +273,11 @@
       const btn = document.getElementById('pauseBtn');
       if (camaraPausada) {
         btn.classList.add('paused');
-        btn.innerHTML = "▶️ REANUDAR CÁMARA";
+        btn.innerHTML = "REANUDAR CÁMARA";
         targetAngles = [0, 0, 0, 0, 0]; 
       } else {
         btn.classList.remove('paused');
-        btn.innerHTML = "⏸️ PAUSAR CÁMARA (STANDBY)";
+        btn.innerHTML = "PAUSAR CÁMARA (STANDBY)";
       }
     };
 
@@ -247,15 +303,18 @@
         const bar = document.getElementById(`bar-${i}`);
         let porcentajeVisual = Math.min(100, (smoothedAngles[i] / 180) * 100);
         
-        document.getElementById(`val-${i}`).innerText = dedoCerrado ? "CERRADO" : "ABIERTO";
+        const textSpan = document.getElementById(`val-${i}`);
+        textSpan.innerText = dedoCerrado ? "CERRADO" : "ABIERTO";
         bar.style.width = porcentajeVisual + "%";
         
         if (dedoCerrado) {
-          bar.style.background = "var(--accent-secondary)";
-          bar.style.boxShadow = "0 0 10px rgba(158, 158, 158, 0.6)";
+          bar.style.background = "var(--alert-red)";
+          bar.style.boxShadow = "0 0 10px var(--alert-red)";
+          textSpan.style.color = "var(--alert-red)";
         } else {
-          bar.style.background = "var(--accent-main)";
-          bar.style.boxShadow = "0 0 10px rgba(139, 195, 74, 0.4)";
+          bar.style.background = "var(--neon-green)";
+          bar.style.boxShadow = "0 0 10px var(--neon-green)";
+          textSpan.style.color = "var(--neon-green)";
         }
       }
       
@@ -278,11 +337,11 @@
         ultimaVezMano = Date.now();
         const h = results.multiHandLandmarks[0];
         
-        let lineColor = camaraPausada ? 'rgba(255, 23, 68, 0.4)' : 'rgba(139, 195, 74, 0.6)';
-        let pointColor = camaraPausada ? 'rgba(255, 23, 68, 0.8)' : '#9E9E9E';
+        let lineColor = camaraPausada ? 'rgba(255, 0, 60, 0.4)' : 'rgba(0, 255, 65, 0.4)';
+        let pointColor = camaraPausada ? 'rgba(255, 0, 60, 0.8)' : '#00ff41';
         
-        drawConnectors(canvasCtx, h, HAND_CONNECTIONS, {color: lineColor, lineWidth: 4});
-        drawLandmarks(canvasCtx, h, {color: '#fff', fillColor: pointColor, lineWidth: 2, radius: 4});
+        drawConnectors(canvasCtx, h, HAND_CONNECTIONS, {color: lineColor, lineWidth: 3});
+        drawLandmarks(canvasCtx, h, {color: 'transparent', fillColor: pointColor, lineWidth: 0, radius: 3});
 
         if (!camaraPausada) {
           const mapear = (nudilloA, baseB, tipC, sensibilidadIndex) => {
