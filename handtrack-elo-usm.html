@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HandTrack Pro Master Edition - ELO USM HUD</title>
+  <title>HandTrack Pro Master - ELO USM</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   
@@ -14,138 +14,160 @@
   <style>
     :root {
       /* Paleta Táctica Neón */
-      --bg-deep: #010402;
-      --panel-bg: rgba(2, 10, 5, 0.85);
-      --neon-green: #00ff41;
-      --neon-green-dim: rgba(0, 255, 65, 0.2);
-      --alert-red: #ff003c;
-      --text-muted: #5b8c66;
-      --text-bright: #e0ffe8;
-      --border-hud: rgba(0, 255, 65, 0.25);
+      --bg-deep: #020603;
+      --panel-bg: rgba(4, 15, 8, 0.82);
+      --neon-green: #22d85d;
+      --neon-green-dim: rgba(34, 216, 93, 0.15);
+      --alert-red: #ff2a4b;
+      --text-muted: #6b9c7b;
+      --text-bright: #e4fceb;
+      --border-hud: rgba(34, 216, 93, 0.3);
     }
 
     body { 
       font-family: 'Rajdhani', sans-serif;
       background-color: var(--bg-deep); 
-      /* Cuadrícula de radar estilo HUD */
       background-image: 
+        radial-gradient(circle at 50% 50%, rgba(34, 216, 93, 0.05) 0%, transparent 60%),
         linear-gradient(var(--neon-green-dim) 1px, transparent 1px),
         linear-gradient(90deg, var(--neon-green-dim) 1px, transparent 1px);
-      background-size: 30px 30px;
-      color: var(--text-bright);
-      margin: 0; padding: 20px;
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text-bright); margin: 0; padding: 20px;
       display: flex; gap: 20px; height: 100vh;
       box-sizing: border-box; overflow: hidden;
     }
 
-    /* Efecto de Scanlines (Líneas de monitor CRT) */
+    /* Efecto Scanlines CRT */
     body::after {
       content: " ";
       display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-      z-index: 2; background-size: 100% 4px, 6px 100%; pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      z-index: 2; background-size: 100% 4px; pointer-events: none;
     }
     
-    h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; }
-    h1 { color: var(--neon-green); text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); font-size: 22px; }
-    h3 { color: var(--neon-green); font-size: 14px; margin-bottom: 12px; }
-    h4 { color: var(--text-muted); font-size: 11px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
+    h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    h1 { color: var(--neon-green); text-shadow: 0 0 12px rgba(34, 216, 93, 0.5); font-size: 24px; }
+    h3 { color: var(--neon-green); font-size: 15px; margin-bottom: 12px; }
+    h4 { color: var(--text-muted); font-size: 12px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
     hr { border: 0; border-top: 1px solid var(--border-hud); margin: 15px 0; }
     
     .panel {
       background-color: var(--panel-bg);
       border: 1px solid var(--border-hud);
-      border-radius: 4px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,255,65,0.02);
-      position: relative; padding: 20px; backdrop-filter: blur(8px);
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(34,216,93,0.05);
+      position: relative; padding: 20px; backdrop-filter: blur(10px);
       display: flex; flex-direction: column; z-index: 10;
     }
     
     #video-panel { flex: 1; position: relative; }
     #camera-container {
       position: relative; flex: 1; background-color: #000;
-      border-radius: 4px; border: 1px solid rgba(0, 255, 65, 0.15);
+      border-radius: 4px; border: 1px solid rgba(34, 216, 93, 0.2);
       overflow: hidden; transform: scaleX(-1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
     }
     canvas { width: 100%; height: 100%; object-fit: cover; }
     
     #control-panel { width: 340px; overflow-y: auto; }
     #control-panel::-webkit-scrollbar { width: 4px; }
-    #control-panel::-webkit-scrollbar-thumb { background: var(--neon-green); }
+    #control-panel::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 4px; }
     
     /* Botones Tácticos */
     button {
       font-family: 'Share Tech Mono', monospace;
       text-transform: uppercase; letter-spacing: 2px;
-      cursor: pointer; transition: all 0.2s ease;
+      cursor: pointer; transition: all 0.3s ease;
       width: 100%; font-weight: bold;
     }
 
     button.main-btn {
-      background: rgba(0, 255, 65, 0.05);
+      background: linear-gradient(90deg, rgba(34, 216, 93, 0.1), rgba(34, 216, 93, 0.02));
       border: 1px solid var(--neon-green); color: var(--neon-green);
-      padding: 12px; border-radius: 2px; font-size: 13px; margin-bottom: 15px;
+      padding: 14px; border-radius: 4px; font-size: 14px; margin-bottom: 15px;
+      position: relative; overflow: hidden;
     }
-    button.main-btn:hover {
-      background: rgba(0, 255, 65, 0.15);
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-      text-shadow: 0 0 5px var(--neon-green);
+    button.main-btn::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(34, 216, 93, 0.3), transparent);
+      transition: left 0.5s ease;
     }
+    button.main-btn:hover::before { left: 100%; }
+    button.main-btn:hover { box-shadow: 0 0 20px rgba(34, 216, 93, 0.4); text-shadow: 0 0 8px var(--neon-green); }
     
     button.pause-btn {
       display: none; background: rgba(255, 170, 0, 0.05); border: 1px solid #ffaa00;
-      color: #ffaa00; padding: 12px; border-radius: 2px;
+      color: #ffaa00; padding: 12px; border-radius: 4px;
       margin-bottom: 15px; font-size: 13px;
     }
     button.pause-btn:hover { background: rgba(255, 170, 0, 0.15); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
-    button.pause-btn.paused { background: rgba(255, 0, 60, 0.1); border-color: var(--alert-red); color: var(--alert-red); box-shadow: 0 0 15px rgba(255, 0, 60, 0.4); }
+    button.pause-btn.paused { background: rgba(255, 42, 75, 0.1); border-color: var(--alert-red); color: var(--alert-red); box-shadow: 0 0 15px rgba(255, 42, 75, 0.4); }
     
     button.sec-btn {
       background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-      padding: 8px; border-radius: 2px; font-size: 10px; margin-bottom: 15px;
+      padding: 10px; border-radius: 4px; font-size: 11px; margin-bottom: 15px;
     }
-    button.sec-btn:hover { color: var(--neon-green); border-color: var(--neon-green); background: rgba(0,255,65,0.05);}
+    button.sec-btn:hover { color: var(--neon-green); border-color: var(--neon-green); background: rgba(34, 216, 93, 0.05);}
     
-    /* Estado de conexión */
-    .status-text { font-family: 'Share Tech Mono', monospace; font-size: 12px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+    .status-text { font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; }
     
     /* Barras de Telemetría */
-    .finger-telemetry { margin-bottom: 12px; }
-    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
-    .bar-container { height: 6px; background-color: rgba(0,0,0,0.5); border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 1px; overflow: hidden; position: relative; }
-    .bar-fill { height: 100%; width: 0%; background: var(--neon-green); transition: width 0.1s, background 0.1s; box-shadow: 0 0 8px var(--neon-green); }
+    .finger-telemetry { margin-bottom: 14px; }
+    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .bar-container { height: 8px; background-color: rgba(0,0,0,0.6); border: 1px solid rgba(34, 216, 93, 0.2); border-radius: 2px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; width: 0%; background: var(--neon-green); transition: width 0.1s, background 0.1s; box-shadow: 0 0 10px rgba(34, 216, 93, 0.6); }
     
-    /* Panel de Ajustes */
-    #calibration-wrapper { display: none; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-hud); border-radius: 2px; margin-top: 10px; }
-    .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+    #calibration-wrapper { display: none; padding: 15px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-hud); border-radius: 4px; margin-top: 10px; }
+    .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; }
     .calib-label { width: 60px; color: var(--text-muted); }
-    .slider { -webkit-appearance: none; width: 100%; height: 2px; background: var(--text-muted); outline: none; margin: 0 10px; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 10px; border-radius: 0; background: var(--neon-green); cursor: pointer; box-shadow: 0 0 5px var(--neon-green); }
-    .calib-val { width: 30px; text-align: right; color: var(--neon-green); }
+    .slider { -webkit-appearance: none; width: 100%; height: 3px; background: var(--text-muted); outline: none; margin: 0 10px; border-radius: 2px; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--neon-green); cursor: pointer; box-shadow: 0 0 8px var(--neon-green); }
+    .calib-val { width: 30px; text-align: right; color: var(--neon-green); font-weight: bold; }
 
     /* Decoraciones Esquinas */
-    .deco-corner { position: absolute; width: 15px; height: 15px; border: 2px solid var(--neon-green); opacity: 0.5; }
+    .deco-corner { position: absolute; width: 20px; height: 20px; border: 2px solid var(--neon-green); opacity: 0.6; }
     .tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
     .tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
     .bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
     .br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-    /* Contenedor de Logos Refinado */
-    #header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; width: 100%; }
+    /* -------------------------------------- */
+    /* NUEVO BADGE INSTITUCIONAL HUD          */
+    /* -------------------------------------- */
+    #header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; width: 100%; }
     
-    #logos-wrapper {
+    .inst-badge {
       display: flex; align-items: center; gap: 15px;
-      padding: 5px 15px; background: rgba(0, 255, 65, 0.05);
-      border: 1px solid var(--border-hud); border-radius: 4px;
+      background: linear-gradient(135deg, rgba(34, 216, 93, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%);
+      border: 1px solid var(--border-hud);
+      border-radius: 6px; padding: 10px 18px;
+      box-shadow: 0 0 15px rgba(34, 216, 93, 0.1);
+      backdrop-filter: blur(5px);
     }
-    
-    #logo-usm { max-height: 25px; filter: brightness(0) invert(1) opacity(0.8); transition: 0.3s; }
-    #logo-usm:hover { filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,0.8)); opacity: 1; }
 
-    #logo-elo { max-height: 28px; filter: grayscale(100%) brightness(200%) opacity(0.8); transition: 0.3s; }
-    #logo-elo:hover { filter: drop-shadow(0 0 8px var(--neon-green)); opacity: 1; }
+    /* Escudo SVG Geométrico Estilizado */
+    .inst-shield {
+      width: 26px; height: 30px;
+      color: var(--neon-green);
+      filter: drop-shadow(0 0 4px var(--neon-green));
+    }
 
-    .logo-sep { width: 1px; height: 20px; background: var(--border-hud); }
+    /* Texto Tipográfico */
+    .inst-text { display: flex; flex-direction: column; justify-content: center; line-height: 1.3; }
+    .inst-uni { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-bright); letter-spacing: 1.5px; }
+    .inst-dept { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--neon-green); letter-spacing: 1px; }
+    .badge-sep { width: 1px; height: 35px; background: var(--border-hud); box-shadow: 0 0 5px var(--neon-green-dim); }
+
+    /* MAGIA CSS: Invertimos el fondo blanco y lo teñimos de Neón */
+    #logo-elo {
+      max-height: 32px;
+      /* 1. Invertir colores, 2. Escala grises, 3. Brillo, 4/5. Teñir de verde neón */
+      filter: invert(1) grayscale(100%) brightness(1.8) sepia(1) hue-rotate(85deg) saturate(500%) drop-shadow(0 0 3px rgba(34,216,93,0.5));
+      mix-blend-mode: screen; /* Elimina el fondo volviéndolo 100% transparente en panel oscuro */
+      transition: all 0.3s ease;
+    }
+    #logo-elo:hover { filter: invert(1) grayscale(100%) brightness(2.2) sepia(1) hue-rotate(85deg) saturate(600%) drop-shadow(0 0 8px rgba(34,216,93,1)); }
+
   </style>
 </head>
 <body>
@@ -160,10 +182,24 @@
         <h4>SISTEMA DE TELEMETRÍA ÓPTICA</h4>
       </div>
       
-      <div id="logos-wrapper">
-        <img id="logo-usm" src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" alt="USM">
-        <div class="logo-sep"></div>
-        <img id="logo-elo" src="ELO.jpeg" alt="Depto. Electrónica USM">
+      <div class="inst-badge">
+        
+        <svg class="inst-shield" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5 L90 25 L90 70 L50 115 L10 70 L10 25 Z" fill="rgba(34, 216, 93, 0.1)" stroke="currentColor" stroke-width="4"/>
+          <path d="M50 20 L75 32 L75 62 L50 90 L25 62 L25 32 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="50" cy="55" r="8" fill="currentColor"/>
+          <line x1="50" y1="20" x2="50" y2="90" stroke="currentColor" stroke-width="2"/>
+          <line x1="25" y1="47" x2="75" y2="47" stroke="currentColor" stroke-width="2"/>
+        </svg>
+
+        <div class="inst-text">
+          <span class="inst-uni">UNIV. TÉCNICA FEDERICO SANTA MARÍA</span>
+          <span class="inst-dept">DEPTO. DE ELECTRÓNICA // ELO</span>
+        </div>
+
+        <div class="badge-sep"></div>
+        
+        <img id="logo-elo" src="ELO.jpeg" alt="ELO">
       </div>
     </div>
     
@@ -262,7 +298,7 @@
         
         document.getElementById('serialStatus').innerText="[ ONLINE / TX ]"; 
         document.getElementById('serialStatus').style.color="var(--neon-green)";
-        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(0, 255, 65, 0.7)";
+        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(34, 216, 93, 0.7)";
         
         camera.start();
       } catch (err) { alert("Error de conexión: " + err); }
@@ -337,8 +373,8 @@
         ultimaVezMano = Date.now();
         const h = results.multiHandLandmarks[0];
         
-        let lineColor = camaraPausada ? 'rgba(255, 0, 60, 0.4)' : 'rgba(0, 255, 65, 0.4)';
-        let pointColor = camaraPausada ? 'rgba(255, 0, 60, 0.8)' : '#00ff41';
+        let lineColor = camaraPausada ? 'rgba(255, 42, 75, 0.4)' : 'rgba(34, 216, 93, 0.4)';
+        let pointColor = camaraPausada ? 'rgba(255, 42, 75, 0.8)' : '#22d85d';
         
         drawConnectors(canvasCtx, h, HAND_CONNECTIONS, {color: lineColor, lineWidth: 3});
         drawLandmarks(canvasCtx, h, {color: 'transparent', fillColor: pointColor, lineWidth: 0, radius: 3});
