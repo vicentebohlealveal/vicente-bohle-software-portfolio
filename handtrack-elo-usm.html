@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HandTrack Pro Master Edition - ELO USM HUD</title>
+  <title>HandTrack Pro Master Edition - ELO HUD</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   
@@ -13,130 +13,88 @@
 
   <style>
     :root {
-      --bg-color: #020805;
-      --panel-color: rgba(8, 20, 12, 0.88);
-      --accent-cyan: #39d353;
-      --accent-orange: #ff3366;
-      --text-main: #d4f5dc;
-      --bar-empty: #0a1f0e;
+      /* Nueva paleta ELO: Verde tecnológico y Gris */
+      --bg-color: #020502; 
+      --panel-color: rgba(12, 20, 12, 0.85); 
+      --accent-main: #8BC34A; /* Verde ELO */
+      --accent-secondary: #9E9E9E; /* Gris ELO */
+      --text-main: #f1f8e9; 
+      --bar-empty: #1b2614; 
       --danger-red: #ff1744;
-      --glass-border: rgba(57, 211, 83, 0.18);
+      --glass-border: rgba(139, 195, 74, 0.2);
     }
     body { 
-      font-family: 'Rajdhani', sans-serif;
-      background-color: var(--bg-color); 
-      background-image:
-        radial-gradient(circle at 50% 50%, rgba(57, 211, 83, 0.06) 0%, transparent 60%),
-        linear-gradient(rgba(57, 211, 83, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(57, 211, 83, 0.035) 1px, transparent 1px); 
-      background-size: 100% 100%, 40px 40px, 40px 40px;
-      color: var(--text-main); margin: 0; padding: 20px;
-      display: flex; gap: 20px; height: 100vh;
-      box-sizing: border-box; overflow: hidden;
+      font-family: 'Rajdhani', sans-serif; background-color: var(--bg-color); 
+      background-image: radial-gradient(circle at 50% 50%, rgba(139, 195, 74, 0.05) 0%, transparent 60%), linear-gradient(rgba(139, 195, 74, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 195, 74, 0.03) 1px, transparent 1px); 
+      background-size: 100% 100%, 40px 40px, 40px 40px; color: var(--text-main); margin: 0; padding: 20px; display: flex; gap: 20px; height: 100vh; box-sizing: border-box; overflow: hidden; backdrop-filter: blur(5px);
     }
     
     h1, h3, h4 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
-    h1 { color: var(--accent-cyan); text-shadow: 0 0 15px rgba(57, 211, 83, 0.65); font-size: 24px; }
-    h3 { color: var(--accent-cyan); font-size: 15px; margin-bottom: 10px; }
-    h4 { color: #6aab78; font-size: 12px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
+    h1 { color: var(--accent-main); text-shadow: 0 0 15px rgba(139, 195, 74, 0.6); font-size: 24px; }
+    h3 { color: var(--accent-main); font-size: 15px; margin-bottom: 10px; }
+    h4 { color: #a3b894; font-size: 12px; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; }
     hr { border: 0; border-top: 1px solid var(--glass-border); margin: 15px 0; }
     
-    .panel {
-      background-color: var(--panel-color);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.85), inset 0 0 20px rgba(57,211,83,0.04);
-      position: relative; padding: 15px; backdrop-filter: blur(10px);
-      display: flex; flex-direction: column;
-    }
+    .panel { background-color: var(--panel-color); border: 1px solid var(--glass-border); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(139, 195, 74, 0.05); position: relative; padding: 15px; backdrop-filter: blur(10px); display: flex; flex-direction: column;}
     
     #video-panel { flex: 1; position: relative; }
-    #camera-container {
-      position: relative; flex: 1; background-color: #000;
-      border-radius: 6px; border: 1px solid #0f2e14;
-      overflow: hidden; transform: scaleX(-1);
-      box-shadow: 0 0 25px rgba(0,0,0,0.6);
-    }
+    #camera-container { position: relative; flex: 1; background-color: #000; border-radius: 6px; border: 1px solid #2e3b1e; overflow: hidden; transform: scaleX(-1); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
     canvas { width: 100%; height: 100%; object-fit: cover; }
     
     #control-panel { width: 340px; overflow-y: auto; }
     #control-panel::-webkit-scrollbar { width: 5px; }
-    #control-panel::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 5px; }
+    #control-panel::-webkit-scrollbar-thumb { background: var(--accent-main); border-radius: 5px; }
     
-    button.main-btn {
-      background: linear-gradient(90deg, rgba(57, 211, 83, 0.12), rgba(57, 211, 83, 0.06));
-      border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
-      padding: 12px; border-radius: 6px; font-weight: 700;
-      font-family: 'Rajdhani', sans-serif; text-transform: uppercase;
-      letter-spacing: 2px; cursor: pointer; transition: 0.3s;
-      margin-bottom: 10px; width: 100%; font-size: 15px;
-    }
-    button.main-btn:hover {
-      background: rgba(57, 211, 83, 0.22);
-      box-shadow: 0 0 20px rgba(57, 211, 83, 0.45);
-    }
+    /* Botones principales */
+    button.main-btn { background: linear-gradient(90deg, rgba(139, 195, 74, 0.1), rgba(139, 195, 74, 0.05)); border: 1px solid var(--accent-main); color: var(--accent-main); padding: 12px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 15px; }
+    button.main-btn:hover { background: rgba(139, 195, 74, 0.2); box-shadow: 0 0 20px rgba(139, 195, 74, 0.4); }
     
-    button.pause-btn {
-      display: none; background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00;
-      color: #ffaa00; padding: 10px; border-radius: 6px; font-weight: 700;
-      font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; cursor: pointer;
-      transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 13px;
-    }
+    button.pause-btn { display: none; background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00; color: #ffaa00; padding: 10px; border-radius: 6px; font-weight: 700; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; width: 100%; font-size: 13px; }
     button.pause-btn:hover { background: rgba(255, 170, 0, 0.2); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
     button.pause-btn.paused { background: rgba(255, 23, 68, 0.2); border-color: var(--danger-red); color: var(--danger-red); box-shadow: 0 0 15px rgba(255, 23, 68, 0.5); }
     
-    button.sec-btn {
-      background: transparent; border: 1px solid #1e4228; color: #5a8c65;
-      padding: 8px; border-radius: 4px; font-family: 'Share Tech Mono', monospace;
-      font-size: 11px; cursor: pointer; transition: 0.3s; width: 100%;
-      margin-bottom: 10px; text-transform: uppercase;
-    }
-    button.sec-btn:hover { background: rgba(57, 211, 83, 0.1); color: #d4f5dc; border-color: var(--accent-cyan); }
+    /* Botones secundarios */
+    button.sec-btn { background: transparent; border: 1px solid #556947; color: #a3b894; padding: 8px; border-radius: 4px; font-family: 'Share Tech Mono', monospace; font-size: 11px; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 10px; text-transform: uppercase;}
+    button.sec-btn:hover { background: rgba(85, 105, 71, 0.3); color: #fff; border-color: #a3b894; }
     
     .status-text { font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
     
     .finger-telemetry { margin-bottom: 10px; }
-    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #5a8c65; margin-bottom: 5px; }
-    .bar-container { height: 10px; background-color: var(--bar-empty); border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #0f2e14; }
-    .bar-fill { height: 100%; width: 0%; background: #39d353; transition: width 0.1s, background 0.1s; box-shadow: 0 0 10px rgba(57, 211, 83, 0.55); }
+    .finger-info { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #a3b894; margin-bottom: 5px; }
+    .bar-container { height: 10px; background-color: var(--bar-empty); border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #2e3b1e; }
+    .bar-fill { height: 100%; width: 0%; background: var(--accent-main); transition: width 0.1s, background 0.1s; box-shadow: 0 0 10px rgba(139, 195, 74, 0.5); }
     
-    #calibration-wrapper { display: none; padding: 10px; background: rgba(0,0,0,0.35); border-radius: 6px; border: 1px solid #0f2e14; margin-top: 10px; }
+    /* Panel de calibración ocultable */
+    #calibration-wrapper { display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #2e3b1e; margin-top: 10px; }
     .calib-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
-    .calib-label { width: 60px; color: #d4f5dc; }
-    .slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #0f2e14; outline: none; margin: 0 10px; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 8px var(--accent-cyan); }
-    .calib-val { width: 30px; text-align: right; color: var(--accent-orange); font-weight: bold; }
+    .calib-label { width: 60px; color: #f1f8e9; }
+    .slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #2e3b1e; outline: none; margin: 0 10px; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-main); cursor: pointer; box-shadow: 0 0 8px var(--accent-main); }
+    .calib-val { width: 30px; text-align: right; color: var(--accent-secondary); font-weight: bold;}
     
-    .deco-line { position: absolute; background: var(--accent-cyan); opacity: 0.45; }
+    .deco-line { position: absolute; background: var(--accent-main); opacity: 0.5; }
     .deco-h { width: 30px; height: 2px; top: -1px; left: 20px; }
     .deco-v { width: 2px; height: 30px; top: 20px; left: -1px; }
 
+    /* Estilo para Logos USM y ELO */
     #logos-container {
       position: absolute; top: 15px; right: 20px; z-index: 100;
-      display: flex; align-items: center; gap: 12px; opacity: 0.92;
+      display: flex; align-items: center; gap: 15px; opacity: 0.9;
     }
-    #logo-usm {
-      max-height: 33px;
-      filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(57, 211, 83, 0.8));
+    /* Logo USM se mantiene blanco */
+    #logos-container img.logo-blanco {
+      max-height: 35px;
+      filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(139, 195, 74, 0.8));
       transition: 0.3s;
     }
-    #logo-usm:hover { filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(57, 211, 83, 1)); }
-
-    /* ELO logo: se muestra en color natural sobre fondo oscuro */
-    #logo-elo {
-      max-height: 38px;
-      filter: drop-shadow(0 0 6px rgba(57, 211, 83, 0.6));
+    /* Logo ELO mantiene sus colores originales pero con glow */
+    #logos-container img.logo-color {
+      max-height: 40px; /* Un poco más grande para compensar proporciones */
+      filter: drop-shadow(0 0 5px rgba(139, 195, 74, 0.5));
       transition: 0.3s;
     }
-    #logo-elo:hover { filter: drop-shadow(0 0 14px rgba(57, 211, 83, 0.95)) brightness(1.15); }
-
-    /* Separador vertical entre logos */
-    .logo-sep {
-      width: 1px; height: 30px;
-      background: var(--glass-border);
-    }
-
-    #logos-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-cyan); letter-spacing: 1px; }
+    #logos-container img:hover { filter: drop-shadow(0 0 10px rgba(139, 195, 74, 1)); }
+    #logos-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent-main); letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -147,13 +105,12 @@
 
     <div id="logos-container">
         <span id="logos-label">POWERED BY</span>
-        <img id="logo-usm" src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" alt="USM">
-        <div class="logo-sep"></div>
-        <img id="logo-elo" src="data:image/jpeg;base64,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" alt="Depto. Electrónica USM">
+        <img src="https://usm.cl/wp-content/uploads/2020/02/logo-usm-rgb-01.png" class="logo-blanco" alt="USM">
+        <img src="ELO.jpeg" class="logo-color" alt="ELO Logo">
     </div>
     
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; max-width: 60%;">
-      <h1>HANDTRACK // MASTER</h1>
+      <h1>HANDTRACK // ELO MASTER</h1>
     </div>
     <div id="camera-container">
       <video id="input_video" playsinline style="display:none"></video>
@@ -167,7 +124,7 @@
     <button id="pauseBtn" class="pause-btn">⏸️ PAUSAR CÁMARA (STANDBY)</button>
     
     <div class="status-text">
-      <span style="color:#3a5c42;">ENLACE DE DATOS:</span>
+      <span style="color:#a3b894;">ENLACE DE DATOS:</span>
       <span id="serialStatus" style="color:var(--danger-red); font-weight:bold; text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);">[ OFFLINE ]</span>
     </div>
     
@@ -185,11 +142,13 @@
   </div>
 
   <script>
+    // Pantalla Completa
     function toggleFullScreen() {
       if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } 
       else { if (document.exitFullscreen) { document.exitFullscreen(); } }
     }
 
+    // Toggle Panel de Calibración
     function toggleCalibracion() {
       const panel = document.getElementById('calibration-wrapper');
       const btn = document.getElementById('toggleCalibBtn');
@@ -215,7 +174,7 @@
     NOMBRES_DEDOS.forEach((nombre, i) => {
       barsContainer.innerHTML += `
         <div class="finger-telemetry">
-          <div class="finger-info"><span style="color:#d4f5dc">${nombre}</span><span id="val-${i}">ABIERTO</span></div>
+          <div class="finger-info"><span style="color:#f1f8e9">${nombre}</span><span id="val-${i}">ABIERTO</span></div>
           <div class="bar-container"><div class="bar-fill" id="bar-${i}"></div></div>
         </div>`;
     });
@@ -246,8 +205,8 @@
         document.getElementById('pauseBtn').style.display="block"; 
         
         document.getElementById('serialStatus').innerText="[ ONLINE / TX ]"; 
-        document.getElementById('serialStatus').style.color="#39d353";
-        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(57, 211, 83, 0.7)";
+        document.getElementById('serialStatus').style.color="var(--accent-main)";
+        document.getElementById('serialStatus').style.textShadow="0 0 10px rgba(139, 195, 74, 0.6)";
         
         camera.start();
       } catch (err) { alert("Error: " + err); }
@@ -292,11 +251,11 @@
         bar.style.width = porcentajeVisual + "%";
         
         if (dedoCerrado) {
-          bar.style.background = "var(--accent-orange)";
-          bar.style.boxShadow = "0 0 10px rgba(255, 51, 102, 0.6)";
+          bar.style.background = "var(--accent-secondary)";
+          bar.style.boxShadow = "0 0 10px rgba(158, 158, 158, 0.6)";
         } else {
-          bar.style.background = "#39d353";
-          bar.style.boxShadow = "0 0 10px rgba(57, 211, 83, 0.5)";
+          bar.style.background = "var(--accent-main)";
+          bar.style.boxShadow = "0 0 10px rgba(139, 195, 74, 0.4)";
         }
       }
       
@@ -319,8 +278,8 @@
         ultimaVezMano = Date.now();
         const h = results.multiHandLandmarks[0];
         
-        let lineColor = camaraPausada ? 'rgba(255, 23, 68, 0.4)' : 'rgba(57, 211, 83, 0.65)';
-        let pointColor = camaraPausada ? 'rgba(255, 23, 68, 0.8)' : '#ff3366';
+        let lineColor = camaraPausada ? 'rgba(255, 23, 68, 0.4)' : 'rgba(139, 195, 74, 0.6)';
+        let pointColor = camaraPausada ? 'rgba(255, 23, 68, 0.8)' : '#9E9E9E';
         
         drawConnectors(canvasCtx, h, HAND_CONNECTIONS, {color: lineColor, lineWidth: 4});
         drawLandmarks(canvasCtx, h, {color: '#fff', fillColor: pointColor, lineWidth: 2, radius: 4});
