@@ -184,6 +184,29 @@
   .ia-pin .stem{width:2px; height:14px;}
   .ia-pin .knob{width:12px; height:12px; border-radius:50%; margin-top:-1px; border:2px solid #0b0e12;}
   .checkbox-row-group{display:flex; gap:18px; flex-wrap:wrap; margin:8px 0;}
+
+  #ia-modal-overlay{
+    position:fixed; inset:0; background:rgba(4,6,9,0.72); z-index:100;
+    display:none; align-items:flex-start; justify-content:center;
+    padding:20px 12px 40px; overflow-y:auto;
+  }
+  #ia-modal-overlay.open{display:flex;}
+  #ia-modal{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    max-width:720px; width:100%; margin-top:16px;
+  }
+  #ia-modal .modal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 16px; border-bottom:1px solid var(--border); background:var(--panel-2);
+    border-radius:10px 10px 0 0;
+  }
+  #ia-modal .modal-head h2{font-size:15px; margin:0; font-weight:600;}
+  #ia-modal .modal-body{padding:16px;}
+  .modal-close-btn{
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    font-size:16px; line-height:1; cursor:pointer; padding:6px 10px; border-radius:6px; flex-shrink:0;
+  }
+  .modal-close-btn:hover{color:var(--text); border-color:var(--info);}
 </style>
 </head>
 <body>
@@ -306,45 +329,48 @@
     </div>
   </div>
 
-  <!-- MODO INTERACTIVO -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Modo interactivo: dibujo del patrón</h2>
-        <div class="sub">Arrastra los marcadores hasta la posición que mediste, en vez de tipear números</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row-fields">
-        <div class="field">
-          <label for="ia-target">Guardar mediciones en</label>
-          <select id="ia-target"></select>
+  <!-- MODO INTERACTIVO (modal aparte, no estorba el flujo rápido) -->
+  <div id="ia-modal-overlay">
+    <div id="ia-modal">
+      <div class="modal-head">
+        <div>
+          <h2>Modo interactivo: dibujo del patrón</h2>
+          <div class="sub" style="font-size:12px; color:var(--muted); margin-top:2px;">Arrastra los marcadores en vez de tipear — pensado para practicar, no para la corrida cronometrada</div>
         </div>
-        <div class="field">
-          <label for="ia-range">Rango visible del dibujo (± mm)</label>
-          <input type="number" inputmode="decimal" id="ia-range" value="80" step="any">
+        <button class="modal-close-btn" id="close-ia-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="row-fields">
+          <div class="field">
+            <label for="ia-target">Guardar mediciones en</label>
+            <select id="ia-target"></select>
+          </div>
+          <div class="field">
+            <label for="ia-range">Rango visible del dibujo (± mm)</label>
+            <input type="number" inputmode="decimal" id="ia-range" value="80" step="any">
+          </div>
         </div>
-      </div>
-      <div class="checkbox-row-group">
-        <div class="checkbox-row"><input type="checkbox" id="ia-include-m2" checked><label for="ia-include-m2">Incluir orden m=2</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="ia-include-x0"><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
-      </div>
+        <div class="checkbox-row-group">
+          <div class="checkbox-row"><input type="checkbox" id="ia-include-m2" checked><label for="ia-include-m2">Incluir orden m=2</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="ia-include-x0"><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
+        </div>
 
-      <div id="ia-track">
-        <svg id="ia-envelope" viewBox="0 0 1000 120" preserveAspectRatio="none"></svg>
-        <div id="ia-center-line"></div>
-        <div id="ia-center-label">centro (máximo central)</div>
-        <div id="ia-ticks"></div>
-        <div id="ia-pins"></div>
-      </div>
+        <div id="ia-track">
+          <svg id="ia-envelope" viewBox="0 0 1000 120" preserveAspectRatio="none"></svg>
+          <div id="ia-center-line"></div>
+          <div id="ia-center-label">centro (máximo central)</div>
+          <div id="ia-ticks"></div>
+          <div id="ia-pins"></div>
+        </div>
 
-      <div class="stat-grid" id="ia-readout"></div>
+        <div class="stat-grid" id="ia-readout"></div>
 
-      <div class="btn-row">
-        <button class="primary" id="ia-add-row">+ Agregar esta fila</button>
-        <button class="small" id="ia-reset">↺ Reiniciar marcadores</button>
+        <div class="btn-row">
+          <button class="primary" id="ia-add-row">+ Agregar esta fila</button>
+          <button class="small" id="ia-reset">↺ Reiniciar marcadores</button>
+        </div>
+        <p class="hint">Arrastra cada marcador (con el dedo o el mouse) hasta la posición en mm que corresponde a lo que mediste con tu regla real sobre el papel milimetrado. El dibujo del patrón es solo una referencia visual — no está a escala ni reemplaza tu medición física.</p>
       </div>
-      <p class="hint">Arrastra cada marcador (con el dedo o el mouse) hasta la posición en mm que corresponde a lo que mediste con tu regla real sobre el papel milimetrado. El dibujo del patrón es solo una referencia visual para orientarte sobre qué es cada franja — no está a escala ni reemplaza tu medición física.</p>
     </div>
   </div>
 
@@ -360,6 +386,7 @@
       <div id="experiments-container"></div>
       <div class="btn-row">
         <button class="primary" onclick="addExperiment()">+ Agregar experimento</button>
+        <button class="small" id="open-ia-modal">📐 Abrir modo interactivo (arrastrar)</button>
       </div>
       <p class="hint">
         Columnas por fila: posición del mínimo izquierdo y derecho de orden m=1 respecto a cualquier marca fija de la regla (obligatorio),
@@ -1202,8 +1229,26 @@ document.getElementById('ia-add-row').addEventListener('click', ()=>{
 });
 
 buildIaEnvelope();
-window.addEventListener('resize', renderIaTrack);
-renderIaTrack();
+window.addEventListener('resize', ()=>{
+  if (document.getElementById('ia-modal-overlay').classList.contains('open')) renderIaTrack();
+});
+
+function openIaModal(){
+  document.getElementById('ia-modal-overlay').classList.add('open');
+  // el modal estaba oculto (ancho 0), hay que remedir y redibujar recién ahora
+  requestAnimationFrame(renderIaTrack);
+}
+function closeIaModal(){
+  document.getElementById('ia-modal-overlay').classList.remove('open');
+}
+document.getElementById('open-ia-modal').addEventListener('click', openIaModal);
+document.getElementById('close-ia-modal').addEventListener('click', closeIaModal);
+document.getElementById('ia-modal-overlay').addEventListener('click', (e)=>{
+  if (e.target.id === 'ia-modal-overlay') closeIaModal();
+});
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape' && document.getElementById('ia-modal-overlay').classList.contains('open')) closeIaModal();
+});
 
 /* ---------- primer cálculo ---------- */
 recalcAll();
