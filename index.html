@@ -144,6 +144,10 @@
   .sticky-bar button{padding:5px 10px; font-size:12.5px;}
   .sticky-result-label{color:var(--muted); font-size:12px;}
   #sticky-result{font-family:var(--mono); font-size:18px; font-weight:700; color:var(--ok);}
+  #sticky-status{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--muted);}
+  #sticky-status.ok{color:var(--ok);}
+  #sticky-status.warn{color:var(--warn);}
+  #sticky-status.bad{color:var(--bad);}
   .modo-rapido-toggle{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted);}
   .modo-rapido-toggle input{width:auto;}
 
@@ -220,9 +224,11 @@
   </div>
   <div class="modo-rapido-toggle">
     <input type="checkbox" id="modo-rapido-toggle">
-    <label for="modo-rapido-toggle">Modo rápido (solo m=1)</label>
+    <label for="modo-rapido-toggle">Modo competencia (solo m=1)</label>
   </div>
   <div class="sticky-group">
+    <span class="sticky-result-label">Estado:</span>
+    <span id="sticky-status">Esperando datos</span>
     <span class="sticky-result-label">Grosor:</span>
     <span id="sticky-result">— µm</span>
   </div>
@@ -379,7 +385,7 @@
     <div class="card-head">
       <div>
         <h2>Mediciones del cabello</h2>
-        <div class="sub">Cada experimento = una tanda de 5 a 10 repeticiones (por observador, o por intento)</div>
+        <div class="sub">Cada experimento = una tanda de 5 a 10 repeticiones. m=1 calcula el resultado; m=2 sirve como verificación.</div>
       </div>
     </div>
     <div class="card-body">
@@ -405,7 +411,7 @@
       </div>
     </div>
     <div class="card-body">
-      <p class="hint">Referencia: el grosor de un cabello humano suele ir de 17 a 181 µm, típicamente entre 60 y 100 µm (varía según grosor natural del cabello). Si tu resultado se aleja mucho de ese orden de magnitud, probablemente hay un error de unidades (mm vs cm) o de montaje, no un cabello genuinamente distinto.</p>
+      <p class="hint">Referencia interna de la herramienta: 17–181 µm. Es solo una comprobación de orden de magnitud; el valor experimental debe juzgarse junto con la incertidumbre y la calidad del patrón observado.</p>
       <div class="result-box" id="final-box">
         <div class="big">— µm</div>
         <div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
@@ -413,7 +419,7 @@
       <div class="tablewrap" style="margin-top:14px;">
         <table id="summary-table">
           <thead>
-            <tr><th>Experimento</th><th>N</th><th>Media (µm)</th><th>Incert. combinada (µm)</th><th>Peso relativo</th></tr>
+            <tr><th>Experimento</th><th>N</th><th>Media (µm)</th><th>Incert. aleatoria (µm)</th><th>Incert. común (µm)</th><th>Total (µm)</th><th>Peso relativo</th></tr>
           </thead>
           <tbody id="summary-tbody"></tbody>
         </table>
@@ -511,7 +517,7 @@ function readConfig(){
 /* ---------- filas: cálculo genérico dado yL1,yR1,yL2,yR2,x0 ---------- */
 function computeRow(cfg, yL1, yR1, yL2, yR2, x0){
   const warnings = [];
-  const dy = cfg.res / 2; // incertidumbre de cada lectura individual
+  const dy = cfg.res / 2; // incertidumbre de lectura de cada marca (± mitad de división)
 
   if (isNaN(yL1) || isNaN(yR1)) return null;
 
@@ -519,7 +525,27 @@ function computeRow(cfg, yL1, yR1, yL2, yR2, x0){
   if (r1.a === null){ warnings.push({level:'bad', text:'Ángulo inválido en orden 1: revisa las unidades o el valor de L.'}); return { a:null, unc:null, warnings }; }
 
   const center1 = (yL1 + yR1) / 2;
-  let a = r1.a, unc = r1.unc;
+  let a = r1.a;
+
+  // Separamos la incertidumbre independiente (lecturas) de la común
+  // (L y lambda). Esto evita que repetir muchas veces haga desaparecer
+  // artificialmente una incertidumbre que es compartida por toda la sesión.
+  const sensitivity = (yL, yR, m)=>{
+    const hYL = Math.max(Math.abs(yL) * 1e-6, 1e-6);
+    const hYR = Math.max(Math.abs(yR) * 1e-6, 1e-6);
+    const hL  = Math.max(Math.abs(cfg.L) * 1e-6, 1e-9);
+    const hLam= Math.max(Math.abs(cfg.lambda) * 1e-6, 1e-6);
+    return {
+      dYl:(aFromRaw(yL+hYL,yR,cfg.L,cfg.lambda,m)-aFromRaw(yL-hYL,yR,cfg.L,cfg.lambda,m))/(2*hYL),
+      dYr:(aFromRaw(yL,yR+hYR,cfg.L,cfg.lambda,m)-aFromRaw(yL,yR-hYR,cfg.L,cfg.lambda,m))/(2*hYR),
+      dL:(aFromRaw(yL,yR,cfg.L+hL,cfg.lambda,m)-aFromRaw(yL,yR,cfg.L-hL,cfg.lambda,m))/(2*hL),
+      dLam:(aFromRaw(yL,yR,cfg.L,cfg.lambda+hLam,m)-aFromRaw(yL,yR,cfg.L,cfg.lambda-hLam,m))/(2*hLam)
+    };
+  };
+  const s1 = sensitivity(yL1,yR1,1);
+  const uRead = Math.sqrt((s1.dYl*dy)**2 + (s1.dYr*dy)**2);
+  const uCommon = Math.sqrt((s1.dL*cfg.dL)**2 + (s1.dLam*cfg.dlambda)**2);
+  const uRow = Math.sqrt(uRead**2 + uCommon**2);
 
   const haveOrder2 = !isNaN(yL2) && !isNaN(yR2);
   if (haveOrder2){
@@ -529,13 +555,13 @@ function computeRow(cfg, yL1, yR1, yL2, yR2, x0){
       const diff = Math.abs(r1.a - r2.a);
       const combinedSigma = Math.sqrt(r1.unc**2 + r2.unc**2);
       if (combinedSigma > 0 && diff > 2*combinedSigma){
-        warnings.push({level:'warn', text:`Orden 1 (${r1.a.toFixed(1)} µm) y orden 2 (${r2.a.toFixed(1)} µm) no concuerdan dentro de su incertidumbre: revisa alineación o simetría del patrón.`});
+        warnings.push({level:'warn', text:`Orden 1 (${r1.a.toFixed(1)} µm) y orden 2 (${r2.a.toFixed(1)} µm) no concuerdan dentro de su incertidumbre: revisa alineación o identificación de los mínimos.`});
+      } else {
+        warnings.push({level:'info', text:`m=2 es consistente con m=1 (${r2.a.toFixed(1)} µm); se usa solo como verificación.`});
       }
       if (Math.abs(center1 - center2) > cfg.tol){
-        warnings.push({level:'warn', text:`El centro estimado por orden 1 (${center1.toFixed(2)} mm) y por orden 2 (${center2.toFixed(2)} mm) difieren ${Math.abs(center1-center2).toFixed(2)} mm: posible desalineación del montaje.`});
+        warnings.push({level:'warn', text:`El centro de m=1 (${center1.toFixed(2)} mm) y m=2 (${center2.toFixed(2)} mm) difieren ${Math.abs(center1-center2).toFixed(2)} mm: posible desalineación.`});
       }
-      a = (r1.a + r2.a) / 2;
-      unc = Math.sqrt(r1.unc**2 + r2.unc**2) / 2;
     }
   }
 
@@ -545,7 +571,7 @@ function computeRow(cfg, yL1, yR1, yL2, yR2, x0){
     }
   }
 
-  return { a, unc, warnings };
+  return { a, unc:uRow, uRead, uCommon, dL:s1.dL, dLam:s1.dLam, warnings, center:center1, m2Checked:haveOrder2 };
 }
 
 /* ---------- CONFIG: mostrar/ocultar bloque de calibración ---------- */
@@ -697,6 +723,24 @@ function resetTimer(){
 }
 updateTimerDisplay();
 
+/* ---------- Enter rápido dentro de una fila de medición ---------- */
+document.addEventListener('keydown',(e)=>{
+  if(e.key!=='Enter' || e.target.tagName!=='INPUT' || !e.target.closest('.exp-card')) return;
+  e.preventDefault();
+  const row = e.target.closest('tr');
+  const fields = Array.from(row.querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
+  const i = fields.indexOf(e.target);
+  if(i >= 0 && i < fields.length-1){
+    fields[i+1].focus(); fields[i+1].select(); return;
+  }
+  const rows = Array.from(row.parentElement.querySelectorAll('tr'));
+  const ri = rows.indexOf(row);
+  if(ri >= 0 && ri < rows.length-1){
+    const next = Array.from(rows[ri+1].querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
+    if(next[0]){ next[0].focus(); next[0].select(); }
+  }
+});
+
 /* ---------- avanzar de campo con Enter (solo entre inputs visibles) ---------- */
 document.addEventListener('keydown', (e)=>{
   if (e.key !== 'Enter') return;
@@ -792,6 +836,7 @@ function recalcAll(){
   /* --- experimentos --- */
   const expCards = [...document.querySelectorAll('.exp-card')];
   const experimentResults = [];
+  const rawRows = [];
 
   expCards.forEach(card=>{
     const name = card.querySelector('.exp-name').value.trim() || `Experimento`;
@@ -809,10 +854,18 @@ function recalcAll(){
       if (res && res.a !== null){
         resCell.textContent = res.a.toFixed(2) + ' ± ' + res.unc.toFixed(2);
         values.push(res);
+        rawRows.push({
+          experiment:name, row:tr.dataset.row||'', yl1,yr1,yl2,yr2,x0,
+          a:res.a, unc:res.unc, uRead:res.uRead, uCommon:res.uCommon
+        });
         if (res.warnings.length){
-          flagCell.textContent = '⚠';
+          const hasRealWarning = res.warnings.some(w=>w.level==='warn'||w.level==='bad');
+          flagCell.textContent = hasRealWarning ? '⚠' : '✓';
           flagCell.title = res.warnings.map(w=>w.text).join(' / ');
-          res.warnings.forEach(w=> allWarnings.push({level:w.level, text:`[${name}, fila] ${w.text}`}));
+          res.warnings.forEach(w=>{
+            // La validación informativa de m=2 no llena el panel de alertas.
+            if (w.level !== 'info') allWarnings.push({level:w.level, text:`[${name}, fila ${tr.dataset.row||''}] ${w.text}`});
+          });
         } else {
           flagCell.textContent = '';
           flagCell.title = '';
@@ -828,47 +881,55 @@ function recalcAll(){
       const aVals = values.map(v=>v.a);
       const m = mean(aVals);
       const std = sampleStd(aVals, m);
-      const sem = values.length > 1 ? std/Math.sqrt(values.length) : mean(values.map(v=>v.unc));
-      const instrUnc = Math.sqrt(values.reduce((s,v)=>s+v.unc**2,0)) / values.length;
-      const totalUnc = Math.sqrt(sem**2 + instrUnc**2);
+      const repeatUnc = values.length > 1 ? std/Math.sqrt(values.length) : 0;
+      const readMeanUnc = Math.sqrt(values.reduce((s,v)=>s+v.uRead**2,0)) / values.length;
+      const dLMean = values.reduce((s,v)=>s+v.dL,0) / values.length;
+      const dLamMean = values.reduce((s,v)=>s+v.dLam,0) / values.length;
+      const commonUnc = Math.sqrt((dLMean*cfg.dL)**2 + (dLamMean*cfg.dlambda)**2);
+      const randomUnc = Math.sqrt(repeatUnc**2 + readMeanUnc**2);
+      const totalUnc = Math.sqrt(randomUnc**2 + commonUnc**2);
       statsDiv.innerHTML = `
         <div class="stat"><div class="k">N mediciones</div><div class="v">${values.length}</div></div>
-        <div class="stat"><div class="k">Media</div><div class="v">${m.toFixed(2)} µm</div></div>
-        <div class="stat"><div class="k">Desv. estándar</div><div class="v">${std.toFixed(2)} µm</div></div>
-        <div class="stat"><div class="k">Incert. combinada</div><div class="v">± ${totalUnc.toFixed(2)} µm</div></div>`;
-      experimentResults.push({ name, n: values.length, mean: m, unc: totalUnc });
+        <div class="stat"><div class="k">Media m=1</div><div class="v">${m.toFixed(2)} µm</div></div>
+        <div class="stat"><div class="k">Incert. aleatoria</div><div class="v">± ${randomUnc.toFixed(2)} µm</div></div>
+        <div class="stat"><div class="k">Incert. común</div><div class="v">± ${commonUnc.toFixed(2)} µm</div></div>
+        <div class="stat"><div class="k">Incert. total</div><div class="v">± ${totalUnc.toFixed(2)} µm</div></div>`;
+      experimentResults.push({ name, n: values.length, mean: m, unc: totalUnc, uRandom:randomUnc, uCommon:commonUnc, dL:dLMean, dLam:dLamMean });
       if (values.length < 5){
-        allWarnings.push({level:'info', text:`"${name}" tiene solo ${values.length} repeticiones; se recomiendan entre 5 y 10 para un promedio confiable.`});
+        allWarnings.push({level:'info', text:`"${name}" tiene solo ${values.length} repeticiones; para la competencia conviene completar al menos 5.`});
       }
     } else {
       statsDiv.innerHTML = `<div class="stat"><div class="k">Estado</div><div class="v">Sin datos</div></div>`;
     }
   });
 
-  /* --- combinación final ponderada --- */
+  /* --- combinación final: la parte aleatoria baja con N; la común no --- */
   const finalBox = document.getElementById('final-box');
   const summaryBody = document.getElementById('summary-tbody');
   summaryBody.innerHTML = '';
-
-  const usable = experimentResults.filter(e => e.unc > 0);
-  const zeroUncFallback = experimentResults.filter(e => !(e.unc > 0));
-
   const stickyResult = document.getElementById('sticky-result');
+  const stickyStatus = document.getElementById('sticky-status');
 
   if (experimentResults.length === 0){
     finalBox.innerHTML = `<div class="big">— µm</div><div class="small">Agrega al menos un experimento con datos para ver el resultado</div>`;
     stickyResult.textContent = '— µm';
+    stickyStatus.textContent = 'Esperando datos';
+    stickyStatus.className = '';
   } else {
-    let weightedMean, combinedUnc;
-    const weights = experimentResults.map(e => e.unc > 0 ? 1/(e.unc**2) : 1);
+    const usable = experimentResults.filter(e => e.uRandom > 0);
+    const weights = experimentResults.map(e => e.uRandom > 0 ? 1/(e.uRandom**2) : 1);
     const sumW = weights.reduce((s,w)=>s+w,0);
-    weightedMean = experimentResults.reduce((s,e,i)=> s + e.mean*weights[i], 0) / sumW;
-    combinedUnc = 1/Math.sqrt(weights.reduce((s,w)=>s+w,0));
+    const weightedMean = experimentResults.reduce((s,e,i)=>s + e.mean*weights[i],0)/sumW;
+    const randomFinal = usable.length ? 1/Math.sqrt(usable.reduce((s,e)=>s + 1/(e.uRandom**2),0)) : 0;
+    const dLFinal = experimentResults.reduce((s,e,i)=>s + (weights[i]/sumW)*e.dL,0);
+    const dLamFinal = experimentResults.reduce((s,e,i)=>s + (weights[i]/sumW)*e.dLam,0);
+    const commonFinal = Math.sqrt((dLFinal*cfg.dL)**2 + (dLamFinal*cfg.dlambda)**2);
+    const combinedUnc = Math.sqrt(randomFinal**2 + commonFinal**2);
 
     experimentResults.forEach((e,i)=>{
       const pct = (weights[i]/sumW*100).toFixed(1);
       summaryBody.insertAdjacentHTML('beforeend', `<tr>
-        <td>${e.name}</td><td>${e.n}</td><td>${e.mean.toFixed(2)}</td><td>${e.unc.toFixed(2)}</td><td>${pct}%</td>
+        <td>${e.name}</td><td>${e.n}</td><td>${e.mean.toFixed(2)}</td><td>${e.uRandom.toFixed(2)}</td><td>${e.uCommon.toFixed(2)}</td><td>${e.unc.toFixed(2)}</td><td>${pct}%</td>
       </tr>`);
     });
 
@@ -876,17 +937,21 @@ function recalcAll(){
     if (calibration){
       finalVal = weightedMean * calibration.k;
       finalUnc = finalVal * Math.sqrt((combinedUnc/weightedMean)**2 + calibration.relUncK**2);
-      calNote = ` (corregido con k=${calibration.k.toFixed(3)})`;
+      calNote = ` · calibración k=${calibration.k.toFixed(3)}`;
     }
-
-    finalBox.innerHTML = `<div class="big">${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm</div>
-      <div class="small">Grosor estimado del cabello${calNote} · combinación ponderada de ${experimentResults.length} experimento(s)</div>`;
-    stickyResult.textContent = `${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm`;
 
     if (finalVal < 15 || finalVal > 200){
-      allWarnings.push({level:'warn', text:`El resultado final (${finalVal.toFixed(1)} µm) está fuera del rango típico de un cabello humano (17–180 µm aprox.). Vale la pena revisar el montaje antes de entregar este valor.`});
+      allWarnings.push({level:'warn', text:`El resultado final (${finalVal.toFixed(1)} µm) está muy alejado del rango de referencia usado por la herramienta (17–181 µm). Revisa unidades y montaje antes de entregar.`});
     }
 
+    const warningCount = allWarnings.filter(w=>w.level==='warn'||w.level==='bad').length;
+    const statusText = warningCount ? 'REVISAR' : (experimentResults.some(e=>e.n<5) ? 'FALTAN REPETICIONES' : 'CONSISTENTE');
+    stickyResult.textContent = `${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm`;
+    stickyStatus.textContent = statusText;
+    stickyStatus.className = warningCount ? (allWarnings.some(w=>w.level==='bad') ? 'bad':'warn') : (experimentResults.some(e=>e.n<5) ? 'warn':'ok');
+
+    finalBox.innerHTML = `<div class="big">${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm</div>
+      <div class="small">Resultado final basado en m=1 · ${experimentResults.length} experimento(s)${calNote}</div>`;
     drawChart(experimentResults, finalVal);
   }
 
@@ -900,7 +965,7 @@ function recalcAll(){
 
   refreshGraphicTargetOptions();
 
-  lastResults = { cfg, calibration, experimentResults, allWarnings };
+  lastResults = { cfg, calibration, experimentResults, allWarnings, rawRows };
 }
 
 /* ---------- gráfico simple de barras con error ---------- */
@@ -960,7 +1025,7 @@ function drawChart(experiments, finalVal){
 function exportCSV(){
   recalcAll();
   if (!lastResults) return;
-  const { cfg, calibration, experimentResults, allWarnings } = lastResults;
+  const { cfg, calibration, experimentResults, allWarnings, rawRows } = lastResults;
   let lines = [];
   lines.push('Medidor de grosor - Difraccion de Fraunhofer');
   lines.push('');
@@ -979,13 +1044,20 @@ function exportCSV(){
     lines.push(`unc_relativa_k,${calibration.relUncK.toFixed(5)}`);
     lines.push('');
   }
-  lines.push('Experimento,N,Media_um,Incertidumbre_um');
+  lines.push('Resumen_experimentos');
+  lines.push('Experimento,N,Media_um,U_aleatoria_um,U_comun_um,U_total_um');
   experimentResults.forEach(e=>{
-    lines.push(`${e.name},${e.n},${e.mean.toFixed(4)},${e.unc.toFixed(4)}`);
+    lines.push(`${csvEscape(e.name)},${e.n},${e.mean.toFixed(4)},${e.uRandom.toFixed(4)},${e.uCommon.toFixed(4)},${e.unc.toFixed(4)}`);
+  });
+  lines.push('');
+  lines.push('Datos_crudos_m1');
+  lines.push('Experimento,Fila,yIzq_m1_mm,yDer_m1_mm,yIzq_m2_mm,yDer_m2_mm,x0_mm,a_m1_um,U_m1_um,U_lectura_um,U_comun_um');
+  rawRows.forEach(r=>{
+    lines.push(`${csvEscape(r.experiment)},${r.row},${csvNum(r.yl1)},${csvNum(r.yr1)},${csvNum(r.yl2)},${csvNum(r.yr2)},${csvNum(r.x0)},${csvNum(r.a,4)},${csvNum(r.unc,4)},${csvNum(r.uRead,4)},${csvNum(r.uCommon,4)}`);
   });
   lines.push('');
   lines.push('Alertas');
-  allWarnings.forEach(w=> lines.push(`${w.level},"${w.text.replace(/"/g,'""')}"`));
+  allWarnings.forEach(w=> lines.push(`${w.level},${csvEscape(w.text)}`));
 
   const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
@@ -996,6 +1068,14 @@ function exportCSV(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function csvEscape(v){
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function csvNum(v, digits=6){
+  return Number.isFinite(v) ? Number(v).toFixed(digits) : '';
 }
 
 /* ---------- modo interactivo: dibujo del patrón con marcadores arrastrables ---------- */
