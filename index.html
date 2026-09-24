@@ -149,10 +149,40 @@
 
   body.modo-rapido .col-m2, body.modo-rapido .col-x0{display:none;}
 
-  #graphic-canvas{
-    max-width:100%; height:auto; display:block; margin-top:10px;
-    border:1px solid var(--border); border-radius:6px; background:#000; cursor:crosshair;
+  #ia-track{
+    position:relative; height:190px; margin-top:10px;
+    border:1px solid var(--border); border-radius:6px; background:#05070a; overflow:hidden;
   }
+  #ia-envelope{position:absolute; top:0; left:0; width:100%; height:62%;}
+  #ia-center-line{
+    position:absolute; top:0; bottom:26px; left:50%; width:0;
+    border-left:2px dashed rgba(255,255,255,0.28);
+  }
+  #ia-center-label{
+    position:absolute; top:4px; left:50%; transform:translateX(-50%);
+    font-size:10.5px; color:var(--muted); white-space:nowrap; pointer-events:none;
+  }
+  #ia-ticks{position:absolute; left:0; right:0; bottom:0; height:26px;}
+  .ia-tick{position:absolute; bottom:0; width:1px; background:var(--border);}
+  .ia-tick.major{height:14px;}
+  .ia-tick.minor{height:7px;}
+  .ia-tick-label{
+    position:absolute; bottom:14px; transform:translateX(-50%);
+    font-size:10px; color:var(--muted); font-family:var(--mono); white-space:nowrap;
+  }
+  #ia-pins{position:absolute; inset:0;}
+  .ia-pin{
+    position:absolute; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center;
+    cursor:grab; touch-action:none; user-select:none;
+  }
+  .ia-pin:active{cursor:grabbing;}
+  .ia-pin .flag{
+    padding:2px 6px; border-radius:4px; font-size:10.5px; font-family:var(--mono);
+    white-space:nowrap; color:#0b0e12; font-weight:700; margin-bottom:2px;
+  }
+  .ia-pin .stem{width:2px; height:14px;}
+  .ia-pin .knob{width:12px; height:12px; border-radius:50%; margin-top:-1px; border:2px solid #0b0e12;}
   .checkbox-row-group{display:flex; gap:18px; flex-wrap:wrap; margin:8px 0;}
 </style>
 </head>
@@ -276,45 +306,45 @@
     </div>
   </div>
 
-  <!-- MODO GRÁFICO -->
+  <!-- MODO INTERACTIVO -->
   <div class="card">
     <div class="card-head">
       <div>
-        <h2>Modo gráfico: marcar puntos sobre una foto</h2>
-        <div class="sub">Alternativa a tipear números: haz clic directo sobre la foto del patrón</div>
+        <h2>Modo interactivo: dibujo del patrón</h2>
+        <div class="sub">Arrastra los marcadores hasta la posición que mediste, en vez de tipear números</div>
       </div>
     </div>
     <div class="card-body">
       <div class="row-fields">
         <div class="field">
-          <label for="graphic-image">Foto del papel milimetrado con el patrón marcado</label>
-          <input type="file" id="graphic-image" accept="image/*">
+          <label for="ia-target">Guardar mediciones en</label>
+          <select id="ia-target"></select>
         </div>
         <div class="field">
-          <label for="graphic-target">Guardar mediciones en</label>
-          <select id="graphic-target"></select>
+          <label for="ia-range">Rango visible del dibujo (± mm)</label>
+          <input type="number" inputmode="decimal" id="ia-range" value="80" step="any">
         </div>
       </div>
-      <p class="hint" id="graphic-status">Carga una foto para empezar. Consejo: que la foto quede lo más de frente posible al papel, y que se vean con claridad dos marcas de la regla cuya distancia real conozcas (por ejemplo, 0 y 50 mm).</p>
-      <canvas id="graphic-canvas" style="display:none;"></canvas>
-      <div class="row-fields" id="graphic-calib-input" style="display:none; margin-top:10px;">
-        <div class="field">
-          <label for="graphic-calib-mm">Distancia real entre esos dos puntos (mm)</label>
-          <input type="number" inputmode="decimal" step="any" id="graphic-calib-mm" placeholder="Ej: 50">
-        </div>
+      <div class="checkbox-row-group">
+        <div class="checkbox-row"><input type="checkbox" id="ia-include-m2" checked><label for="ia-include-m2">Incluir orden m=2</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="ia-include-x0"><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
       </div>
-      <div class="checkbox-row-group" id="graphic-options" style="display:none;">
-        <div class="checkbox-row"><input type="checkbox" id="graphic-include-m2"><label for="graphic-include-m2">Incluir orden m=2</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="graphic-include-x0"><label for="graphic-include-x0">Incluir referencia visual x₀</label></div>
+
+      <div id="ia-track">
+        <svg id="ia-envelope" viewBox="0 0 1000 120" preserveAspectRatio="none"></svg>
+        <div id="ia-center-line"></div>
+        <div id="ia-center-label">centro (máximo central)</div>
+        <div id="ia-ticks"></div>
+        <div id="ia-pins"></div>
       </div>
+
+      <div class="stat-grid" id="ia-readout"></div>
+
       <div class="btn-row">
-        <button class="small" id="graphic-confirm-calib" style="display:none;">Confirmar calibración</button>
-        <button class="small" id="graphic-recalibrate" style="display:none;">Recalibrar</button>
-        <button class="primary small" id="graphic-start-row" style="display:none;">Comenzar nueva fila</button>
-        <button class="small" id="graphic-undo-point" style="display:none;">↺ Deshacer último punto</button>
-        <button class="small" id="graphic-cancel-row" style="display:none;">Cancelar fila</button>
+        <button class="primary" id="ia-add-row">+ Agregar esta fila</button>
+        <button class="small" id="ia-reset">↺ Reiniciar marcadores</button>
       </div>
-      <p class="hint">Si la foto no quedó perfectamente perpendicular no importa: las mediciones se proyectan sobre la misma línea que definen tus dos puntos de calibración, así que un poco de inclinación se corrige sola siempre que calibres sobre esa misma línea (ej. el borde de la regla).</p>
+      <p class="hint">Arrastra cada marcador (con el dedo o el mouse) hasta la posición en mm que corresponde a lo que mediste con tu regla real sobre el papel milimetrado. El dibujo del patrón es solo una referencia visual para orientarte sobre qué es cada franja — no está a escala ni reemplaza tu medición física.</p>
     </div>
   </div>
 
@@ -941,9 +971,9 @@ function exportCSV(){
   URL.revokeObjectURL(url);
 }
 
-/* ---------- modo gráfico: marcar mínimos con clics sobre una foto ---------- */
+/* ---------- modo interactivo: dibujo del patrón con marcadores arrastrables ---------- */
 function refreshGraphicTargetOptions(){
-  const sel = document.getElementById('graphic-target');
+  const sel = document.getElementById('ia-target');
   if (!sel) return;
   const prev = sel.value;
   const opts = [];
@@ -985,210 +1015,195 @@ function addGraphicRow(target, values){
   recalcAll();
 }
 
-const graphicState = {
-  img: null,
-  calibA: null, calibB: null,
-  scaleMmPerPx: null,
-  capturing: false,
-  steps: [], stepIndex: 0,
-  currentPoints: {},
-  history: []
+
+/* ---------- widget interactivo: marcadores arrastrables + dibujo ilustrativo ---------- */
+const iaPinDefs = [
+  { id:'yl1', label:'Mín. izq (m=1)', color:'#5aa9ff', top:'26%', defaultMm:-22, group:'req' },
+  { id:'yr1', label:'Mín. der (m=1)', color:'#5aa9ff', top:'26%', defaultMm: 22, group:'req' },
+  { id:'yl2', label:'Mín. izq (m=2)', color:'#ffb454', top:'52%', defaultMm:-42, group:'m2'  },
+  { id:'yr2', label:'Mín. der (m=2)', color:'#ffb454', top:'52%', defaultMm: 42, group:'m2'  },
+  { id:'x0',  label:'Centro visual x₀', color:'#35d399', top:'78%', defaultMm: 3, group:'x0'  }
+];
+const iaState = {
+  range: 80,
+  values: {}
 };
-const STEP_LABELS = {
-  yl1: 'mínimo izquierdo, orden m=1',
-  yr1: 'mínimo derecho, orden m=1',
-  yl2: 'mínimo izquierdo, orden m=2',
-  yr2: 'mínimo derecho, orden m=2',
-  x0: 'tu estimación visual del centro (x₀)'
-};
-const gCanvas = document.getElementById('graphic-canvas');
-const gCtx = gCanvas.getContext('2d');
+iaPinDefs.forEach(p => iaState.values[p.id] = p.defaultMm);
 
-function setGraphicStatus(msg){ document.getElementById('graphic-status').textContent = msg; }
+function iaIncluded(group){
+  if (group === 'req') return true;
+  if (group === 'm2') return document.getElementById('ia-include-m2').checked;
+  if (group === 'x0') return document.getElementById('ia-include-x0').checked;
+  return true;
+}
 
-function drawMarker(x, y, color, label){
-  gCtx.fillStyle = color;
-  gCtx.beginPath();
-  gCtx.arc(x, y, 5, 0, Math.PI*2);
-  gCtx.fill();
-  if (label){
-    gCtx.font = 'bold 11px sans-serif';
-    gCtx.fillStyle = '#0b0e12';
-    gCtx.fillText(label, x+7, y+4);
+function iaTrackWidth(){
+  return document.getElementById('ia-track').clientWidth;
+}
+function iaMmToPx(mm){
+  const W = iaTrackWidth();
+  return W/2 + (mm/iaState.range) * (W/2);
+}
+function iaPxToMm(px){
+  const W = iaTrackWidth();
+  return ((px - W/2) / (W/2)) * iaState.range;
+}
+
+function buildIaEnvelope(){
+  const svg = document.getElementById('ia-envelope');
+  const pts = [];
+  for (let x=0; x<=1000; x+=4){
+    const u = (x-500)/55 || 0.0001;
+    const intensity = Math.pow(Math.sin(u)/u, 2);
+    const y = 118 - 100*Math.min(intensity,1);
+    pts.push(x+','+y.toFixed(1));
   }
+  const d = `M0,120 L${pts.join(' L')} L1000,120 Z`;
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="iaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ff5a4a" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#ff5a4a" stop-opacity="0.05"/>
+      </linearGradient>
+    </defs>
+    <path d="${d}" fill="url(#iaGrad)"></path>`;
 }
 
-function redrawGraphicCanvas(){
-  if (!graphicState.img) return;
-  gCtx.clearRect(0,0,gCanvas.width,gCanvas.height);
-  gCtx.drawImage(graphicState.img, 0, 0, gCanvas.width, gCanvas.height);
-  graphicState.history.forEach(p=> drawMarker(p.x, p.y, p.color, p.short));
-  if (graphicState.calibA) drawMarker(graphicState.calibA.x, graphicState.calibA.y, '#ffb454', 'A');
-  if (graphicState.calibB){
-    drawMarker(graphicState.calibB.x, graphicState.calibB.y, '#ffb454', 'B');
-    gCtx.strokeStyle = '#ffb454';
-    gCtx.beginPath();
-    gCtx.moveTo(graphicState.calibA.x, graphicState.calibA.y);
-    gCtx.lineTo(graphicState.calibB.x, graphicState.calibB.y);
-    gCtx.stroke();
-  }
-  Object.keys(graphicState.currentPoints).forEach(label=>{
-    const p = graphicState.currentPoints[label];
-    drawMarker(p.x, p.y, '#35d399', label);
-  });
-}
-
-function toggleGraphicButtons(){
-  const calibrated = !!graphicState.scaleMmPerPx;
-  document.getElementById('graphic-recalibrate').style.display = graphicState.img ? 'inline-block' : 'none';
-  document.getElementById('graphic-options').style.display = (calibrated && !graphicState.capturing) ? 'flex' : 'none';
-  document.getElementById('graphic-start-row').style.display = (calibrated && !graphicState.capturing) ? 'inline-block' : 'none';
-  document.getElementById('graphic-undo-point').style.display = graphicState.capturing ? 'inline-block' : 'none';
-  document.getElementById('graphic-cancel-row').style.display = graphicState.capturing ? 'inline-block' : 'none';
-}
-
-document.getElementById('graphic-image').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    const img = new Image();
-    img.onload = ()=>{
-      graphicState.img = img;
-      graphicState.calibA = null; graphicState.calibB = null; graphicState.scaleMmPerPx = null;
-      graphicState.capturing = false; graphicState.history = [];
-      graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
-      const maxW = 900;
-      const w = Math.min(maxW, img.width);
-      const h = w * (img.height / img.width);
-      gCanvas.width = w; gCanvas.height = h;
-      gCanvas.style.display = 'block';
-      document.getElementById('graphic-calib-input').style.display = 'none';
-      document.getElementById('graphic-confirm-calib').style.display = 'none';
-      redrawGraphicCanvas();
-      setGraphicStatus('Paso 1 de calibración: haz clic en el primer punto de referencia conocido (ej. la marca de 0 mm de tu regla).');
-      toggleGraphicButtons();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-gCanvas.addEventListener('click', (e)=>{
-  if (!graphicState.img) return;
-  const rect = gCanvas.getBoundingClientRect();
-  const scaleX = gCanvas.width / rect.width;
-  const scaleY = gCanvas.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX;
-  const y = (e.clientY - rect.top) * scaleY;
-  handleGraphicClick(x, y);
-});
-
-function handleGraphicClick(x, y){
-  if (!graphicState.scaleMmPerPx){
-    if (!graphicState.calibA){
-      graphicState.calibA = {x,y};
-      setGraphicStatus('Paso 2 de calibración: haz clic en el segundo punto de referencia.');
-    } else if (!graphicState.calibB){
-      graphicState.calibB = {x,y};
-      setGraphicStatus('Ingresa la distancia real entre esos dos puntos y presiona "Confirmar calibración".');
-      document.getElementById('graphic-calib-input').style.display = 'grid';
-      document.getElementById('graphic-confirm-calib').style.display = 'inline-block';
+function buildIaTicks(){
+  const wrap = document.getElementById('ia-ticks');
+  wrap.innerHTML = '';
+  const W = iaTrackWidth();
+  const R = iaState.range;
+  let step = 10;
+  if (R > 150) step = 25;
+  else if (R > 60) step = 10;
+  else step = 5;
+  for (let mm = -Math.floor(R/step)*step; mm <= R; mm += step){
+    const px = iaMmToPx(mm);
+    if (px < 0 || px > W) continue;
+    const major = (Math.round(mm/step) % 2 === 0) || step >= 10;
+    const tick = document.createElement('div');
+    tick.className = 'ia-tick ' + (major ? 'major':'minor');
+    tick.style.left = px + 'px';
+    wrap.appendChild(tick);
+    if (major){
+      const lbl = document.createElement('div');
+      lbl.className = 'ia-tick-label';
+      lbl.style.left = px + 'px';
+      lbl.textContent = mm;
+      wrap.appendChild(lbl);
     }
-    redrawGraphicCanvas();
+  }
+}
+
+function renderIaPins(){
+  const wrap = document.getElementById('ia-pins');
+  wrap.innerHTML = '';
+  iaPinDefs.forEach(def=>{
+    if (!iaIncluded(def.group)) return;
+    const mm = iaState.values[def.id];
+    const px = iaMmToPx(mm);
+    const pin = document.createElement('div');
+    pin.className = 'ia-pin';
+    pin.style.left = px + 'px';
+    pin.style.top = def.top;
+    pin.dataset.id = def.id;
+    pin.innerHTML = `
+      <div class="flag" style="background:${def.color}">${def.label}: <span class="ia-val">${mm.toFixed(1)}</span> mm</div>
+      <div class="stem" style="background:${def.color}"></div>
+      <div class="knob" style="background:${def.color}"></div>`;
+    wrap.appendChild(pin);
+    pin.addEventListener('pointerdown', iaOnPointerDown);
+  });
+}
+
+function renderIaTrack(){
+  buildIaTicks();
+  renderIaPins();
+  updateIaReadout();
+}
+
+let iaDragId = null;
+function iaOnPointerDown(e){
+  const pin = e.currentTarget;
+  iaDragId = pin.dataset.id;
+  pin.setPointerCapture(e.pointerId);
+  pin.addEventListener('pointermove', iaOnPointerMove);
+  pin.addEventListener('pointerup', iaOnPointerUp);
+  pin.addEventListener('pointercancel', iaOnPointerUp);
+}
+function iaOnPointerMove(e){
+  if (!iaDragId) return;
+  const track = document.getElementById('ia-track');
+  const rect = track.getBoundingClientRect();
+  let px = e.clientX - rect.left;
+  px = Math.max(0, Math.min(rect.width, px));
+  const mm = iaPxToMm(px);
+  iaState.values[iaDragId] = mm;
+  const pin = e.currentTarget;
+  pin.style.left = px + 'px';
+  const valEl = pin.querySelector('.ia-val');
+  if (valEl) valEl.textContent = mm.toFixed(1);
+  updateIaReadout();
+}
+function iaOnPointerUp(e){
+  const pin = e.currentTarget;
+  pin.removeEventListener('pointermove', iaOnPointerMove);
+  pin.removeEventListener('pointerup', iaOnPointerUp);
+  pin.removeEventListener('pointercancel', iaOnPointerUp);
+  iaDragId = null;
+}
+
+function updateIaReadout(){
+  const cfg = readConfig();
+  const v = iaState.values;
+  const includeM2 = document.getElementById('ia-include-m2').checked;
+  const includeX0 = document.getElementById('ia-include-x0').checked;
+  const res = computeRow(cfg, v.yl1, v.yr1, includeM2 ? v.yl2 : NaN, includeM2 ? v.yr2 : NaN, includeX0 ? v.x0 : NaN);
+  const box = document.getElementById('ia-readout');
+  if (!res || res.a === null){
+    box.innerHTML = `<div class="stat"><div class="k">Estado</div><div class="v">Ajusta los marcadores</div></div>`;
     return;
   }
-  if (!graphicState.capturing) return;
-  const label = graphicState.steps[graphicState.stepIndex];
-  graphicState.currentPoints[label] = {x,y};
-  graphicState.stepIndex++;
-  redrawGraphicCanvas();
-  if (graphicState.stepIndex < graphicState.steps.length){
-    setGraphicStatus('Haz clic en: ' + STEP_LABELS[graphicState.steps[graphicState.stepIndex]] + '.');
-  } else {
-    finishGraphicRow();
-  }
+  let warnHtml = res.warnings.length
+    ? `<div class="stat" style="grid-column:1/-1;"><div class="k">Alertas de esta fila</div><div class="v" style="font-size:12px; color:var(--warn);">${res.warnings.map(w=>w.text).join('<br>')}</div></div>`
+    : '';
+  box.innerHTML = `
+    <div class="stat"><div class="k">a estimada (previsualización)</div><div class="v">${res.a.toFixed(2)} µm</div></div>
+    <div class="stat"><div class="k">Incertidumbre</div><div class="v">± ${res.unc.toFixed(2)} µm</div></div>
+    ${warnHtml}`;
 }
 
-document.getElementById('graphic-confirm-calib').addEventListener('click', ()=>{
-  const mm = parseFloat(document.getElementById('graphic-calib-mm').value);
-  if (!(mm > 0) || !graphicState.calibA || !graphicState.calibB){
-    alert('Ingresa una distancia real válida (mayor que 0).');
-    return;
-  }
-  const pxDist = Math.hypot(graphicState.calibB.x - graphicState.calibA.x, graphicState.calibB.y - graphicState.calibA.y);
-  graphicState.scaleMmPerPx = mm / pxDist;
-  document.getElementById('graphic-calib-input').style.display = 'none';
-  document.getElementById('graphic-confirm-calib').style.display = 'none';
-  setGraphicStatus(`Calibración lista (escala: ${graphicState.scaleMmPerPx.toFixed(4)} mm/px). Elige las opciones de la fila y presiona "Comenzar nueva fila".`);
-  toggleGraphicButtons();
+document.getElementById('ia-range').addEventListener('input', (e)=>{
+  const r = parseFloat(e.target.value);
+  iaState.range = (r > 0) ? r : 80;
+  renderIaTrack();
+});
+document.getElementById('ia-include-m2').addEventListener('change', renderIaTrack);
+document.getElementById('ia-include-x0').addEventListener('change', renderIaTrack);
+
+document.getElementById('ia-reset').addEventListener('click', ()=>{
+  iaPinDefs.forEach(p => iaState.values[p.id] = p.defaultMm);
+  renderIaTrack();
 });
 
-document.getElementById('graphic-recalibrate').addEventListener('click', ()=>{
-  graphicState.calibA = null; graphicState.calibB = null; graphicState.scaleMmPerPx = null;
-  graphicState.capturing = false; graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
-  document.getElementById('graphic-calib-input').style.display = 'none';
-  document.getElementById('graphic-confirm-calib').style.display = 'none';
-  redrawGraphicCanvas();
-  setGraphicStatus('Paso 1 de calibración: haz clic en el primer punto de referencia conocido.');
-  toggleGraphicButtons();
-});
-
-document.getElementById('graphic-start-row').addEventListener('click', ()=>{
-  const steps = ['yl1','yr1'];
-  if (document.getElementById('graphic-include-m2').checked) steps.push('yl2','yr2');
-  if (document.getElementById('graphic-include-x0').checked) steps.push('x0');
-  graphicState.steps = steps;
-  graphicState.stepIndex = 0;
-  graphicState.currentPoints = {};
-  graphicState.capturing = true;
-  setGraphicStatus('Haz clic en: ' + STEP_LABELS[steps[0]] + '.');
-  toggleGraphicButtons();
-  redrawGraphicCanvas();
-});
-
-document.getElementById('graphic-undo-point').addEventListener('click', ()=>{
-  if (!graphicState.capturing || graphicState.stepIndex === 0) return;
-  graphicState.stepIndex--;
-  const label = graphicState.steps[graphicState.stepIndex];
-  delete graphicState.currentPoints[label];
-  setGraphicStatus('Haz clic en: ' + STEP_LABELS[label] + '.');
-  redrawGraphicCanvas();
-});
-
-document.getElementById('graphic-cancel-row').addEventListener('click', ()=>{
-  graphicState.capturing = false; graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
-  setGraphicStatus('Fila cancelada. Presiona "Comenzar nueva fila" para intentar de nuevo.');
-  toggleGraphicButtons();
-  redrawGraphicCanvas();
-});
-
-function projectMm(p){
-  const A = graphicState.calibA, B = graphicState.calibB;
-  const ux = B.x - A.x, uy = B.y - A.y;
-  const len = Math.hypot(ux,uy);
-  const nx = ux/len, ny = uy/len;
-  const proj = (p.x - A.x)*nx + (p.y - A.y)*ny;
-  return proj * graphicState.scaleMmPerPx;
-}
-
-function finishGraphicRow(){
-  const values = {};
-  Object.keys(graphicState.currentPoints).forEach(label=>{
-    values[label] = projectMm(graphicState.currentPoints[label]);
+document.getElementById('ia-add-row').addEventListener('click', ()=>{
+  const target = document.getElementById('ia-target').value;
+  if (!target){ alert('Agrega primero un experimento (o activa la calibración) para guardar la fila.'); return; }
+  const includeM2 = document.getElementById('ia-include-m2').checked;
+  const includeX0 = document.getElementById('ia-include-x0').checked;
+  const v = iaState.values;
+  addGraphicRow(target, {
+    yl1: v.yl1, yr1: v.yr1,
+    yl2: includeM2 ? v.yl2 : undefined,
+    yr2: includeM2 ? v.yr2 : undefined,
+    x0: includeX0 ? v.x0 : undefined
   });
-  const target = document.getElementById('graphic-target').value;
-  Object.keys(graphicState.currentPoints).forEach(label=>{
-    const p = graphicState.currentPoints[label];
-    graphicState.history.push({x:p.x, y:p.y, color:'#35d399', short:label});
-  });
-  graphicState.capturing = false;
-  graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
-  addGraphicRow(target, values);
-  setGraphicStatus('Fila guardada ✓. Presiona "Comenzar nueva fila" para la siguiente repetición.');
-  toggleGraphicButtons();
-  redrawGraphicCanvas();
-}
+});
+
+buildIaEnvelope();
+window.addEventListener('resize', renderIaTrack);
+renderIaTrack();
 
 /* ---------- primer cálculo ---------- */
 recalcAll();
