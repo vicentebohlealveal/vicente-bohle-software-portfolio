@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Medidor de grosor · Difracción de Fraunhofer</title>
 <style>
   :root{
@@ -211,252 +212,347 @@
     font-size:16px; line-height:1; cursor:pointer; padding:6px 10px; border-radius:6px; flex-shrink:0;
   }
   .modal-close-btn:hover{color:var(--text); border-color:var(--info);}
+
+
+/* ===== Interfaz de competencia: escritorio tipo instrumento ===== */
+:root{
+  --workspace-gap:14px;
+  --sidebar-w:270px;
+  --guide-w:390px;
+}
+body{padding-bottom:40px;}
+.wrap{max-width:1420px; margin:0 auto; padding:12px 14px 28px;}
+header.top{margin:0 0 10px; display:flex; align-items:end; justify-content:space-between; gap:16px;}
+header.top h1{font-size:20px; margin:0;}
+header.top p{font-size:12px; margin:2px 0 0;}
+.app-layout{display:grid; grid-template-columns:var(--sidebar-w) minmax(0,1fr); gap:var(--workspace-gap); align-items:start;}
+.setup-sidebar{position:sticky; top:58px; align-self:start; max-height:calc(100vh - 74px); overflow:auto; padding-right:2px; scrollbar-width:thin;}
+.setup-sidebar .sidebar-title{font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--muted); margin:2px 2px 7px;}
+.setup-sidebar .card{margin-bottom:10px; border-radius:7px;}
+.setup-sidebar .card-head{padding:9px 11px;}
+.setup-sidebar .card-head h2{font-size:13px;}
+.setup-sidebar .card-head .sub{font-size:10.5px; line-height:1.25;}
+.setup-sidebar .card-body{padding:10px;}
+.setup-sidebar .row-fields{grid-template-columns:1fr 1fr; gap:7px 8px;}
+.setup-sidebar .field{margin-bottom:5px; min-width:0;}
+.setup-sidebar label{font-size:10.5px; line-height:1.2;}
+.setup-sidebar input[type=number], .setup-sidebar input[type=text], .setup-sidebar select{padding:7px 7px; font-size:12px;}
+.setup-sidebar .hint{font-size:10px; line-height:1.3; margin:7px 0 0;}
+.setup-sidebar #cal-block .row-fields{grid-template-columns:1fr;}
+.setup-sidebar #cal-block .tablewrap{max-height:250px; overflow:auto;}
+.setup-sidebar #cal-block table{min-width:500px;}
+.sidebar-tip{border:1px solid var(--border); background:var(--panel); border-radius:7px; padding:10px; font-size:10.5px; color:var(--muted); line-height:1.35;}
+.sidebar-tip strong{color:var(--text);}
+.main-stage{min-width:0;}
+.workbench{display:grid; grid-template-columns:minmax(0,1fr) var(--guide-w); gap:var(--workspace-gap); align-items:start;}
+.measurement-card{min-width:0; margin-bottom:0;}
+.measurement-card .card-head{padding:10px 12px;}
+.measurement-card .card-head h2{font-size:14px;}
+.measurement-card .card-head .sub{font-size:11px;}
+.measurement-card .card-body{padding:11px;}
+.measurement-head-tools{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+.measurement-head-tools .tool-pill{font-family:var(--mono); font-size:10.5px; color:var(--muted); border:1px solid var(--border); padding:4px 7px; border-radius:999px; background:var(--bg);}
+.measurement-card .exp-card{margin-bottom:10px;}
+.measurement-card .exp-head{padding:8px 9px;}
+.measurement-card .exp-head input[type=text]{max-width:190px; padding:6px 7px;}
+.measurement-card .exp-body{padding:8px;}
+.measurement-card table{min-width:620px;}
+.measurement-card tbody input{width:74px;}
+.measurement-card .stat-grid{gap:7px; margin-top:7px;}
+.measurement-card .stat{padding:6px 8px;}
+.measurement-card .stat .k{font-size:10px;}
+.measurement-card .stat .v{font-size:13px;}
+.measurement-card .btn-row{margin-top:7px;}
+.compact-instruction{margin:7px 0 0; font-size:10.5px; line-height:1.35; color:var(--muted);}
+#experiments-container{min-width:0;}
+
+/* Guía interactiva acoplada, ya no modal */
+#ia-modal-overlay{position:static; display:block; inset:auto; background:none; z-index:auto; padding:0; overflow:visible;}
+#ia-modal-overlay.ia-hidden{display:none;}
+#ia-modal{background:var(--panel); border:1px solid var(--border); border-radius:8px; max-width:none; width:100%; margin:0; overflow:hidden; box-shadow:none;}
+#ia-modal .modal-head{padding:10px 11px; border-radius:0;}
+#ia-modal .modal-head h2{font-size:13.5px;}
+#ia-modal .modal-head .sub{font-size:10.5px !important; line-height:1.3;}
+#ia-modal .modal-body{padding:10px;}
+#close-ia-modal{font-size:12px; padding:5px 7px;}
+.ia-guide-note{font-size:10.5px; color:var(--muted); line-height:1.35; padding:7px 8px; margin-bottom:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px;}
+.ia-guide-note strong{color:var(--text);}
+#ia-track{height:215px; margin-top:8px;}
+#ia-center-label{font-size:9.5px;}
+#ia-readout{grid-template-columns:1fr 1fr; gap:7px; margin-top:8px;}
+#ia-readout .stat{padding:7px 8px;}
+#ia-readout .stat .k{font-size:9.5px;}
+#ia-readout .stat .v{font-size:12px;}
+.ia-linkbar{display:flex; align-items:center; justify-content:space-between; gap:7px; margin-bottom:7px; flex-wrap:wrap;}
+.ia-linkbar select{flex:1; min-width:160px; padding:6px 7px; font-size:11.5px;}
+.ia-link-status{font-size:10px; color:var(--muted);}
+.ia-link-status.active{color:var(--ok);}
+.ia-actions{display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:8px;}
+.ia-actions button{width:100%;}
+button.linked{border-color:var(--ok);}
+.exp-tbody tr{transition:background .12s ease, box-shadow .12s ease;}
+.exp-tbody tr.active-row td{background:rgba(90,169,255,.08);}
+.exp-tbody tr.active-row td:first-child{box-shadow:inset 3px 0 0 var(--info);}
+.exp-tbody tr.active-row .res-a{font-weight:700;}
+.active-row-badge{font-size:10px; color:var(--info); font-family:var(--mono); margin-left:auto;}
+
+/* Resultado y diagnóstico bajo el banco de trabajo */
+.below-workbench{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr); gap:var(--workspace-gap); margin-top:var(--workspace-gap); align-items:start;}
+.below-workbench .card{margin-bottom:0;}
+.result-box{padding:13px;}
+.result-box .big{font-size:29px;}
+#summary-table{min-width:700px;}
+#chart{max-height:140px;}
+
+/* Barra superior más útil durante la corrida */
+.sticky-bar{position:sticky; top:0; z-index:50; padding:7px 12px; min-height:47px;}
+#timer-display{font-size:20px;}
+#sticky-result{font-size:17px;}
+
+/* En modo competencia, prioriza la tabla: oculta explicaciones largas, no la guía. */
+body.modo-rapido .compact-instruction,
+body.modo-rapido .measurement-card .exp-head .ghost-danger,
+body.modo-rapido .measurement-card .exp-undo-row{display:none;}
+body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
+
+/* Pantallas medianas */
+@media (max-width:1180px){
+  :root{--sidebar-w:235px; --guide-w:330px;}
+  .workbench{grid-template-columns:minmax(0,1fr) var(--guide-w);}
+  .below-workbench{grid-template-columns:1fr;}
+}
+@media (max-width:900px){
+  :root{--guide-w:auto;}
+  .app-layout{grid-template-columns:1fr;}
+  .setup-sidebar{position:static; max-height:none; overflow:visible;}
+  .setup-sidebar .card-body{padding:9px;}
+  .workbench{grid-template-columns:1fr;}
+  #ia-modal{margin-top:0;}
+  header.top{display:block;}
+}
+@media (max-width:620px){
+  .wrap{padding:9px 8px 24px;}
+  .sticky-bar{padding:6px 8px;}
+  .sticky-group{gap:5px;}
+  #sticky-status{display:none;}
+  .setup-sidebar .row-fields{grid-template-columns:1fr 1fr;}
+  .ia-actions{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
+
+
 <div class="sticky-bar">
-  <div class="sticky-group">
-    <span id="timer-display">05:00</span>
-    <button id="timer-start" class="small" onclick="startTimer()">Iniciar</button>
-    <button id="timer-pause" class="small" onclick="pauseTimer()" style="display:none;">Pausar</button>
-    <button id="timer-reset" class="small" onclick="resetTimer()">Reiniciar</button>
-  </div>
-  <div class="modo-rapido-toggle">
-    <input type="checkbox" id="modo-rapido-toggle">
-    <label for="modo-rapido-toggle">Modo competencia (solo m=1)</label>
-  </div>
-  <div class="sticky-group">
-    <span class="sticky-result-label">Estado:</span>
-    <span id="sticky-status">Esperando datos</span>
-    <span class="sticky-result-label">Grosor:</span>
-    <span id="sticky-result">— µm</span>
-  </div>
+<div class="sticky-group">
+<span id="timer-display">05:00</span>
+<button class="small" id="timer-start" onclick="startTimer()">Iniciar</button>
+<button class="small" id="timer-pause" onclick="pauseTimer()" style="display:none;">Pausar</button>
+<button class="small" id="timer-reset" onclick="resetTimer()">Reiniciar</button>
 </div>
-
-<div class="wrap">
-
-  <header class="top">
-    <h1>Medidor de grosor por difracción de Fraunhofer</h1>
-    <p>Principio de Babinet · a·sen(θ) = mλ · soporte de PVC, FIS140</p>
-  </header>
-
-  <!-- CONFIGURACIÓN -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Configuración del montaje</h2>
-        <div class="sub">Estos valores son los mismos para todas las mediciones de esta sesión</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row-fields">
-        <div class="field">
-          <label for="cfg-lambda">λ del láser (nm)</label>
-          <input type="number" inputmode="decimal" id="cfg-lambda" value="650" step="any">
-        </div>
-        <div class="field">
-          <label for="cfg-dlambda">Incertidumbre de λ (± nm)</label>
-          <input type="number" inputmode="decimal" id="cfg-dlambda" value="2" step="any">
-        </div>
-        <div class="field">
-          <label for="cfg-L">L, rendija–pantalla (m)</label>
-          <input type="number" inputmode="decimal" id="cfg-L" value="2.0" step="any">
-        </div>
-        <div class="field">
-          <label for="cfg-dL">Incertidumbre de L (± m)</label>
-          <input type="number" inputmode="decimal" id="cfg-dL" value="0.003" step="any">
-        </div>
-        <div class="field">
-          <label for="cfg-res">Resolución del papel milimetrado (mm)</label>
-          <input type="number" inputmode="decimal" id="cfg-res" value="1" step="any">
-        </div>
-        <div class="field">
-          <label for="cfg-tol">Tolerancia de centrado para alerta (mm)</label>
-          <input type="number" inputmode="decimal" id="cfg-tol" value="1.5" step="any">
-        </div>
-      </div>
-      <p class="hint">La resolución del papel se usa como incertidumbre de lectura de cada marca (± mitad de la división más pequeña). La tolerancia de centrado es el umbral a partir del cual el software avisa de una posible desalineación entre el láser, el cabello y la pantalla.</p>
-      <p class="hint">Nota sobre la tensión del cabello: la fuerza necesaria para quitarle la curvatura por gravedad (catenaria) es mínima y no altera su grosor de forma medible — el estiramiento elástico a esa tensión es muchísimo menor que la resolución de este método. Solo evita tensarlo al punto de sentir que está a punto de cortarse.</p>
-    </div>
-  </div>
-
-  <!-- CALIBRACIÓN -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Calibración con objeto de referencia</h2>
-        <div class="sub">Opcional: corrige errores sistemáticos del montaje completo</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="checkbox-row">
-        <input type="checkbox" id="cal-enabled">
-        <label for="cal-enabled">Usar calibración</label>
-      </div>
-      <div id="cal-block" style="display:none;">
-        <div class="row-fields">
-          <div class="field">
-            <label for="cal-name">Objeto de referencia</label>
-            <input type="text" id="cal-name" placeholder="Ej: alambre calibre 34">
-          </div>
-          <div class="field">
-            <label for="cal-a">Ancho conocido (µm)</label>
-            <input type="number" inputmode="decimal" id="cal-a" step="any" placeholder="Ej: 160">
-          </div>
-          <div class="field">
-            <label for="cal-da">Incertidumbre del ancho conocido (± µm)</label>
-            <input type="number" inputmode="decimal" id="cal-da" step="any" placeholder="Ej: 5">
-          </div>
-        </div>
-        <div class="tablewrap">
-          <table id="cal-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>y izq, m=1 (mm)</th>
-                <th>y der, m=1 (mm)</th>
-                <th class="col-m2">y izq, m=2 (mm)</th>
-                <th class="col-m2">y der, m=2 (mm)</th>
-                <th>a medida (µm)</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="cal-tbody"></tbody>
-          </table>
-        </div>
-        <div class="btn-row">
-          <button class="small" onclick="addCalRow()">+ fila de medición</button>
-          <button class="small" onclick="undoCalRow()">↺ Quitar última fila</button>
-        </div>
-        <div class="stat-grid" id="cal-stats"></div>
-        <p class="hint">Mide el patrón de difracción de este objeto exactamente igual que el cabello (5 a 10 repeticiones). El software calcula el factor de corrección k = ancho_real / ancho_calculado y lo aplica al resultado final del cabello.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODO INTERACTIVO (modal aparte, no estorba el flujo rápido) -->
-  <div id="ia-modal-overlay">
-    <div id="ia-modal">
-      <div class="modal-head">
-        <div>
-          <h2>Modo interactivo: dibujo del patrón</h2>
-          <div class="sub" style="font-size:12px; color:var(--muted); margin-top:2px;">Arrastra los marcadores en vez de tipear — pensado para practicar, no para la corrida cronometrada</div>
-        </div>
-        <button class="modal-close-btn" id="close-ia-modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="row-fields">
-          <div class="field">
-            <label for="ia-target">Guardar mediciones en</label>
-            <select id="ia-target"></select>
-          </div>
-          <div class="field">
-            <label for="ia-range">Rango visible del dibujo (± mm)</label>
-            <input type="number" inputmode="decimal" id="ia-range" value="80" step="any">
-          </div>
-        </div>
-        <div class="checkbox-row-group">
-          <div class="checkbox-row"><input type="checkbox" id="ia-include-m2" checked><label for="ia-include-m2">Incluir orden m=2</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="ia-include-x0"><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
-        </div>
-
-        <div id="ia-track">
-          <svg id="ia-envelope" viewBox="0 0 1000 120" preserveAspectRatio="none"></svg>
-          <div id="ia-center-line"></div>
-          <div id="ia-center-label">centro (máximo central)</div>
-          <div id="ia-ticks"></div>
-          <div id="ia-pins"></div>
-        </div>
-
-        <div class="stat-grid" id="ia-readout"></div>
-
-        <div class="btn-row">
-          <button class="primary" id="ia-add-row">+ Agregar esta fila</button>
-          <button class="small" id="ia-reset">↺ Reiniciar marcadores</button>
-        </div>
-        <p class="hint">Arrastra cada marcador (con el dedo o el mouse) hasta la posición en mm que corresponde a lo que mediste con tu regla real sobre el papel milimetrado. El dibujo del patrón es solo una referencia visual — no está a escala ni reemplaza tu medición física.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- EXPERIMENTOS -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Mediciones del cabello</h2>
-        <div class="sub">Cada experimento = una tanda de 5 a 10 repeticiones. m=1 calcula el resultado; m=2 sirve como verificación.</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div id="experiments-container"></div>
-      <div class="btn-row">
-        <button class="primary" onclick="addExperiment()">+ Agregar experimento</button>
-        <button class="small" id="open-ia-modal">📐 Abrir modo interactivo (arrastrar)</button>
-      </div>
-      <p class="hint">
+<div class="modo-rapido-toggle">
+<input id="modo-rapido-toggle" type="checkbox"/>
+<label for="modo-rapido-toggle">Modo competencia (solo m=1)</label>
+</div>
+<div class="sticky-group">
+<span class="sticky-result-label">Estado:</span>
+<span id="sticky-status">Esperando datos</span>
+<span class="sticky-result-label">Grosor:</span>
+<span id="sticky-result">— µm</span>
+</div>
+</div><div class="wrap"><header class="top">
+<h1>Medidor de grosor por difracción de Fraunhofer</h1>
+<p>Principio de Babinet · a·sen(θ) = mλ · soporte de PVC, FIS140</p>
+</header><div class="app-layout"><aside class="setup-sidebar"><div class="sidebar-title">MONTAJE Y AJUSTES</div><div class="card setup-card">
+<div class="card-head">
+<div>
+<h2>Configuración del montaje</h2>
+<div class="sub">Estos valores son los mismos para todas las mediciones de esta sesión</div>
+</div>
+</div>
+<div class="card-body">
+<div class="row-fields">
+<div class="field">
+<label for="cfg-lambda">λ del láser (nm)</label>
+<input id="cfg-lambda" inputmode="decimal" step="any" type="number" value="650"/>
+</div>
+<div class="field">
+<label for="cfg-dlambda">Incertidumbre de λ (± nm)</label>
+<input id="cfg-dlambda" inputmode="decimal" step="any" type="number" value="2"/>
+</div>
+<div class="field">
+<label for="cfg-L">L, rendija–pantalla (m)</label>
+<input id="cfg-L" inputmode="decimal" step="any" type="number" value="2.0"/>
+</div>
+<div class="field">
+<label for="cfg-dL">Incertidumbre de L (± m)</label>
+<input id="cfg-dL" inputmode="decimal" step="any" type="number" value="0.003"/>
+</div>
+<div class="field">
+<label for="cfg-res">Resolución del papel milimetrado (mm)</label>
+<input id="cfg-res" inputmode="decimal" step="any" type="number" value="1"/>
+</div>
+<div class="field">
+<label for="cfg-tol">Tolerancia de centrado para alerta (mm)</label>
+<input id="cfg-tol" inputmode="decimal" step="any" type="number" value="1.5"/>
+</div>
+</div>
+<p class="hint">La resolución del papel se usa como incertidumbre de lectura de cada marca (± mitad de la división más pequeña). La tolerancia de centrado es el umbral a partir del cual el software avisa de una posible desalineación entre el láser, el cabello y la pantalla.</p>
+<p class="hint">Nota sobre la tensión del cabello: la fuerza necesaria para quitarle la curvatura por gravedad (catenaria) es mínima y no altera su grosor de forma medible — el estiramiento elástico a esa tensión es muchísimo menor que la resolución de este método. Solo evita tensarlo al punto de sentir que está a punto de cortarse.</p>
+</div>
+</div><div class="card setup-card">
+<div class="card-head">
+<div>
+<h2>Calibración con objeto de referencia</h2>
+<div class="sub">Opcional: corrige errores sistemáticos del montaje completo</div>
+</div>
+</div>
+<div class="card-body">
+<div class="checkbox-row">
+<input id="cal-enabled" type="checkbox"/>
+<label for="cal-enabled">Usar calibración</label>
+</div>
+<div id="cal-block" style="display:none;">
+<div class="row-fields">
+<div class="field">
+<label for="cal-name">Objeto de referencia</label>
+<input id="cal-name" placeholder="Ej: alambre calibre 34" type="text"/>
+</div>
+<div class="field">
+<label for="cal-a">Ancho conocido (µm)</label>
+<input id="cal-a" inputmode="decimal" placeholder="Ej: 160" step="any" type="number"/>
+</div>
+<div class="field">
+<label for="cal-da">Incertidumbre del ancho conocido (± µm)</label>
+<input id="cal-da" inputmode="decimal" placeholder="Ej: 5" step="any" type="number"/>
+</div>
+</div>
+<div class="tablewrap">
+<table id="cal-table">
+<thead>
+<tr>
+<th>#</th>
+<th>y izq, m=1 (mm)</th>
+<th>y der, m=1 (mm)</th>
+<th class="col-m2">y izq, m=2 (mm)</th>
+<th class="col-m2">y der, m=2 (mm)</th>
+<th>a medida (µm)</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="cal-tbody"></tbody>
+</table>
+</div>
+<div class="btn-row">
+<button class="small" onclick="addCalRow()">+ fila de medición</button>
+<button class="small" onclick="undoCalRow()">↺ Quitar última fila</button>
+</div>
+<div class="stat-grid" id="cal-stats"></div>
+<p class="hint">Mide el patrón de difracción de este objeto exactamente igual que el cabello (5 a 10 repeticiones). El software calcula el factor de corrección k = ancho_real / ancho_calculado y lo aplica al resultado final del cabello.</p>
+</div>
+</div>
+</div><div class="sidebar-tip"><strong>En competencia: </strong>configura λ, L y resolución una sola vez. Después trabaja principalmente en la tabla de medición. La guía de la derecha es de apoyo visual.</div></aside><main class="main-stage"><div class="workbench"><div class="measurement-card card">
+<div class="card-head">
+<div>
+<h2>Mediciones del cabello</h2>
+<div class="sub">m=1 calcula · m=2 verifica · haz clic en una fila para enlazar la guía</div>
+</div>
+<div class="measurement-head-tools"><span class="tool-pill">GUÍA INTERACTIVA ↔ FILA ACTIVA</span></div></div>
+<div class="card-body">
+<div id="experiments-container"></div>
+<div class="btn-row">
+<button class="primary" onclick="addExperiment()">+ Agregar experimento</button>
+<button class="small" id="open-ia-modal">📐 Abrir modo interactivo (arrastrar)</button>
+</div>
+<p class="hint">
         Columnas por fila: posición del mínimo izquierdo y derecho de orden m=1 respecto a cualquier marca fija de la regla (obligatorio),
         lo mismo para m=2 si lo lograste ver (opcional, sirve como verificación cruzada), y opcionalmente tu estimación a ojo del centro del máximo (x₀),
         que el software usa solo como chequeo de alineación.
       </p>
-    </div>
-  </div>
+</div>
+</div><div class="docked-interactive" id="ia-modal-overlay">
+<div id="ia-modal">
+<div class="modal-head">
+<div>
+<h2>Modo interactivo: dibujo del patrón</h2>
+<div class="sub" style="font-size:12px; color:var(--muted); margin-top:2px;">Usa esta vista para comprobar separación y simetría mientras ingresas la fila real.</div>
+</div>
+<button class="modal-close-btn" id="close-ia-modal" title="Ocultar guía">×</button>
+</div>
+<div class="modal-body"><div class="ia-guide-note"><strong>Cómo usarla: </strong>haz clic en una fila de la tabla, observa esa misma medición aquí y ajusta los marcadores solo como guía. El centro visual se normaliza para que puedas comparar la simetría.</div><div class="ia-linkbar"><span class="ia-link-status" id="ia-link-status">Sin fila activa · haz clic en una medición</span></div><div class="ia-linkbar"><select id="ia-row-select"></select></div>
+<div class="row-fields">
+<div class="field">
+<label for="ia-target">Destino para nueva fila</label>
+<select id="ia-target"></select>
+</div>
+<div class="field">
+<label for="ia-range">Rango visible del dibujo (± mm)</label>
+<input id="ia-range" inputmode="decimal" step="any" type="number" value="80"/>
+</div>
+</div>
+<div class="checkbox-row-group">
+<div class="checkbox-row"><input checked="" id="ia-include-m2" type="checkbox"/><label for="ia-include-m2">Incluir orden m=2</label></div>
+<div class="checkbox-row"><input id="ia-include-x0" type="checkbox"/><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
+</div>
+<div id="ia-track">
+<svg id="ia-envelope" preserveaspectratio="none" viewbox="0 0 1000 120"></svg>
+<div id="ia-center-line"></div>
+<div id="ia-center-label">centro (máximo central)</div>
+<div id="ia-ticks"></div>
+<div id="ia-pins"></div>
+</div>
+<div class="stat-grid" id="ia-readout"></div>
+<div class="btn-row">
+<button class="primary" id="ia-add-row">Aplicar a fila activa</button>
+<button class="small" id="ia-reset">↺ Reiniciar guía</button>
+<button class="small" id="ia-new-row">+ Nueva fila desde guía</button></div>
 
-  <!-- RESULTADO -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Resultado final</h2>
-        <div class="sub">Combinación ponderada de todos los experimentos válidos</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <p class="hint">Referencia interna de la herramienta: 17–181 µm. Es solo una comprobación de orden de magnitud; el valor experimental debe juzgarse junto con la incertidumbre y la calidad del patrón observado.</p>
-      <div class="result-box" id="final-box">
-        <div class="big">— µm</div>
-        <div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
-      </div>
-      <div class="tablewrap" style="margin-top:14px;">
-        <table id="summary-table">
-          <thead>
-            <tr><th>Experimento</th><th>N</th><th>Media (µm)</th><th>Incert. aleatoria (µm)</th><th>Incert. común (µm)</th><th>Total (µm)</th><th>Peso relativo</th></tr>
-          </thead>
-          <tbody id="summary-tbody"></tbody>
-        </table>
-      </div>
-      <canvas id="chart" height="150" style="margin-top:14px; display:none;"></canvas>
-    </div>
-  </div>
-
-  <!-- ALERTAS -->
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <h2>Alertas y diagnóstico</h2>
-        <div class="sub">Chequeos automáticos de consistencia y alineación</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <ul class="warn-list" id="warn-list">
-        <li class="info">Sin datos suficientes todavía para diagnosticar.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="btn-row">
-    <button class="primary" onclick="exportCSV()">Exportar datos y resultados (CSV)</button>
-    <button onclick="clearAll()">Limpiar todo</button>
-  </div>
-
-  <footer>
+</div>
+</div>
+</div></div><div class="below-workbench"><div class="card">
+<div class="card-head">
+<div>
+<h2>Resultado final</h2>
+<div class="sub">Combinación ponderada de todos los experimentos válidos</div>
+</div>
+</div>
+<div class="card-body">
+<p class="hint">Referencia interna de la herramienta: 17–181 µm. Es solo una comprobación de orden de magnitud; el valor experimental debe juzgarse junto con la incertidumbre y la calidad del patrón observado.</p>
+<div class="result-box" id="final-box">
+<div class="big">— µm</div>
+<div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
+</div>
+<div class="tablewrap" style="margin-top:14px;">
+<table id="summary-table">
+<thead>
+<tr><th>Experimento</th><th>N</th><th>Media (µm)</th><th>Incert. aleatoria (µm)</th><th>Incert. común (µm)</th><th>Total (µm)</th><th>Peso relativo</th></tr>
+</thead>
+<tbody id="summary-tbody"></tbody>
+</table>
+</div>
+<canvas height="150" id="chart" style="margin-top:14px; display:none;"></canvas>
+</div>
+</div><div class="card">
+<div class="card-head">
+<div>
+<h2>Alertas y diagnóstico</h2>
+<div class="sub">Chequeos automáticos de consistencia y alineación</div>
+</div>
+</div>
+<div class="card-body">
+<ul class="warn-list" id="warn-list">
+<li class="info">Sin datos suficientes todavía para diagnosticar.</li>
+</ul>
+</div>
+</div></div><div class="btn-row bottom-actions">
+<button class="primary" onclick="exportCSV()">Exportar datos y resultados (CSV)</button>
+<button onclick="clearAll()">Limpiar todo</button>
+</div><footer>
     Fórmula base: a·sen(θ)=mλ, con θ=atan(y/L). La incertidumbre se propaga numéricamente
     (derivadas parciales por diferencias finitas) desde las lecturas de regla, L y λ.
     Herramienta de uso local — no requiere conexión a internet.
-  </footer>
-
-</div>
-
-<script>
+  </footer></main></div></div><script>
 /* ---------- estado auxiliar (solo contadores de id) ---------- */
 let expCounter = 0;
 let calRowCounter = 0;
@@ -665,6 +761,7 @@ function addExperiment(){
     recalcAll();
   });
   for (let i=0;i<5;i++) addRow();
+  updateIaRowOptions();
 }
 addExperiment(); // arranca con un experimento listo para usar
 
@@ -964,6 +1061,7 @@ function recalcAll(){
   }
 
   refreshGraphicTargetOptions();
+  updateIaRowOptions();
 
   lastResults = { cfg, calibration, experimentResults, allWarnings, rawRows };
 }
@@ -1133,7 +1231,10 @@ const iaPinDefs = [
 ];
 const iaState = {
   range: 80,
-  values: {}
+  values: {},
+  viewCenter: 0,
+  selectedRow: null,
+  selectedTarget: null
 };
 iaPinDefs.forEach(p => iaState.values[p.id] = p.defaultMm);
 
@@ -1149,11 +1250,16 @@ function iaTrackWidth(){
 }
 function iaMmToPx(mm){
   const W = iaTrackWidth();
-  return W/2 + (mm/iaState.range) * (W/2);
+  return W/2 + ((mm - iaState.viewCenter)/iaState.range) * (W/2);
 }
 function iaPxToMm(px){
   const W = iaTrackWidth();
-  return ((px - W/2) / (W/2)) * iaState.range;
+  return iaState.viewCenter + ((px - W/2) / (W/2)) * iaState.range;
+}
+function iaSetViewCenter(){
+  const yl1 = Number(iaState.values.yl1);
+  const yr1 = Number(iaState.values.yr1);
+  if (Number.isFinite(yl1) && Number.isFinite(yr1)) iaState.viewCenter = (yl1 + yr1) / 2;
 }
 
 function buildIaEnvelope(){
@@ -1185,7 +1291,8 @@ function buildIaTicks(){
   if (R > 150) step = 25;
   else if (R > 60) step = 10;
   else step = 5;
-  for (let mm = -Math.floor(R/step)*step; mm <= R; mm += step){
+  for (let offset = -Math.floor(R/step)*step; offset <= R; offset += step){
+    const mm = iaState.viewCenter + offset;
     const px = iaMmToPx(mm);
     if (px < 0 || px > W) continue;
     const major = (Math.round(mm/step) % 2 === 0) || step >= 10;
@@ -1225,6 +1332,9 @@ function renderIaPins(){
 }
 
 function renderIaTrack(){
+  iaSetViewCenter();
+  const cl = document.getElementById('ia-center-label');
+  if (cl) cl.textContent = `centro de la fila: ${iaState.viewCenter.toFixed(1)} mm`;
   buildIaTicks();
   renderIaPins();
   updateIaReadout();
@@ -1275,11 +1385,124 @@ function updateIaReadout(){
   let warnHtml = res.warnings.length
     ? `<div class="stat" style="grid-column:1/-1;"><div class="k">Alertas de esta fila</div><div class="v" style="font-size:12px; color:var(--warn);">${res.warnings.map(w=>w.text).join('<br>')}</div></div>`
     : '';
+  const sep1 = Math.abs(v.yr1 - v.yl1);
+  const center1 = (v.yl1 + v.yr1) / 2;
+  let symmetry = '—';
+  if (includeM2 && Number.isFinite(v.yl2) && Number.isFinite(v.yr2)) {
+    const center2 = (v.yl2 + v.yr2) / 2;
+    symmetry = Math.abs(center1 - center2).toFixed(1) + ' mm';
+  }
   box.innerHTML = `
-    <div class="stat"><div class="k">a estimada (previsualización)</div><div class="v">${res.a.toFixed(2)} µm</div></div>
+    <div class="stat"><div class="k">a estimada</div><div class="v">${res.a.toFixed(2)} µm</div></div>
+    <div class="stat"><div class="k">Separación m=1</div><div class="v">${sep1.toFixed(1)} mm</div></div>
+    <div class="stat"><div class="k">Centro m=1</div><div class="v">${center1.toFixed(1)} mm</div></div>
+    <div class="stat"><div class="k">Centros m=1 ↔ m=2</div><div class="v">${symmetry}</div></div>
     <div class="stat"><div class="k">Incertidumbre</div><div class="v">± ${res.unc.toFixed(2)} µm</div></div>
     ${warnHtml}`;
 }
+
+
+function syncInteractiveFromRow(tr){
+  if (!tr) return;
+  iaState.selectedRow = tr;
+  const card = tr.closest('.exp-card');
+  iaState.selectedTarget = card ? card.getAttribute('data-exp') : null;
+  const get = sel => {
+    const el = tr.querySelector(sel);
+    const v = el ? parseFloat(el.value) : NaN;
+    return Number.isFinite(v) ? v : undefined;
+  };
+  const yl1 = get('.in-yl1'), yr1 = get('.in-yr1');
+  if (yl1 !== undefined) iaState.values.yl1 = yl1;
+  if (yr1 !== undefined) iaState.values.yr1 = yr1;
+  const yl2 = get('.in-yl2'), yr2 = get('.in-yr2'), x0 = get('.in-x0');
+  if (yl2 !== undefined) iaState.values.yl2 = yl2;
+  if (yr2 !== undefined) iaState.values.yr2 = yr2;
+  if (x0 !== undefined) iaState.values.x0 = x0;
+  iaSetViewCenter();
+  document.querySelectorAll('.exp-tbody tr.active-row').forEach(r=>r.classList.remove('active-row'));
+  tr.classList.add('active-row');
+  const st = document.getElementById('ia-link-status');
+  if (st){
+    const name = card?.querySelector('.exp-name')?.value.trim() || `Experimento ${iaState.selectedTarget || ''}`;
+    st.textContent = `Fila vinculada: ${name} · #${tr.dataset.row || '?'}`;
+    st.classList.add('active');
+  }
+  renderIaTrack();
+}
+
+function updateIaRowOptions(){
+  const sel = document.getElementById('ia-row-select');
+  if (!sel) return;
+  const prev = iaState.selectedRow;
+  sel.innerHTML = '<option value="">Selecciona una fila...</option>';
+  document.querySelectorAll('.exp-card').forEach(card=>{
+    const id = card.dataset.exp;
+    const name = card.querySelector('.exp-name')?.value.trim() || `Experimento ${id}`;
+    [...card.querySelectorAll('.exp-tbody tr')].forEach(tr=>{
+      const opt = document.createElement('option');
+      opt.value = `${id}:${tr.dataset.row || ''}`;
+      opt.textContent = `${name} · fila ${tr.dataset.row || '?'}`;
+      sel.appendChild(opt);
+      if (tr === prev) sel.value = opt.value;
+    });
+  });
+}
+
+document.getElementById('ia-row-select').addEventListener('change', e=>{
+  const value = e.target.value;
+  if (!value) return;
+  const [expId, rowN] = value.split(':');
+  const card = document.querySelector(`.exp-card[data-exp="${expId}"]`);
+  const row = card ? [...card.querySelectorAll('.exp-tbody tr')].find(r=>r.dataset.row === rowN) : null;
+  if (row) syncInteractiveFromRow(row);
+});
+
+function findSelectedRow(){
+  if (iaState.selectedRow && document.body.contains(iaState.selectedRow)) return iaState.selectedRow;
+  return null;
+}
+
+document.addEventListener('click', e=>{
+  const tr = e.target.closest('.exp-tbody tr');
+  if (tr) syncInteractiveFromRow(tr);
+});
+
+function applyInteractiveToSelectedRow(){
+  const tr = findSelectedRow();
+  if (!tr){
+    alert('Primero selecciona una fila de medición haciendo clic en ella.');
+    return;
+  }
+  const v = iaState.values;
+  const set = (sel, val) => {
+    const el = tr.querySelector(sel);
+    if (el && Number.isFinite(Number(val))) el.value = Number(val).toFixed(2);
+  };
+  set('.in-yl1', v.yl1); set('.in-yr1', v.yr1);
+  if (document.getElementById('ia-include-m2').checked){ set('.in-yl2', v.yl2); set('.in-yr2', v.yr2); }
+  if (document.getElementById('ia-include-x0').checked){ set('.in-x0', v.x0); }
+  recalcAll();
+  syncInteractiveFromRow(tr);
+}
+
+document.getElementById('ia-add-row').addEventListener('click', applyInteractiveToSelectedRow);
+document.getElementById('ia-new-row').addEventListener('click', ()=>{
+  const target = document.getElementById('ia-target').value;
+  if (!target){ alert('Selecciona un experimento de destino para crear una nueva fila.'); return; }
+  const includeM2 = document.getElementById('ia-include-m2').checked;
+  const includeX0 = document.getElementById('ia-include-x0').checked;
+  const v = iaState.values;
+  addGraphicRow(target, {
+    yl1: v.yl1, yr1: v.yr1,
+    yl2: includeM2 ? v.yl2 : undefined,
+    yr2: includeM2 ? v.yr2 : undefined,
+    x0: includeX0 ? v.x0 : undefined
+  });
+  const card = document.querySelector(`.exp-card[data-exp="${target}"]`);
+  const rows = card ? card.querySelectorAll('.exp-tbody tr') : [];
+  if (rows.length) syncInteractiveFromRow(rows[rows.length-1]);
+});
 
 document.getElementById('ia-range').addEventListener('input', (e)=>{
   const r = parseFloat(e.target.value);
@@ -1290,7 +1513,12 @@ document.getElementById('ia-include-m2').addEventListener('change', renderIaTrac
 document.getElementById('ia-include-x0').addEventListener('change', renderIaTrack);
 
 document.getElementById('ia-reset').addEventListener('click', ()=>{
-  iaPinDefs.forEach(p => iaState.values[p.id] = p.defaultMm);
+  const c = Number.isFinite(iaState.viewCenter) ? iaState.viewCenter : 0;
+  iaState.values.yl1 = c - 22;
+  iaState.values.yr1 = c + 22;
+  iaState.values.yl2 = c - 42;
+  iaState.values.yr2 = c + 42;
+  iaState.values.x0 = c;
   renderIaTrack();
 });
 
@@ -1310,28 +1538,34 @@ document.getElementById('ia-add-row').addEventListener('click', ()=>{
 
 buildIaEnvelope();
 window.addEventListener('resize', ()=>{
-  if (document.getElementById('ia-modal-overlay').classList.contains('open')) renderIaTrack();
+  if (!document.getElementById('ia-modal-overlay').classList.contains('ia-hidden')) renderIaTrack();
 });
 
 function openIaModal(){
-  document.getElementById('ia-modal-overlay').classList.add('open');
-  // el modal estaba oculto (ancho 0), hay que remedir y redibujar recién ahora
+  const panel = document.getElementById('ia-modal-overlay');
+  panel.classList.remove('ia-hidden');
+  const btn = document.getElementById('open-ia-modal');
+  if (btn) btn.textContent = 'Ocultar guía';
   requestAnimationFrame(renderIaTrack);
 }
 function closeIaModal(){
-  document.getElementById('ia-modal-overlay').classList.remove('open');
+  const panel = document.getElementById('ia-modal-overlay');
+  panel.classList.add('ia-hidden');
+  const btn = document.getElementById('open-ia-modal');
+  if (btn) btn.textContent = 'Mostrar guía';
 }
-document.getElementById('open-ia-modal').addEventListener('click', openIaModal);
-document.getElementById('close-ia-modal').addEventListener('click', closeIaModal);
-document.getElementById('ia-modal-overlay').addEventListener('click', (e)=>{
-  if (e.target.id === 'ia-modal-overlay') closeIaModal();
+const iaToggle = document.getElementById('open-ia-modal');
+if (iaToggle) iaToggle.addEventListener('click', ()=>{
+  const panel = document.getElementById('ia-modal-overlay');
+  if (panel.classList.contains('ia-hidden')) openIaModal(); else closeIaModal();
 });
+const iaClose = document.getElementById('close-ia-modal');
+if (iaClose) iaClose.addEventListener('click', closeIaModal);
 document.addEventListener('keydown', (e)=>{
-  if (e.key === 'Escape' && document.getElementById('ia-modal-overlay').classList.contains('open')) closeIaModal();
+  if (e.key === 'Escape') closeIaModal();
 });
 
 /* ---------- primer cálculo ---------- */
 recalcAll();
-</script>
-</body>
+</script></body>
 </html>
