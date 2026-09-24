@@ -55,6 +55,11 @@
   }
   input[type=text]{font-family:var(--sans);}
   input:focus{outline:none; border-color:var(--info);}
+  select{
+    width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
+    padding:8px 9px; border-radius:5px; font-family:var(--sans); font-size:13.5px;
+  }
+  select:focus{outline:none; border-color:var(--info);}
 
   .checkbox-row{display:flex; align-items:center; gap:8px; margin-bottom:4px;}
   .checkbox-row input{width:auto;}
@@ -143,6 +148,12 @@
   .modo-rapido-toggle input{width:auto;}
 
   body.modo-rapido .col-m2, body.modo-rapido .col-x0{display:none;}
+
+  #graphic-canvas{
+    max-width:100%; height:auto; display:block; margin-top:10px;
+    border:1px solid var(--border); border-radius:6px; background:#000; cursor:crosshair;
+  }
+  .checkbox-row-group{display:flex; gap:18px; flex-wrap:wrap; margin:8px 0;}
 </style>
 </head>
 <body>
@@ -207,6 +218,7 @@
         </div>
       </div>
       <p class="hint">La resolución del papel se usa como incertidumbre de lectura de cada marca (± mitad de la división más pequeña). La tolerancia de centrado es el umbral a partir del cual el software avisa de una posible desalineación entre el láser, el cabello y la pantalla.</p>
+      <p class="hint">Nota sobre la tensión del cabello: la fuerza necesaria para quitarle la curvatura por gravedad (catenaria) es mínima y no altera su grosor de forma medible — el estiramiento elástico a esa tensión es muchísimo menor que la resolución de este método. Solo evita tensarlo al punto de sentir que está a punto de cortarse.</p>
     </div>
   </div>
 
@@ -264,6 +276,48 @@
     </div>
   </div>
 
+  <!-- MODO GRÁFICO -->
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h2>Modo gráfico: marcar puntos sobre una foto</h2>
+        <div class="sub">Alternativa a tipear números: haz clic directo sobre la foto del patrón</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row-fields">
+        <div class="field">
+          <label for="graphic-image">Foto del papel milimetrado con el patrón marcado</label>
+          <input type="file" id="graphic-image" accept="image/*">
+        </div>
+        <div class="field">
+          <label for="graphic-target">Guardar mediciones en</label>
+          <select id="graphic-target"></select>
+        </div>
+      </div>
+      <p class="hint" id="graphic-status">Carga una foto para empezar. Consejo: que la foto quede lo más de frente posible al papel, y que se vean con claridad dos marcas de la regla cuya distancia real conozcas (por ejemplo, 0 y 50 mm).</p>
+      <canvas id="graphic-canvas" style="display:none;"></canvas>
+      <div class="row-fields" id="graphic-calib-input" style="display:none; margin-top:10px;">
+        <div class="field">
+          <label for="graphic-calib-mm">Distancia real entre esos dos puntos (mm)</label>
+          <input type="number" inputmode="decimal" step="any" id="graphic-calib-mm" placeholder="Ej: 50">
+        </div>
+      </div>
+      <div class="checkbox-row-group" id="graphic-options" style="display:none;">
+        <div class="checkbox-row"><input type="checkbox" id="graphic-include-m2"><label for="graphic-include-m2">Incluir orden m=2</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="graphic-include-x0"><label for="graphic-include-x0">Incluir referencia visual x₀</label></div>
+      </div>
+      <div class="btn-row">
+        <button class="small" id="graphic-confirm-calib" style="display:none;">Confirmar calibración</button>
+        <button class="small" id="graphic-recalibrate" style="display:none;">Recalibrar</button>
+        <button class="primary small" id="graphic-start-row" style="display:none;">Comenzar nueva fila</button>
+        <button class="small" id="graphic-undo-point" style="display:none;">↺ Deshacer último punto</button>
+        <button class="small" id="graphic-cancel-row" style="display:none;">Cancelar fila</button>
+      </div>
+      <p class="hint">Si la foto no quedó perfectamente perpendicular no importa: las mediciones se proyectan sobre la misma línea que definen tus dos puntos de calibración, así que un poco de inclinación se corrige sola siempre que calibres sobre esa misma línea (ej. el borde de la regla).</p>
+    </div>
+  </div>
+
   <!-- EXPERIMENTOS -->
   <div class="card">
     <div class="card-head">
@@ -294,6 +348,7 @@
       </div>
     </div>
     <div class="card-body">
+      <p class="hint">Referencia: el grosor de un cabello humano suele ir de 17 a 181 µm, típicamente entre 60 y 100 µm (varía según grosor natural del cabello). Si tu resultado se aleja mucho de ese orden de magnitud, probablemente hay un error de unidades (mm vs cm) o de montaje, no un cabello genuinamente distinto.</p>
       <div class="result-box" id="final-box">
         <div class="big">— µm</div>
         <div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
@@ -786,6 +841,8 @@ function recalcAll(){
     warnList.innerHTML = allWarnings.map(w=>`<li class="${w.level}">${w.text}</li>`).join('');
   }
 
+  refreshGraphicTargetOptions();
+
   lastResults = { cfg, calibration, experimentResults, allWarnings };
 }
 
@@ -882,6 +939,255 @@ function exportCSV(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/* ---------- modo gráfico: marcar mínimos con clics sobre una foto ---------- */
+function refreshGraphicTargetOptions(){
+  const sel = document.getElementById('graphic-target');
+  if (!sel) return;
+  const prev = sel.value;
+  const opts = [];
+  if (document.getElementById('cal-enabled').checked){
+    opts.push(`<option value="calibration">Calibración (objeto de referencia)</option>`);
+  }
+  document.querySelectorAll('.exp-card').forEach(c=>{
+    const id = c.getAttribute('data-exp');
+    const name = c.querySelector('.exp-name').value.trim() || ('Experimento ' + id);
+    opts.push(`<option value="${id}">${name}</option>`);
+  });
+  sel.innerHTML = opts.join('');
+  const values = [...sel.options].map(o=>o.value);
+  if (values.includes(prev)) sel.value = prev;
+}
+
+function addGraphicRow(target, values){
+  const isCalibration = target === 'calibration';
+  let tbody;
+  if (isCalibration){
+    tbody = document.getElementById('cal-tbody');
+  } else {
+    const card = document.querySelector(`.exp-card[data-exp="${target}"]`);
+    if (!card) return;
+    tbody = card.querySelector('.exp-tbody');
+  }
+  const n = tbody.querySelectorAll('tr').length + 1;
+  tbody.insertAdjacentHTML('beforeend', isCalibration ? calRowTemplate(n) : rowTemplate(n));
+  const tr = tbody.lastElementChild;
+  const setVal = (cls, val) => { const el = tr.querySelector(cls); if (el && val !== undefined) el.value = val.toFixed(2); };
+  if (isCalibration){
+    setVal('.cal-yl1', values.yl1); setVal('.cal-yr1', values.yr1);
+    setVal('.cal-yl2', values.yl2); setVal('.cal-yr2', values.yr2);
+  } else {
+    setVal('.in-yl1', values.yl1); setVal('.in-yr1', values.yr1);
+    setVal('.in-yl2', values.yl2); setVal('.in-yr2', values.yr2);
+    setVal('.in-x0', values.x0);
+  }
+  recalcAll();
+}
+
+const graphicState = {
+  img: null,
+  calibA: null, calibB: null,
+  scaleMmPerPx: null,
+  capturing: false,
+  steps: [], stepIndex: 0,
+  currentPoints: {},
+  history: []
+};
+const STEP_LABELS = {
+  yl1: 'mínimo izquierdo, orden m=1',
+  yr1: 'mínimo derecho, orden m=1',
+  yl2: 'mínimo izquierdo, orden m=2',
+  yr2: 'mínimo derecho, orden m=2',
+  x0: 'tu estimación visual del centro (x₀)'
+};
+const gCanvas = document.getElementById('graphic-canvas');
+const gCtx = gCanvas.getContext('2d');
+
+function setGraphicStatus(msg){ document.getElementById('graphic-status').textContent = msg; }
+
+function drawMarker(x, y, color, label){
+  gCtx.fillStyle = color;
+  gCtx.beginPath();
+  gCtx.arc(x, y, 5, 0, Math.PI*2);
+  gCtx.fill();
+  if (label){
+    gCtx.font = 'bold 11px sans-serif';
+    gCtx.fillStyle = '#0b0e12';
+    gCtx.fillText(label, x+7, y+4);
+  }
+}
+
+function redrawGraphicCanvas(){
+  if (!graphicState.img) return;
+  gCtx.clearRect(0,0,gCanvas.width,gCanvas.height);
+  gCtx.drawImage(graphicState.img, 0, 0, gCanvas.width, gCanvas.height);
+  graphicState.history.forEach(p=> drawMarker(p.x, p.y, p.color, p.short));
+  if (graphicState.calibA) drawMarker(graphicState.calibA.x, graphicState.calibA.y, '#ffb454', 'A');
+  if (graphicState.calibB){
+    drawMarker(graphicState.calibB.x, graphicState.calibB.y, '#ffb454', 'B');
+    gCtx.strokeStyle = '#ffb454';
+    gCtx.beginPath();
+    gCtx.moveTo(graphicState.calibA.x, graphicState.calibA.y);
+    gCtx.lineTo(graphicState.calibB.x, graphicState.calibB.y);
+    gCtx.stroke();
+  }
+  Object.keys(graphicState.currentPoints).forEach(label=>{
+    const p = graphicState.currentPoints[label];
+    drawMarker(p.x, p.y, '#35d399', label);
+  });
+}
+
+function toggleGraphicButtons(){
+  const calibrated = !!graphicState.scaleMmPerPx;
+  document.getElementById('graphic-recalibrate').style.display = graphicState.img ? 'inline-block' : 'none';
+  document.getElementById('graphic-options').style.display = (calibrated && !graphicState.capturing) ? 'flex' : 'none';
+  document.getElementById('graphic-start-row').style.display = (calibrated && !graphicState.capturing) ? 'inline-block' : 'none';
+  document.getElementById('graphic-undo-point').style.display = graphicState.capturing ? 'inline-block' : 'none';
+  document.getElementById('graphic-cancel-row').style.display = graphicState.capturing ? 'inline-block' : 'none';
+}
+
+document.getElementById('graphic-image').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      graphicState.img = img;
+      graphicState.calibA = null; graphicState.calibB = null; graphicState.scaleMmPerPx = null;
+      graphicState.capturing = false; graphicState.history = [];
+      graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
+      const maxW = 900;
+      const w = Math.min(maxW, img.width);
+      const h = w * (img.height / img.width);
+      gCanvas.width = w; gCanvas.height = h;
+      gCanvas.style.display = 'block';
+      document.getElementById('graphic-calib-input').style.display = 'none';
+      document.getElementById('graphic-confirm-calib').style.display = 'none';
+      redrawGraphicCanvas();
+      setGraphicStatus('Paso 1 de calibración: haz clic en el primer punto de referencia conocido (ej. la marca de 0 mm de tu regla).');
+      toggleGraphicButtons();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+gCanvas.addEventListener('click', (e)=>{
+  if (!graphicState.img) return;
+  const rect = gCanvas.getBoundingClientRect();
+  const scaleX = gCanvas.width / rect.width;
+  const scaleY = gCanvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  handleGraphicClick(x, y);
+});
+
+function handleGraphicClick(x, y){
+  if (!graphicState.scaleMmPerPx){
+    if (!graphicState.calibA){
+      graphicState.calibA = {x,y};
+      setGraphicStatus('Paso 2 de calibración: haz clic en el segundo punto de referencia.');
+    } else if (!graphicState.calibB){
+      graphicState.calibB = {x,y};
+      setGraphicStatus('Ingresa la distancia real entre esos dos puntos y presiona "Confirmar calibración".');
+      document.getElementById('graphic-calib-input').style.display = 'grid';
+      document.getElementById('graphic-confirm-calib').style.display = 'inline-block';
+    }
+    redrawGraphicCanvas();
+    return;
+  }
+  if (!graphicState.capturing) return;
+  const label = graphicState.steps[graphicState.stepIndex];
+  graphicState.currentPoints[label] = {x,y};
+  graphicState.stepIndex++;
+  redrawGraphicCanvas();
+  if (graphicState.stepIndex < graphicState.steps.length){
+    setGraphicStatus('Haz clic en: ' + STEP_LABELS[graphicState.steps[graphicState.stepIndex]] + '.');
+  } else {
+    finishGraphicRow();
+  }
+}
+
+document.getElementById('graphic-confirm-calib').addEventListener('click', ()=>{
+  const mm = parseFloat(document.getElementById('graphic-calib-mm').value);
+  if (!(mm > 0) || !graphicState.calibA || !graphicState.calibB){
+    alert('Ingresa una distancia real válida (mayor que 0).');
+    return;
+  }
+  const pxDist = Math.hypot(graphicState.calibB.x - graphicState.calibA.x, graphicState.calibB.y - graphicState.calibA.y);
+  graphicState.scaleMmPerPx = mm / pxDist;
+  document.getElementById('graphic-calib-input').style.display = 'none';
+  document.getElementById('graphic-confirm-calib').style.display = 'none';
+  setGraphicStatus(`Calibración lista (escala: ${graphicState.scaleMmPerPx.toFixed(4)} mm/px). Elige las opciones de la fila y presiona "Comenzar nueva fila".`);
+  toggleGraphicButtons();
+});
+
+document.getElementById('graphic-recalibrate').addEventListener('click', ()=>{
+  graphicState.calibA = null; graphicState.calibB = null; graphicState.scaleMmPerPx = null;
+  graphicState.capturing = false; graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
+  document.getElementById('graphic-calib-input').style.display = 'none';
+  document.getElementById('graphic-confirm-calib').style.display = 'none';
+  redrawGraphicCanvas();
+  setGraphicStatus('Paso 1 de calibración: haz clic en el primer punto de referencia conocido.');
+  toggleGraphicButtons();
+});
+
+document.getElementById('graphic-start-row').addEventListener('click', ()=>{
+  const steps = ['yl1','yr1'];
+  if (document.getElementById('graphic-include-m2').checked) steps.push('yl2','yr2');
+  if (document.getElementById('graphic-include-x0').checked) steps.push('x0');
+  graphicState.steps = steps;
+  graphicState.stepIndex = 0;
+  graphicState.currentPoints = {};
+  graphicState.capturing = true;
+  setGraphicStatus('Haz clic en: ' + STEP_LABELS[steps[0]] + '.');
+  toggleGraphicButtons();
+  redrawGraphicCanvas();
+});
+
+document.getElementById('graphic-undo-point').addEventListener('click', ()=>{
+  if (!graphicState.capturing || graphicState.stepIndex === 0) return;
+  graphicState.stepIndex--;
+  const label = graphicState.steps[graphicState.stepIndex];
+  delete graphicState.currentPoints[label];
+  setGraphicStatus('Haz clic en: ' + STEP_LABELS[label] + '.');
+  redrawGraphicCanvas();
+});
+
+document.getElementById('graphic-cancel-row').addEventListener('click', ()=>{
+  graphicState.capturing = false; graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
+  setGraphicStatus('Fila cancelada. Presiona "Comenzar nueva fila" para intentar de nuevo.');
+  toggleGraphicButtons();
+  redrawGraphicCanvas();
+});
+
+function projectMm(p){
+  const A = graphicState.calibA, B = graphicState.calibB;
+  const ux = B.x - A.x, uy = B.y - A.y;
+  const len = Math.hypot(ux,uy);
+  const nx = ux/len, ny = uy/len;
+  const proj = (p.x - A.x)*nx + (p.y - A.y)*ny;
+  return proj * graphicState.scaleMmPerPx;
+}
+
+function finishGraphicRow(){
+  const values = {};
+  Object.keys(graphicState.currentPoints).forEach(label=>{
+    values[label] = projectMm(graphicState.currentPoints[label]);
+  });
+  const target = document.getElementById('graphic-target').value;
+  Object.keys(graphicState.currentPoints).forEach(label=>{
+    const p = graphicState.currentPoints[label];
+    graphicState.history.push({x:p.x, y:p.y, color:'#35d399', short:label});
+  });
+  graphicState.capturing = false;
+  graphicState.currentPoints = {}; graphicState.steps = []; graphicState.stepIndex = 0;
+  addGraphicRow(target, values);
+  setGraphicStatus('Fila guardada ✓. Presiona "Comenzar nueva fila" para la siguiente repetición.');
+  toggleGraphicButtons();
+  redrawGraphicCanvas();
 }
 
 /* ---------- primer cálculo ---------- */
