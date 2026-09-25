@@ -294,6 +294,8 @@ button.linked{border-color:var(--ok);}
 .exp-tbody tr.active-row td{background:rgba(90,169,255,.08);}
 .exp-tbody tr.active-row td:first-child{box-shadow:inset 3px 0 0 var(--info);}
 .exp-tbody tr.active-row .res-a{font-weight:700;}
+.exp-tbody tr:focus-within td{background:rgba(90,169,255,.055);}
+.exp-tbody input:focus{border-color:var(--info); box-shadow:0 0 0 1px rgba(90,169,255,.2);}
 .active-row-badge{font-size:10px; color:var(--info); font-family:var(--mono); margin-left:auto;}
 
 /* Resultado y diagnóstico bajo el banco de trabajo */
@@ -303,6 +305,13 @@ button.linked{border-color:var(--ok);}
 .result-box .big{font-size:29px;}
 #summary-table{min-width:700px;}
 #chart{max-height:140px;}
+.manual-btn{display:inline-flex; align-items:center; text-decoration:none; color:var(--text); border:1px solid var(--border); background:var(--panel-2); padding:8px 12px; border-radius:6px; font-size:13.5px;}
+.manual-btn:hover{border-color:var(--info);}
+.measurement-card .compact-instruction{display:none;}
+.setup-sidebar .hint{display:none;}
+.ia-guide-note{font-size:10px; padding:6px 7px; margin-bottom:6px;}
+.ia-linkbar{margin-bottom:5px;}
+.ia-linkbar select{min-width:130px;}
 
 /* Barra superior más útil durante la corrida */
 .sticky-bar{position:sticky; top:0; z-index:50; padding:7px 12px; min-height:47px;}
@@ -314,6 +323,10 @@ body.modo-rapido .compact-instruction,
 body.modo-rapido .measurement-card .exp-head .ghost-danger,
 body.modo-rapido .measurement-card .exp-undo-row{display:none;}
 body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
+body.modo-rapido .below-workbench .card:first-child .tablewrap,
+body.modo-rapido .below-workbench .card:first-child #chart{display:none !important;}
+body.modo-rapido .below-workbench{grid-template-columns:1fr;}
+body.modo-rapido .below-workbench .card:first-child .result-box{margin-bottom:0;}
 
 /* Pantallas medianas */
 @media (max-width:1180px){
@@ -363,12 +376,12 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 </div>
 </div><div class="wrap"><header class="top">
 <h1>Medidor de grosor por difracción de Fraunhofer</h1>
-<p>Principio de Babinet · a·sen(θ) = mλ · soporte de PVC, FIS140</p>
+<p>Difracción de Fraunhofer · FIS140</p>
 </header><div class="app-layout"><aside class="setup-sidebar"><div class="sidebar-title">MONTAJE Y AJUSTES</div><div class="card setup-card">
 <div class="card-head">
 <div>
 <h2>Configuración del montaje</h2>
-<div class="sub">Estos valores son los mismos para todas las mediciones de esta sesión</div>
+<div class="sub">Se configura una vez</div>
 </div>
 </div>
 <div class="card-body">
@@ -398,14 +411,13 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 <input id="cfg-tol" inputmode="decimal" step="any" type="number" value="1.5"/>
 </div>
 </div>
-<p class="hint">La resolución del papel se usa como incertidumbre de lectura de cada marca (± mitad de la división más pequeña). La tolerancia de centrado es el umbral a partir del cual el software avisa de una posible desalineación entre el láser, el cabello y la pantalla.</p>
-<p class="hint">Nota sobre la tensión del cabello: la fuerza necesaria para quitarle la curvatura por gravedad (catenaria) es mínima y no altera su grosor de forma medible — el estiramiento elástico a esa tensión es muchísimo menor que la resolución de este método. Solo evita tensarlo al punto de sentir que está a punto de cortarse.</p>
+
 </div>
 </div><div class="card setup-card">
 <div class="card-head">
 <div>
 <h2>Calibración con objeto de referencia</h2>
-<div class="sub">Opcional: corrige errores sistemáticos del montaje completo</div>
+<div class="sub">Opcional</div>
 </div>
 </div>
 <div class="card-body">
@@ -449,27 +461,23 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 <button class="small" onclick="undoCalRow()">↺ Quitar última fila</button>
 </div>
 <div class="stat-grid" id="cal-stats"></div>
-<p class="hint">Mide el patrón de difracción de este objeto exactamente igual que el cabello (5 a 10 repeticiones). El software calcula el factor de corrección k = ancho_real / ancho_calculado y lo aplica al resultado final del cabello.</p>
+
 </div>
 </div>
 </div><div class="sidebar-tip"><strong>En competencia: </strong>configura λ, L y resolución una sola vez. Después trabaja principalmente en la tabla de medición. La guía de la derecha es de apoyo visual.</div></aside><main class="main-stage"><div class="workbench"><div class="measurement-card card">
 <div class="card-head">
 <div>
 <h2>Mediciones del cabello</h2>
-<div class="sub">m=1 calcula · m=2 verifica · haz clic en una fila para enlazar la guía</div>
+<div class="sub">Izquierda → derecha → siguiente fila</div>
 </div>
-<div class="measurement-head-tools"><span class="tool-pill">GUÍA INTERACTIVA ↔ FILA ACTIVA</span></div></div>
+<div class="measurement-head-tools"><span class="tool-pill">Enter = siguiente medición</span></div></div>
 <div class="card-body">
 <div id="experiments-container"></div>
 <div class="btn-row">
 <button class="primary" onclick="addExperiment()">+ Agregar experimento</button>
-<button class="small" id="open-ia-modal">📐 Abrir modo interactivo (arrastrar)</button>
+<button class="small" id="open-ia-modal">📐 Guía</button>
 </div>
-<p class="hint">
-        Columnas por fila: posición del mínimo izquierdo y derecho de orden m=1 respecto a cualquier marca fija de la regla (obligatorio),
-        lo mismo para m=2 si lo lograste ver (opcional, sirve como verificación cruzada), y opcionalmente tu estimación a ojo del centro del máximo (x₀),
-        que el software usa solo como chequeo de alineación.
-      </p>
+
 </div>
 </div><div class="docked-interactive" id="ia-modal-overlay">
 <div id="ia-modal">
@@ -480,7 +488,7 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 </div>
 <button class="modal-close-btn" id="close-ia-modal" title="Ocultar guía">×</button>
 </div>
-<div class="modal-body"><div class="ia-guide-note"><strong>Cómo usarla: </strong>haz clic en una fila de la tabla, observa esa misma medición aquí y ajusta los marcadores solo como guía. El centro visual se normaliza para que puedas comparar la simetría.</div><div class="ia-linkbar"><span class="ia-link-status" id="ia-link-status">Sin fila activa · haz clic en una medición</span></div><div class="ia-linkbar"><select id="ia-row-select"></select></div>
+<div class="modal-body"><div class="ia-guide-note"><strong>Guía:</strong> selecciona una fila y compara la simetría. Los marcadores son una referencia visual.</div><div class="ia-linkbar"><span class="ia-link-status" id="ia-link-status">Sin fila activa</span><select id="ia-row-select"></select></div>
 <div class="row-fields">
 <div class="field">
 <label for="ia-target">Destino para nueva fila</label>
@@ -514,11 +522,11 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 <div class="card-head">
 <div>
 <h2>Resultado final</h2>
-<div class="sub">Combinación ponderada de todos los experimentos válidos</div>
+<div class="sub">Resultado de las mediciones válidas</div>
 </div>
 </div>
 <div class="card-body">
-<p class="hint">Referencia interna de la herramienta: 17–181 µm. Es solo una comprobación de orden de magnitud; el valor experimental debe juzgarse junto con la incertidumbre y la calidad del patrón observado.</p>
+
 <div class="result-box" id="final-box">
 <div class="big">— µm</div>
 <div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
@@ -537,7 +545,7 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 <div class="card-head">
 <div>
 <h2>Alertas y diagnóstico</h2>
-<div class="sub">Chequeos automáticos de consistencia y alineación</div>
+<div class="sub">Solo aparecen cuando algo requiere revisión</div>
 </div>
 </div>
 <div class="card-body">
@@ -547,12 +555,8 @@ body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
 </div>
 </div></div><div class="btn-row bottom-actions">
 <button class="primary" onclick="exportCSV()">Exportar datos y resultados (CSV)</button>
-<button onclick="clearAll()">Limpiar todo</button>
-</div><footer>
-    Fórmula base: a·sen(θ)=mλ, con θ=atan(y/L). La incertidumbre se propaga numéricamente
-    (derivadas parciales por diferencias finitas) desde las lecturas de regla, L y λ.
-    Herramienta de uso local — no requiere conexión a internet.
-  </footer></main></div></div><script>
+<button onclick="clearAll()">Limpiar todo</button><a class="manual-btn" href="manual_medidor_cabello.pdf" target="_blank" rel="noopener">📘 Manual PDF</a>
+</div><footer>Herramienta local · El detalle de uso está en el Manual PDF.</footer></main></div></div><script>
 /* ---------- estado auxiliar (solo contadores de id) ---------- */
 let expCounter = 0;
 let calRowCounter = 0;
@@ -820,35 +824,39 @@ function resetTimer(){
 }
 updateTimerDisplay();
 
-/* ---------- Enter rápido dentro de una fila de medición ---------- */
+/* ---------- Enter: navegación exclusiva de las mediciones ---------- */
 document.addEventListener('keydown',(e)=>{
   if(e.key!=='Enter' || e.target.tagName!=='INPUT' || !e.target.closest('.exp-card')) return;
   e.preventDefault();
   const row = e.target.closest('tr');
+  const tbody = row.parentElement;
   const fields = Array.from(row.querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
   const i = fields.indexOf(e.target);
+
+  // Dentro de la misma medición: izquierda -> derecha -> siguiente campo visible.
   if(i >= 0 && i < fields.length-1){
-    fields[i+1].focus(); fields[i+1].select(); return;
+    fields[i+1].focus();
+    fields[i+1].select?.();
+    return;
   }
-  const rows = Array.from(row.parentElement.querySelectorAll('tr'));
+
+  // Al terminar la fila: ir a la siguiente fila.
+  const rows = Array.from(tbody.querySelectorAll('tr'));
   const ri = rows.indexOf(row);
   if(ri >= 0 && ri < rows.length-1){
-    const next = Array.from(rows[ri+1].querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
-    if(next[0]){ next[0].focus(); next[0].select(); }
+    const nextFields = Array.from(rows[ri+1].querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
+    if(nextFields[0]){ nextFields[0].focus(); nextFields[0].select?.(); syncInteractiveFromRow(rows[ri+1]); }
+    return;
   }
-});
 
-/* ---------- avanzar de campo con Enter (solo entre inputs visibles) ---------- */
-document.addEventListener('keydown', (e)=>{
-  if (e.key !== 'Enter') return;
-  if (e.target.tagName !== 'INPUT') return;
-  e.preventDefault();
-  const inputs = Array.from(document.querySelectorAll('input[type="number"], input[type="text"]'))
-    .filter(el => el.offsetParent !== null); // solo los visibles (respeta modo rápido y calibración oculta)
-  const idx = inputs.indexOf(e.target);
-  if (idx > -1 && idx < inputs.length - 1){
-    inputs[idx+1].focus();
-    if (inputs[idx+1].select) inputs[idx+1].select();
+  // Si era la última fila, crea automáticamente una nueva para no romper el ritmo.
+  const card = row.closest('.exp-card');
+  const addBtn = card?.querySelector('.exp-add-row');
+  if(addBtn){
+    addBtn.click();
+    const newRow = tbody.lastElementChild;
+    const first = newRow?.querySelector('input[type="number"]');
+    if(first){ first.focus(); first.select?.(); syncInteractiveFromRow(newRow); }
   }
 });
 
@@ -1520,20 +1528,6 @@ document.getElementById('ia-reset').addEventListener('click', ()=>{
   iaState.values.yr2 = c + 42;
   iaState.values.x0 = c;
   renderIaTrack();
-});
-
-document.getElementById('ia-add-row').addEventListener('click', ()=>{
-  const target = document.getElementById('ia-target').value;
-  if (!target){ alert('Agrega primero un experimento (o activa la calibración) para guardar la fila.'); return; }
-  const includeM2 = document.getElementById('ia-include-m2').checked;
-  const includeX0 = document.getElementById('ia-include-x0').checked;
-  const v = iaState.values;
-  addGraphicRow(target, {
-    yl1: v.yl1, yr1: v.yr1,
-    yl2: includeM2 ? v.yl2 : undefined,
-    yr2: includeM2 ? v.yr2 : undefined,
-    x0: includeX0 ? v.x0 : undefined
-  });
 });
 
 buildIaEnvelope();
