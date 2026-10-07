@@ -1,1564 +1,257 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Medidor de grosor · Difracción de Fraunhofer</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medidor de grosor · Competencia FIS140</title>
 <style>
-  :root{
-    --bg: #10141a;
-    --panel: #171d25;
-    --panel-2: #1d242e;
-    --border: #2a3340;
-    --text: #e7ecf2;
-    --muted: #8b98a8;
-    --laser: #ff5a4a;
-    --laser-dim: #7a352d;
-    --ok: #35d399;
-    --warn: #ffb454;
-    --bad: #ff6b6b;
-    --info: #5aa9ff;
-    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family:var(--sans); line-height:1.45;
-    padding-bottom:80px;
-  }
-  .wrap{max-width:820px; margin:0 auto; padding:24px 16px 40px;}
-  header.top{margin-bottom:22px;}
-  header.top h1{font-size:22px; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em;}
-  header.top p{margin:0; color:var(--muted); font-size:14px;}
-
-  .card{
-    background:var(--panel); border:1px solid var(--border); border-radius:8px;
-    margin-bottom:16px; overflow:hidden;
-  }
-  .card > .card-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:12px 16px; border-bottom:1px solid var(--border);
-    background:var(--panel-2);
-  }
-  .card > .card-head h2{font-size:15px; margin:0; font-weight:600;}
-  .card > .card-head .sub{font-size:12px; color:var(--muted); margin-top:2px;}
-  .card-body{padding:16px;}
-
-  label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:4px;}
-  .field{margin-bottom:12px;}
-  .row-fields{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:12px;}
-
-  input[type=number], input[type=text]{
-    width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
-    padding:8px 9px; border-radius:5px; font-family:var(--mono); font-size:13.5px;
-  }
-  input[type=text]{font-family:var(--sans);}
-  input:focus{outline:none; border-color:var(--info);}
-  select{
-    width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
-    padding:8px 9px; border-radius:5px; font-family:var(--sans); font-size:13.5px;
-  }
-  select:focus{outline:none; border-color:var(--info);}
-
-  .checkbox-row{display:flex; align-items:center; gap:8px; margin-bottom:4px;}
-  .checkbox-row input{width:auto;}
-  .checkbox-row label{margin:0; color:var(--text); font-size:14px;}
-
-  .tablewrap{overflow-x:auto; border:1px solid var(--border); border-radius:6px;}
-  table{border-collapse:collapse; width:100%; min-width:560px;}
-  thead th{
-    text-align:left; font-size:11px; color:var(--muted); font-weight:600;
-    padding:8px 6px; border-bottom:1px solid var(--border); white-space:nowrap;
-    background:var(--panel-2);
-  }
-  tbody td{padding:5px 6px; border-bottom:1px solid var(--border); vertical-align:middle;}
-  tbody tr:last-child td{border-bottom:none;}
-  tbody input{padding:6px 7px; font-size:13px; width:78px;}
-  td.result-cell{font-family:var(--mono); font-size:13px; white-space:nowrap;}
-  td.flag-cell{font-size:15px; text-align:center; width:26px;}
-
-  button{
-    font-family:var(--sans); cursor:pointer; border:1px solid var(--border);
-    background:var(--panel-2); color:var(--text); padding:8px 12px;
-    border-radius:6px; font-size:13.5px;
-  }
-  button:hover{border-color:var(--info);}
-  button.primary{background:var(--laser); border-color:var(--laser); color:#1a0d0a; font-weight:600;}
-  button.primary:hover{filter:brightness(1.08);}
-  button.ghost-danger{color:var(--bad); border-color:transparent; background:transparent; padding:4px 8px; font-size:12px;}
-  button.small{padding:5px 9px; font-size:12.5px;}
-  .btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
-
-  .exp-card{border:1px solid var(--border); border-radius:6px; margin-bottom:14px; background:var(--bg);}
-  .exp-card .exp-head{
-    display:flex; align-items:center; gap:10px; padding:10px 12px;
-    border-bottom:1px solid var(--border); flex-wrap:wrap;
-  }
-  .exp-card .exp-head input[type=text]{max-width:220px;}
-  .exp-body{padding:12px;}
-
-  .stat-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
-    gap:10px; margin-top:10px;
-  }
-  .stat{
-    background:var(--panel-2); border:1px solid var(--border); border-radius:6px;
-    padding:8px 10px;
-  }
-  .stat .k{font-size:11px; color:var(--muted); margin-bottom:2px;}
-  .stat .v{font-family:var(--mono); font-size:15px;}
-
-  .result-box{
-    background:linear-gradient(180deg, var(--panel-2), var(--panel));
-    border:1px solid var(--ok); border-radius:8px; padding:18px; text-align:center;
-  }
-  .result-box .big{font-size:32px; font-family:var(--mono); color:var(--ok); font-weight:700;}
-  .result-box .small{color:var(--muted); font-size:12.5px; margin-top:6px;}
-
-  .warn-list{list-style:none; margin:0; padding:0;}
-  .warn-list li{
-    padding:8px 10px; border-radius:6px; margin-bottom:6px; font-size:13px;
-    border-left:3px solid var(--warn); background:rgba(255,180,84,0.08);
-  }
-  .warn-list li.bad{border-left-color:var(--bad); background:rgba(255,107,107,0.08);}
-  .warn-list li.info{border-left-color:var(--info); background:rgba(90,169,255,0.08);}
-  .empty-note{color:var(--muted); font-size:13px; font-style:italic;}
-
-  .hint{font-size:11.5px; color:var(--muted); margin-top:6px;}
-  canvas{max-width:100%;}
-  footer{max-width:820px; margin:20px auto 0; padding:0 16px; color:var(--muted); font-size:12px;}
-  code{font-family:var(--mono); background:var(--panel-2); padding:1px 5px; border-radius:3px;}
-
-  /* barra fija: cronómetro + resultado en vivo + modo rápido */
-  .sticky-bar{
-    position:sticky; top:0; z-index:50;
-    background:var(--panel-2); border-bottom:1px solid var(--border);
-    padding:8px 16px; display:flex; align-items:center; justify-content:space-between;
-    gap:10px; flex-wrap:wrap; font-size:13px;
-  }
-  .sticky-group{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  #timer-display{font-family:var(--mono); font-size:20px; font-weight:700; min-width:64px; text-align:center;}
-  #timer-display.warn{color:var(--warn);}
-  #timer-display.crit{color:var(--bad);}
-  .sticky-bar button{padding:5px 10px; font-size:12.5px;}
-  .sticky-result-label{color:var(--muted); font-size:12px;}
-  #sticky-result{font-family:var(--mono); font-size:18px; font-weight:700; color:var(--ok);}
-  #sticky-status{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--muted);}
-  #sticky-status.ok{color:var(--ok);}
-  #sticky-status.warn{color:var(--warn);}
-  #sticky-status.bad{color:var(--bad);}
-  .modo-rapido-toggle{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted);}
-  .modo-rapido-toggle input{width:auto;}
-
-  body.modo-rapido .col-m2, body.modo-rapido .col-x0{display:none;}
-
-  #ia-track{
-    position:relative; height:190px; margin-top:10px;
-    border:1px solid var(--border); border-radius:6px; background:#05070a; overflow:hidden;
-  }
-  #ia-envelope{position:absolute; top:0; left:0; width:100%; height:62%;}
-  #ia-center-line{
-    position:absolute; top:0; bottom:26px; left:50%; width:0;
-    border-left:2px dashed rgba(255,255,255,0.28);
-  }
-  #ia-center-label{
-    position:absolute; top:4px; left:50%; transform:translateX(-50%);
-    font-size:10.5px; color:var(--muted); white-space:nowrap; pointer-events:none;
-  }
-  #ia-ticks{position:absolute; left:0; right:0; bottom:0; height:26px;}
-  .ia-tick{position:absolute; bottom:0; width:1px; background:var(--border);}
-  .ia-tick.major{height:14px;}
-  .ia-tick.minor{height:7px;}
-  .ia-tick-label{
-    position:absolute; bottom:14px; transform:translateX(-50%);
-    font-size:10px; color:var(--muted); font-family:var(--mono); white-space:nowrap;
-  }
-  #ia-pins{position:absolute; inset:0;}
-  .ia-pin{
-    position:absolute; transform:translateX(-50%);
-    display:flex; flex-direction:column; align-items:center;
-    cursor:grab; touch-action:none; user-select:none;
-  }
-  .ia-pin:active{cursor:grabbing;}
-  .ia-pin .flag{
-    padding:2px 6px; border-radius:4px; font-size:10.5px; font-family:var(--mono);
-    white-space:nowrap; color:#0b0e12; font-weight:700; margin-bottom:2px;
-  }
-  .ia-pin .stem{width:2px; height:14px;}
-  .ia-pin .knob{width:12px; height:12px; border-radius:50%; margin-top:-1px; border:2px solid #0b0e12;}
-  .checkbox-row-group{display:flex; gap:18px; flex-wrap:wrap; margin:8px 0;}
-
-  #ia-modal-overlay{
-    position:fixed; inset:0; background:rgba(4,6,9,0.72); z-index:100;
-    display:none; align-items:flex-start; justify-content:center;
-    padding:20px 12px 40px; overflow-y:auto;
-  }
-  #ia-modal-overlay.open{display:flex;}
-  #ia-modal{
-    background:var(--panel); border:1px solid var(--border); border-radius:10px;
-    max-width:720px; width:100%; margin-top:16px;
-  }
-  #ia-modal .modal-head{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:14px 16px; border-bottom:1px solid var(--border); background:var(--panel-2);
-    border-radius:10px 10px 0 0;
-  }
-  #ia-modal .modal-head h2{font-size:15px; margin:0; font-weight:600;}
-  #ia-modal .modal-body{padding:16px;}
-  .modal-close-btn{
-    background:transparent; border:1px solid var(--border); color:var(--muted);
-    font-size:16px; line-height:1; cursor:pointer; padding:6px 10px; border-radius:6px; flex-shrink:0;
-  }
-  .modal-close-btn:hover{color:var(--text); border-color:var(--info);}
-
-
-/* ===== Interfaz de competencia: escritorio tipo instrumento ===== */
 :root{
-  --workspace-gap:14px;
-  --sidebar-w:270px;
-  --guide-w:390px;
+  --bg:#0d1117;--panel:#151b23;--panel2:#1b2430;--border:#2a3543;
+  --text:#eef3f8;--muted:#91a0b2;--ok:#55e6a3;--warn:#ffc15c;--bad:#ff7272;
+  --info:#63b3ff;--laser:#ff6354;--grid:#273240;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
-body{padding-bottom:40px;}
-.wrap{max-width:1420px; margin:0 auto; padding:12px 14px 28px;}
-header.top{margin:0 0 10px; display:flex; align-items:end; justify-content:space-between; gap:16px;}
-header.top h1{font-size:20px; margin:0;}
-header.top p{font-size:12px; margin:2px 0 0;}
-.app-layout{display:grid; grid-template-columns:var(--sidebar-w) minmax(0,1fr); gap:var(--workspace-gap); align-items:start;}
-.setup-sidebar{position:sticky; top:58px; align-self:start; max-height:calc(100vh - 74px); overflow:auto; padding-right:2px; scrollbar-width:thin;}
-.setup-sidebar .sidebar-title{font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--muted); margin:2px 2px 7px;}
-.setup-sidebar .card{margin-bottom:10px; border-radius:7px;}
-.setup-sidebar .card-head{padding:9px 11px;}
-.setup-sidebar .card-head h2{font-size:13px;}
-.setup-sidebar .card-head .sub{font-size:10.5px; line-height:1.25;}
-.setup-sidebar .card-body{padding:10px;}
-.setup-sidebar .row-fields{grid-template-columns:1fr 1fr; gap:7px 8px;}
-.setup-sidebar .field{margin-bottom:5px; min-width:0;}
-.setup-sidebar label{font-size:10.5px; line-height:1.2;}
-.setup-sidebar input[type=number], .setup-sidebar input[type=text], .setup-sidebar select{padding:7px 7px; font-size:12px;}
-.setup-sidebar .hint{font-size:10px; line-height:1.3; margin:7px 0 0;}
-.setup-sidebar #cal-block .row-fields{grid-template-columns:1fr;}
-.setup-sidebar #cal-block .tablewrap{max-height:250px; overflow:auto;}
-.setup-sidebar #cal-block table{min-width:500px;}
-.sidebar-tip{border:1px solid var(--border); background:var(--panel); border-radius:7px; padding:10px; font-size:10.5px; color:var(--muted); line-height:1.35;}
-.sidebar-tip strong{color:var(--text);}
-.main-stage{min-width:0;}
-.workbench{display:grid; grid-template-columns:minmax(0,1fr) var(--guide-w); gap:var(--workspace-gap); align-items:start;}
-.measurement-card{min-width:0; margin-bottom:0;}
-.measurement-card .card-head{padding:10px 12px;}
-.measurement-card .card-head h2{font-size:14px;}
-.measurement-card .card-head .sub{font-size:11px;}
-.measurement-card .card-body{padding:11px;}
-.measurement-head-tools{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
-.measurement-head-tools .tool-pill{font-family:var(--mono); font-size:10.5px; color:var(--muted); border:1px solid var(--border); padding:4px 7px; border-radius:999px; background:var(--bg);}
-.measurement-card .exp-card{margin-bottom:10px;}
-.measurement-card .exp-head{padding:8px 9px;}
-.measurement-card .exp-head input[type=text]{max-width:190px; padding:6px 7px;}
-.measurement-card .exp-body{padding:8px;}
-.measurement-card table{min-width:620px;}
-.measurement-card tbody input{width:74px;}
-.measurement-card .stat-grid{gap:7px; margin-top:7px;}
-.measurement-card .stat{padding:6px 8px;}
-.measurement-card .stat .k{font-size:10px;}
-.measurement-card .stat .v{font-size:13px;}
-.measurement-card .btn-row{margin-top:7px;}
-.compact-instruction{margin:7px 0 0; font-size:10.5px; line-height:1.35; color:var(--muted);}
-#experiments-container{min-width:0;}
-
-/* Guía interactiva acoplada, ya no modal */
-#ia-modal-overlay{position:static; display:block; inset:auto; background:none; z-index:auto; padding:0; overflow:visible;}
-#ia-modal-overlay.ia-hidden{display:none;}
-#ia-modal{background:var(--panel); border:1px solid var(--border); border-radius:8px; max-width:none; width:100%; margin:0; overflow:hidden; box-shadow:none;}
-#ia-modal .modal-head{padding:10px 11px; border-radius:0;}
-#ia-modal .modal-head h2{font-size:13.5px;}
-#ia-modal .modal-head .sub{font-size:10.5px !important; line-height:1.3;}
-#ia-modal .modal-body{padding:10px;}
-#close-ia-modal{font-size:12px; padding:5px 7px;}
-.ia-guide-note{font-size:10.5px; color:var(--muted); line-height:1.35; padding:7px 8px; margin-bottom:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px;}
-.ia-guide-note strong{color:var(--text);}
-#ia-track{height:215px; margin-top:8px;}
-#ia-center-label{font-size:9.5px;}
-#ia-readout{grid-template-columns:1fr 1fr; gap:7px; margin-top:8px;}
-#ia-readout .stat{padding:7px 8px;}
-#ia-readout .stat .k{font-size:9.5px;}
-#ia-readout .stat .v{font-size:12px;}
-.ia-linkbar{display:flex; align-items:center; justify-content:space-between; gap:7px; margin-bottom:7px; flex-wrap:wrap;}
-.ia-linkbar select{flex:1; min-width:160px; padding:6px 7px; font-size:11.5px;}
-.ia-link-status{font-size:10px; color:var(--muted);}
-.ia-link-status.active{color:var(--ok);}
-.ia-actions{display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:8px;}
-.ia-actions button{width:100%;}
-button.linked{border-color:var(--ok);}
-.exp-tbody tr{transition:background .12s ease, box-shadow .12s ease;}
-.exp-tbody tr.active-row td{background:rgba(90,169,255,.08);}
-.exp-tbody tr.active-row td:first-child{box-shadow:inset 3px 0 0 var(--info);}
-.exp-tbody tr.active-row .res-a{font-weight:700;}
-.exp-tbody tr:focus-within td{background:rgba(90,169,255,.055);}
-.exp-tbody input:focus{border-color:var(--info); box-shadow:0 0 0 1px rgba(90,169,255,.2);}
-.active-row-badge{font-size:10px; color:var(--info); font-family:var(--mono); margin-left:auto;}
-
-/* Resultado y diagnóstico bajo el banco de trabajo */
-.below-workbench{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr); gap:var(--workspace-gap); margin-top:var(--workspace-gap); align-items:start;}
-.below-workbench .card{margin-bottom:0;}
-.result-box{padding:13px;}
-.result-box .big{font-size:29px;}
-#summary-table{min-width:700px;}
-#chart{max-height:140px;}
-.manual-btn{display:inline-flex; align-items:center; text-decoration:none; color:var(--text); border:1px solid var(--border); background:var(--panel-2); padding:8px 12px; border-radius:6px; font-size:13.5px;}
-.manual-btn:hover{border-color:var(--info);}
-.measurement-card .compact-instruction{display:none;}
-.setup-sidebar .hint{display:none;}
-.ia-guide-note{font-size:10px; padding:6px 7px; margin-bottom:6px;}
-.ia-linkbar{margin-bottom:5px;}
-.ia-linkbar select{min-width:130px;}
-
-/* Barra superior más útil durante la corrida */
-.sticky-bar{position:sticky; top:0; z-index:50; padding:7px 12px; min-height:47px;}
-#timer-display{font-size:20px;}
-#sticky-result{font-size:17px;}
-
-/* En modo competencia, prioriza la tabla: oculta explicaciones largas, no la guía. */
-body.modo-rapido .compact-instruction,
-body.modo-rapido .measurement-card .exp-head .ghost-danger,
-body.modo-rapido .measurement-card .exp-undo-row{display:none;}
-body.modo-rapido .measurement-card .exp-add-row{display:inline-block;}
-body.modo-rapido .below-workbench .card:first-child .tablewrap,
-body.modo-rapido .below-workbench .card:first-child #chart{display:none !important;}
-body.modo-rapido .below-workbench{grid-template-columns:1fr;}
-body.modo-rapido .below-workbench .card:first-child .result-box{margin-bottom:0;}
-
-/* Pantallas medianas */
-@media (max-width:1180px){
-  :root{--sidebar-w:235px; --guide-w:330px;}
-  .workbench{grid-template-columns:minmax(0,1fr) var(--guide-w);}
-  .below-workbench{grid-template-columns:1fr;}
-}
-@media (max-width:900px){
-  :root{--guide-w:auto;}
-  .app-layout{grid-template-columns:1fr;}
-  .setup-sidebar{position:static; max-height:none; overflow:visible;}
-  .setup-sidebar .card-body{padding:9px;}
-  .workbench{grid-template-columns:1fr;}
-  #ia-modal{margin-top:0;}
-  header.top{display:block;}
-}
-@media (max-width:620px){
-  .wrap{padding:9px 8px 24px;}
-  .sticky-bar{padding:6px 8px;}
-  .sticky-group{gap:5px;}
-  #sticky-status{display:none;}
-  .setup-sidebar .row-fields{grid-template-columns:1fr 1fr;}
-  .ia-actions{grid-template-columns:1fr;}
-}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.35;padding-bottom:48px}
+button,input{font:inherit} button{cursor:pointer}
+.sticky{position:sticky;top:0;z-index:20;background:rgba(27,36,48,.97);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.sticky .group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timer{font:700 21px var(--mono);min-width:65px;text-align:center}.timer.warn{color:var(--warn)}.timer.crit{color:var(--bad)}
+button{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:13px}button:hover{border-color:var(--info)}
+button.primary{background:var(--laser);border-color:var(--laser);color:#1a0c09;font-weight:800}.pill{padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font:11px var(--mono)}
+.wrap{max-width:1280px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:10px}.top h1{margin:0;font-size:21px}.top p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:14px;align-items:start}.left,.right{min-width:0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:12px}.head{padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}.head h2{font-size:14px;margin:0}.head .sub{color:var(--muted);font-size:10.5px;margin-top:2px}.body{padding:12px}
+.measure-instruction{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.instruction{font-size:13px}.instruction strong{color:var(--text)}
+.config-line{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.field label{display:block;color:var(--muted);font-size:10.5px;margin-bottom:4px}.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:12px var(--mono)}.field input:focus{outline:none;border-color:var(--info)}
+.toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}.toggle input{accent-color:var(--info)}
+.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:8px}.table{border-collapse:collapse;width:100%;min-width:590px}.table th{background:var(--panel2);color:var(--muted);font-size:10.5px;font-weight:700;text-align:left;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap}.table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}.table tr:last-child td{border-bottom:none}.num{width:105px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:13px var(--mono)}.num:focus{outline:none;border-color:var(--info);box-shadow:0 0 0 1px rgba(99,179,255,.16)}.result{font:700 13px var(--mono);white-space:nowrap}.flag{font-size:11px;font-weight:700}.flag.ok{color:var(--ok)}.flag.warn{color:var(--warn)}.flag.bad{color:var(--bad)}
+.row3{outline:1px solid rgba(85,230,163,.22)}.row3 td{background:rgba(85,230,163,.03)}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.resultbox{background:linear-gradient(180deg,#1c2931,#15211f);border:1px solid rgba(85,230,163,.45);border-radius:8px;padding:11px}.resultbox .k{font-size:10.5px;color:var(--muted)}.resultbox .v{font:800 28px var(--mono);color:var(--ok);margin-top:2px}.resultbox .note{font-size:11px;color:var(--muted);margin-top:3px}.diagnostics{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px}.diagnostics strong{color:var(--text)}.alerts{display:grid;gap:5px;margin-top:7px}.alert{padding:6px 8px;border-radius:6px;background:rgba(99,179,255,.07);border-left:3px solid var(--info);color:#cad8e6}.alert.warn{background:rgba(255,193,92,.08);border-left-color:var(--warn)}.alert.bad{background:rgba(255,114,114,.08);border-left-color:var(--bad)}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions .spacer{flex:1}.small{font-size:12px;padding:6px 9px}
+.settings{display:none}.settings.open{display:block}.settings-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.settings-note{color:var(--muted);font-size:10.5px;margin-top:8px}
+.graph-card{position:sticky;top:59px}.graph-wrap{position:relative;height:355px;border:1px solid var(--border);border-radius:8px;background:#05070a;overflow:hidden}.graph-svg{position:absolute;inset:0;width:100%;height:100%}.axis-label{font-size:10px;fill:#91a0b2}.center-line{stroke:rgba(255,255,255,.32);stroke-dasharray:5 5}.gridline{stroke:var(--grid);stroke-width:1}.beam{stroke:var(--laser);stroke-width:2.2;fill:none;opacity:.9}.lobe{fill:rgba(255,99,84,.08);stroke:none}.marker{cursor:grab}.marker:active{cursor:grabbing}.m1{stroke:var(--info);fill:var(--info)}.m2{stroke:var(--warn);fill:var(--warn)}.marker-label{font:700 11px var(--mono);fill:#081018}.label-bg{rx:5;ry:5}.graph-legend{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:10.5px;margin-top:7px}.legend-item{display:flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%}.dot.m1{background:var(--info)}.dot.m2{background:var(--warn)}
+.graph-readout{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.stat{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:7px 8px}.stat .k{font-size:9.5px;color:var(--muted)}.stat .v{font:700 12.5px var(--mono);margin-top:2px}.graph-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.graph-actions button{width:100%}
+.notice{font-size:10.5px;color:var(--muted);line-height:1.4}.notice strong{color:var(--text)}
+footer{max-width:1280px;margin:10px auto;color:var(--muted);font-size:10px;padding:0 14px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.graph-card{position:static}.config-line{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.wrap{padding:10px}.top{display:block}.layout{gap:10px}.config-line{grid-template-columns:1fr 1fr}.bottom{grid-template-columns:1fr}.graph-wrap{height:300px}.sticky{padding:7px 10px}.timer{font-size:18px}.top h1{font-size:18px}}
 </style>
 </head>
 <body>
+<div class="sticky">
+  <div class="group"><span id="timer" class="timer">05:00</span><button class="small" id="start">Iniciar</button><button class="small" id="pause" style="display:none">Pausar</button><button class="small" id="reset">Reiniciar</button></div>
+  <div class="group"><span class="pill">λ 532 ± 10 nm</span><span class="pill">L 1,00 m</span></div>
+  <div class="group"><span style="color:var(--muted);font-size:11px">Estado:</span><span id="status" class="pill">Esperando</span><strong id="stickyResult" style="font:700 16px var(--mono);color:var(--ok)">— µm</strong></div>
+</div>
+<div class="wrap">
+  <div class="top"><div><h1>Medidor de grosor por difracción</h1><p>Babinet · Fraunhofer · FIS140 · diseñado para medición rápida en competencia</p></div><div class="toggle"><input type="checkbox" id="useM2"><label for="useM2">Usar m=2 como comprobación</label></div></div>
 
+  <div class="layout">
+    <main class="left">
+      <section class="card">
+        <div class="head"><div><h2>Medición rápida</h2><div class="sub">3 mediciones forman el resultado de competencia. Puedes agregar una 4ª o 5ª solo si hay dispersión.</div></div><button id="settingsBtn" class="small">⚙ Ajustes</button></div>
+        <div class="body">
+          <div class="measure-instruction"><div class="instruction"><strong>Mide desde el máximo central hasta el mínimo oscuro.</strong> Usa un solo lado. La dirección no afecta el cálculo.</div></div>
+          <div class="config-line">
+            <div class="field"><label>λ del láser (nm)</label><input id="lambda" type="number" step="any" value="532"></div>
+            <div class="field"><label>Error de λ (± nm)</label><input id="dlambda" type="number" step="any" value="10"></div>
+            <div class="field"><label>L: pelo → pantalla (m)</label><input id="L" type="number" step="any" value="1.00"></div>
+            <div class="field"><label>División papel (mm)</label><input id="res" type="number" step="any" value="1"></div>
+          </div>
+          <div class="tablewrap">
+            <table class="table"><thead><tr><th>#</th><th>m=1 · distancia al centro (mm)</th><th class="m2col" style="display:none">m=2 · distancia al centro (mm)</th><th>Grosor por m=1</th><th>Control</th></tr></thead>
+            <tbody id="rows"></tbody></table>
+          </div>
+          <div class="actions"><button id="extraBtn" class="small">+ Medición extra</button><button id="clearBtn" class="small">Limpiar</button><div class="spacer"></div><button id="csvBtn" class="small">Exportar CSV</button></div>
+          <div class="bottom"><div class="resultbox"><div class="k">Resultado actual</div><div class="v" id="final">— µm</div><div class="note" id="finalNote">Completa la primera medición para ver una estimación.</div></div><div class="diagnostics"><strong>Diagnóstico rápido</strong><div id="alerts" class="alerts"><div class="alert">Sin alertas.</div></div></div></div>
+        </div>
+      </section>
+      <section class="card settings" id="settings"><div class="head"><div><h2>Ajustes de medición</h2><div class="sub">Normalmente no necesitas tocar estos valores.</div></div></div><div class="body">
+        <div class="settings-grid"><div class="field"><label>Incertidumbre de L (± m)</label><input id="dL" type="number" step="any" value="0.003"></div><div class="field"><label>Ø interno tubo (mm)</label><input id="tube" type="number" step="any" value="75"></div><div class="field"><label>Rango inferior de alerta (µm)</label><input id="hairMin" type="number" step="any" value="30"></div><div class="field"><label>Rango superior de alerta (µm)</label><input id="hairMax" type="number" step="any" value="150"></div><div class="field"><label>Tolerancia m=2 (%)</label><input id="m2tol" type="number" step="any" value="12"></div></div>
+        <div class="settings-note">La interfaz usa 532 ± 10 nm como valor nominal del láser verde 303. El cálculo interno usa la fórmula exacta, no la aproximación de ángulo pequeño.</div>
+      </div></section>
+    </main>
 
+    <aside class="right">
+      <section class="card graph-card">
+        <div class="head"><div><h2>Guía visual del patrón</h2><div class="sub">Los marcadores se pueden arrastrar. El m=2 es opcional.</div></div><button id="resetGraph" class="small">Restablecer</button></div>
+        <div class="body">
+          <div class="graph-wrap"><svg id="graph" class="graph-svg" viewBox="0 0 800 355" preserveAspectRatio="none"></svg></div>
+          <div class="graph-legend"><div class="legend-item"><span class="dot m1"></span> m=1</div><div class="legend-item"><span class="dot m2"></span> m=2</div><div class="legend-item">arrastra el marcador para ajustar</div></div>
+          <div class="graph-readout"><div class="stat"><div class="k">m=1</div><div class="v" id="g1">— mm</div></div><div class="stat"><div class="k">m=2</div><div class="v" id="g2">— mm</div></div><div class="stat"><div class="k">a desde m=1</div><div class="v" id="ga">— µm</div></div><div class="stat"><div class="k">m=2 esperado</div><div class="v" id="g2exp">— mm</div></div></div>
+          <div class="graph-actions"><button id="useG1">Usar m=1 en fila actual</button><button id="useG2">Usar m=2 en fila actual</button></div>
+          <div class="notice" style="margin-top:8px"><strong>Lectura:</strong> el valor del gráfico representa la distancia positiva desde el máximo central hasta el mínimo del lado seleccionado.</div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+<footer>Resultado oficial: promedio de las mediciones válidas de m=1. m=2 se usa únicamente como control de consistencia. Las alertas no modifican los datos medidos.</footer>
 
-<div class="sticky-bar">
-<div class="sticky-group">
-<span id="timer-display">05:00</span>
-<button class="small" id="timer-start" onclick="startTimer()">Iniciar</button>
-<button class="small" id="timer-pause" onclick="pauseTimer()" style="display:none;">Pausar</button>
-<button class="small" id="timer-reset" onclick="resetTimer()">Reiniciar</button>
-</div>
-<div class="modo-rapido-toggle">
-<input id="modo-rapido-toggle" type="checkbox"/>
-<label for="modo-rapido-toggle">Modo competencia (solo m=1)</label>
-</div>
-<div class="sticky-group">
-<span class="sticky-result-label">Estado:</span>
-<span id="sticky-status">Esperando datos</span>
-<span class="sticky-result-label">Grosor:</span>
-<span id="sticky-result">— µm</span>
-</div>
-</div><div class="wrap"><header class="top">
-<h1>Medidor de grosor por difracción de Fraunhofer</h1>
-<p>Difracción de Fraunhofer · FIS140</p>
-</header><div class="app-layout"><aside class="setup-sidebar"><div class="sidebar-title">MONTAJE Y AJUSTES</div><div class="card setup-card">
-<div class="card-head">
-<div>
-<h2>Configuración del montaje</h2>
-<div class="sub">Se configura una vez</div>
-</div>
-</div>
-<div class="card-body">
-<div class="row-fields">
-<div class="field">
-<label for="cfg-lambda">λ del láser (nm)</label>
-<input id="cfg-lambda" inputmode="decimal" step="any" type="number" value="650"/>
-</div>
-<div class="field">
-<label for="cfg-dlambda">Incertidumbre de λ (± nm)</label>
-<input id="cfg-dlambda" inputmode="decimal" step="any" type="number" value="2"/>
-</div>
-<div class="field">
-<label for="cfg-L">L, rendija–pantalla (m)</label>
-<input id="cfg-L" inputmode="decimal" step="any" type="number" value="2.0"/>
-</div>
-<div class="field">
-<label for="cfg-dL">Incertidumbre de L (± m)</label>
-<input id="cfg-dL" inputmode="decimal" step="any" type="number" value="0.003"/>
-</div>
-<div class="field">
-<label for="cfg-res">Resolución del papel milimetrado (mm)</label>
-<input id="cfg-res" inputmode="decimal" step="any" type="number" value="1"/>
-</div>
-<div class="field">
-<label for="cfg-tol">Tolerancia de centrado para alerta (mm)</label>
-<input id="cfg-tol" inputmode="decimal" step="any" type="number" value="1.5"/>
-</div>
-</div>
+<script>
+const $=id=>document.getElementById(id);
+let extraRows=0, selectedRow=null, useM2=false;
+let timer=300,timerId=null;
+const graphState={m1:11,m2:null,drag:null,range:35};
 
-</div>
-</div><div class="card setup-card">
-<div class="card-head">
-<div>
-<h2>Calibración con objeto de referencia</h2>
-<div class="sub">Opcional</div>
-</div>
-</div>
-<div class="card-body">
-<div class="checkbox-row">
-<input id="cal-enabled" type="checkbox"/>
-<label for="cal-enabled">Usar calibración</label>
-</div>
-<div id="cal-block" style="display:none;">
-<div class="row-fields">
-<div class="field">
-<label for="cal-name">Objeto de referencia</label>
-<input id="cal-name" placeholder="Ej: alambre calibre 34" type="text"/>
-</div>
-<div class="field">
-<label for="cal-a">Ancho conocido (µm)</label>
-<input id="cal-a" inputmode="decimal" placeholder="Ej: 160" step="any" type="number"/>
-</div>
-<div class="field">
-<label for="cal-da">Incertidumbre del ancho conocido (± µm)</label>
-<input id="cal-da" inputmode="decimal" placeholder="Ej: 5" step="any" type="number"/>
-</div>
-</div>
-<div class="tablewrap">
-<table id="cal-table">
-<thead>
-<tr>
-<th>#</th>
-<th>y izq, m=1 (mm)</th>
-<th>y der, m=1 (mm)</th>
-<th class="col-m2">y izq, m=2 (mm)</th>
-<th class="col-m2">y der, m=2 (mm)</th>
-<th>a medida (µm)</th>
-<th></th>
-</tr>
-</thead>
-<tbody id="cal-tbody"></tbody>
-</table>
-</div>
-<div class="btn-row">
-<button class="small" onclick="addCalRow()">+ fila de medición</button>
-<button class="small" onclick="undoCalRow()">↺ Quitar última fila</button>
-</div>
-<div class="stat-grid" id="cal-stats"></div>
-
-</div>
-</div>
-</div><div class="sidebar-tip"><strong>En competencia: </strong>configura λ, L y resolución una sola vez. Después trabaja principalmente en la tabla de medición. La guía de la derecha es de apoyo visual.</div></aside><main class="main-stage"><div class="workbench"><div class="measurement-card card">
-<div class="card-head">
-<div>
-<h2>Mediciones del cabello</h2>
-<div class="sub">Izquierda → derecha → siguiente fila</div>
-</div>
-<div class="measurement-head-tools"><span class="tool-pill">Enter = siguiente medición</span></div></div>
-<div class="card-body">
-<div id="experiments-container"></div>
-<div class="btn-row">
-<button class="primary" onclick="addExperiment()">+ Agregar experimento</button>
-<button class="small" id="open-ia-modal">📐 Guía</button>
-</div>
-
-</div>
-</div><div class="docked-interactive" id="ia-modal-overlay">
-<div id="ia-modal">
-<div class="modal-head">
-<div>
-<h2>Modo interactivo: dibujo del patrón</h2>
-<div class="sub" style="font-size:12px; color:var(--muted); margin-top:2px;">Usa esta vista para comprobar separación y simetría mientras ingresas la fila real.</div>
-</div>
-<button class="modal-close-btn" id="close-ia-modal" title="Ocultar guía">×</button>
-</div>
-<div class="modal-body"><div class="ia-guide-note"><strong>Guía:</strong> selecciona una fila y compara la simetría. Los marcadores son una referencia visual.</div><div class="ia-linkbar"><span class="ia-link-status" id="ia-link-status">Sin fila activa</span><select id="ia-row-select"></select></div>
-<div class="row-fields">
-<div class="field">
-<label for="ia-target">Destino para nueva fila</label>
-<select id="ia-target"></select>
-</div>
-<div class="field">
-<label for="ia-range">Rango visible del dibujo (± mm)</label>
-<input id="ia-range" inputmode="decimal" step="any" type="number" value="80"/>
-</div>
-</div>
-<div class="checkbox-row-group">
-<div class="checkbox-row"><input checked="" id="ia-include-m2" type="checkbox"/><label for="ia-include-m2">Incluir orden m=2</label></div>
-<div class="checkbox-row"><input id="ia-include-x0" type="checkbox"/><label for="ia-include-x0">Incluir referencia visual x₀</label></div>
-</div>
-<div id="ia-track">
-<svg id="ia-envelope" preserveaspectratio="none" viewbox="0 0 1000 120"></svg>
-<div id="ia-center-line"></div>
-<div id="ia-center-label">centro (máximo central)</div>
-<div id="ia-ticks"></div>
-<div id="ia-pins"></div>
-</div>
-<div class="stat-grid" id="ia-readout"></div>
-<div class="btn-row">
-<button class="primary" id="ia-add-row">Aplicar a fila activa</button>
-<button class="small" id="ia-reset">↺ Reiniciar guía</button>
-<button class="small" id="ia-new-row">+ Nueva fila desde guía</button></div>
-
-</div>
-</div>
-</div></div><div class="below-workbench"><div class="card">
-<div class="card-head">
-<div>
-<h2>Resultado final</h2>
-<div class="sub">Resultado de las mediciones válidas</div>
-</div>
-</div>
-<div class="card-body">
-
-<div class="result-box" id="final-box">
-<div class="big">— µm</div>
-<div class="small">Agrega al menos un experimento con datos para ver el resultado</div>
-</div>
-<div class="tablewrap" style="margin-top:14px;">
-<table id="summary-table">
-<thead>
-<tr><th>Experimento</th><th>N</th><th>Media (µm)</th><th>Incert. aleatoria (µm)</th><th>Incert. común (µm)</th><th>Total (µm)</th><th>Peso relativo</th></tr>
-</thead>
-<tbody id="summary-tbody"></tbody>
-</table>
-</div>
-<canvas height="150" id="chart" style="margin-top:14px; display:none;"></canvas>
-</div>
-</div><div class="card">
-<div class="card-head">
-<div>
-<h2>Alertas y diagnóstico</h2>
-<div class="sub">Solo aparecen cuando algo requiere revisión</div>
-</div>
-</div>
-<div class="card-body">
-<ul class="warn-list" id="warn-list">
-<li class="info">Sin datos suficientes todavía para diagnosticar.</li>
-</ul>
-</div>
-</div></div><div class="btn-row bottom-actions">
-<button class="primary" onclick="exportCSV()">Exportar datos y resultados (CSV)</button>
-<button onclick="clearAll()">Limpiar todo</button><a class="manual-btn" href="manual_medidor_cabello.pdf" target="_blank" rel="noopener">📘 Manual PDF</a>
-</div><footer>Herramienta local · El detalle de uso está en el Manual PDF.</footer></main></div></div><script>
-/* ---------- estado auxiliar (solo contadores de id) ---------- */
-let expCounter = 0;
-let calRowCounter = 0;
-let lastResults = null; // usado por exportCSV
-
-/* ---------- física ---------- */
-
-// a(yL,yR,L,lambda_nm) en micrometros, orden m
-function aFromRaw(yL, yR, L_m, lambda_nm, m){
-  const y_mm = Math.abs(yR - yL) / 2;
-  const y_m = y_mm / 1000;
-  const theta = Math.atan(y_m / L_m);
-  const s = Math.sin(theta);
-  if (!(s > 0)) return null;
-  const lambda_m = lambda_nm * 1e-9;
-  const a_m = (m * lambda_m) / s;
-  return a_m * 1e6; // µm
+function addRow(force=false){
+  extraRows++;
+  const tr=document.createElement('tr');
+  if(extraRows===3) tr.className='row3';
+  tr.innerHTML=`<td>${extraRows}</td><td><input class="num m1in" type="number" step="any" inputmode="decimal" aria-label="m=1 fila ${extraRows}"></td><td class="m2col" style="display:none"><input class="num m2in" type="number" step="any" inputmode="decimal" aria-label="m=2 fila ${extraRows}"></td><td class="result">—</td><td class="flag">—</td>`;
+  $('rows').appendChild(tr);
+  attachRow(tr);
+  updateM2Visibility();
+  if(!selectedRow) selectRow(tr);
+  return tr;
 }
-
-// devuelve {a, unc} en µm, propagando incertidumbre por diferencias finitas
-function aWithUncertainty(yL, yR, L_m, lambda_nm, m, dyL_mm, dyR_mm, dL_m, dlambda_nm){
-  const a0 = aFromRaw(yL, yR, L_m, lambda_nm, m);
-  if (a0 === null) return { a: null, unc: null };
-
-  const hYL = Math.max(Math.abs(yL) * 1e-6, 1e-6);
-  const hYR = Math.max(Math.abs(yR) * 1e-6, 1e-6);
-  const hL  = Math.max(Math.abs(L_m) * 1e-6, 1e-9);
-  const hLam= Math.max(Math.abs(lambda_nm) * 1e-6, 1e-6);
-
-  const dA_dyL = (aFromRaw(yL+hYL, yR, L_m, lambda_nm, m) - aFromRaw(yL-hYL, yR, L_m, lambda_nm, m)) / (2*hYL);
-  const dA_dyR = (aFromRaw(yL, yR+hYR, L_m, lambda_nm, m) - aFromRaw(yL, yR-hYR, L_m, lambda_nm, m)) / (2*hYR);
-  const dA_dL  = (aFromRaw(yL, yR, L_m+hL, lambda_nm, m) - aFromRaw(yL, yR, L_m-hL, lambda_nm, m)) / (2*hL);
-  const dA_dlam= (aFromRaw(yL, yR, L_m, lambda_nm+hLam, m) - aFromRaw(yL, yR, L_m, lambda_nm-hLam, m)) / (2*hLam);
-
-  const variance = (dA_dyL*dyL_mm)**2 + (dA_dyR*dyR_mm)**2 + (dA_dL*dL_m)**2 + (dA_dlam*dlambda_nm)**2;
-  return { a: a0, unc: Math.sqrt(Math.max(variance,0)) };
+function attachRow(tr){
+  tr.addEventListener('click',()=>selectRow(tr));
+  tr.querySelectorAll('input').forEach(inp=>{inp.addEventListener('input',()=>{selectRow(tr);recalc();});});
+  tr.querySelectorAll('input').forEach(inp=>inp.addEventListener('keydown',enterNav));
 }
+function selectRow(tr){document.querySelectorAll('#rows tr').forEach(r=>r.style.boxShadow='');selectedRow=tr;tr.style.boxShadow='inset 3px 0 0 var(--info)';updateGraphFromRow();}
+function enterNav(e){if(e.key!=='Enter')return;e.preventDefault();const tr=e.target.closest('tr');const fields=[tr.querySelector('.m1in'), ...(useM2?[tr.querySelector('.m2in')]:[])].filter(Boolean);const i=fields.indexOf(e.target);if(i<fields.length-1){fields[i+1].focus();fields[i+1].select?.();return;}const rows=[...document.querySelectorAll('#rows tr')];const idx=rows.indexOf(tr);if(idx<rows.length-1){const nf=rows[idx+1].querySelector('.m1in');nf.focus();nf.select?.();selectRow(rows[idx+1]);}else if(idx===rows.length-1 && rows.length<3){const nr=addRow();nr.querySelector('.m1in').focus();}else{e.target.blur();}}
 
-function mean(arr){ return arr.reduce((s,v)=>s+v,0)/arr.length; }
-function sampleStd(arr, m){
-  if (arr.length < 2) return 0;
-  const s = arr.reduce((s,v)=>s+(v-m)*(v-m),0)/(arr.length-1);
-  return Math.sqrt(s);
+function cfg(){return{lambda:+$('lambda').value,dlambda:Math.abs(+$('dlambda').value||0),L:+$('L').value,dL:Math.abs(+$('dL').value||0),res:Math.abs(+$('res').value||1),tube:Math.abs(+$('tube').value||75),hairMin:+$('hairMin').value,hairMax:+$('hairMax').value,m2tol:+$('m2tol').value};}
+function calcA(y_mm,L,lambda_nm,m){if(!(y_mm>0)||!(L>0)||!(lambda_nm>0)||!(m>0))return NaN;const y=y_mm/1000,lam=lambda_nm*1e-9;const s=y/Math.sqrt(L*L+y*y);return (m*lam/s)*1e6;}
+function deriv(f,x,h){const hh=Math.max(Math.abs(h),1e-12);return(f(x+hh)-f(x-hh))/(2*hh);}
+function componentsA(y_mm,c,m){
+  if(!(y_mm>0)||!(c.L>0)||!(c.lambda>0)) return null;
+  const uy=Math.max(c.res/2,0.01);
+  const a=calcA(y_mm,c.L,c.lambda,m);
+  if(!Number.isFinite(a)) return null;
+  const dy=deriv(y=>calcA(y,c.L,c.lambda,m),y_mm,Math.max(0.01,uy/4));
+  const dL=deriv(L=>calcA(y_mm,L,c.lambda,m),c.L,Math.max(1e-5,c.dL/4));
+  const dl=deriv(l=>calcA(y_mm,c.L,l,m),c.lambda,Math.max(0.01,c.dlambda/4));
+  const uRead=Math.abs(dy)*uy;
+  const uCommon=Math.sqrt((dL*c.dL)**2+(dl*c.dlambda)**2);
+  return {a,uRead,uCommon,uTotal:Math.sqrt(uRead*uRead+uCommon*uCommon)};
 }
-
-/* ---------- lectura de configuración ---------- */
-function readConfig(){
-  return {
-    lambda: parseFloat(document.getElementById('cfg-lambda').value),
-    dlambda: Math.abs(parseFloat(document.getElementById('cfg-dlambda').value) || 0),
-    L: parseFloat(document.getElementById('cfg-L').value),
-    dL: Math.abs(parseFloat(document.getElementById('cfg-dL').value) || 0),
-    res: Math.abs(parseFloat(document.getElementById('cfg-res').value) || 0),
-    tol: Math.abs(parseFloat(document.getElementById('cfg-tol').value) || 0)
-  };
+function uncA(y_mm,c,m){const q=componentsA(y_mm,c,m);return q?q.uTotal:NaN;}
+function roundUnc(u){
+  if(!Number.isFinite(u)||u<=0) return 1;
+  const p=Math.floor(Math.log10(u));
+  const first=u/10**p;
+  const sig=first<2?2:1;
+  const factor=10**(p-sig+1);
+  return Math.round(u/factor)*factor;
 }
+function format(v,u){
+  if(!Number.isFinite(v)) return '— µm';
+  if(!Number.isFinite(u)||u<=0) return `${v.toFixed(0)} µm`;
+  const ru=roundUnc(u);
+  const dec=Math.max(0,-Math.floor(Math.log10(Math.abs(ru))));
+  const rv=Math.round(v*10**dec)/10**dec;
+  return `${rv.toFixed(dec)} ± ${ru.toFixed(dec)} µm`;
+}
+function std(arr){
+  if(arr.length<2) return 0;
+  const m=arr.reduce((a,b)=>a+b,0)/arr.length;
+  return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/(arr.length-1));
+}
+function rowData(tr,c){
+  const y1=parseFloat($$(tr,'.m1in')?.value);
+  const q1=componentsA(y1,c,1);
+  let y2=parseFloat($$(tr,'.m2in')?.value), q2=null;
+  if(useM2&&y2>0) q2=componentsA(y2,c,2);
+  return {y1,a1:q1?.a??NaN,u1:q1?.uTotal??NaN,uRead1:q1?.uRead??NaN,uCommon1:q1?.uCommon??NaN,y2,a2:q2?.a??NaN,u2:q2?.uTotal??NaN};
+}
+function $$(root,sel){return root.querySelector(sel)}
+function recalc(){
+  const c=cfg(); const vals=[], yvals=[], uReads=[]; const warnings=[];
+  if(!(c.L>0)||!(c.lambda>0)) warnings.push(['bad','λ y L deben ser mayores que cero.']);
+  if(Math.abs(c.lambda-532)>35) warnings.push(['warn',`λ=${c.lambda.toFixed(0)} nm se aleja mucho del nominal 532 nm del láser verde 303.`]);
+  else if(Math.abs(c.lambda-532)>10) warnings.push(['info',`λ=${c.lambda.toFixed(0)} nm está fuera del ±10 nm nominal configurado para el láser.`]);
+  if(c.L<0.5) warnings.push(['warn',`L=${c.L.toFixed(2)} m: el patrón puede quedar demasiado pequeño para leerlo cómodamente.`]);
 
-/* ---------- filas: cálculo genérico dado yL1,yR1,yL2,yR2,x0 ---------- */
-function computeRow(cfg, yL1, yR1, yL2, yR2, x0){
-  const warnings = [];
-  const dy = cfg.res / 2; // incertidumbre de lectura de cada marca (± mitad de división)
-
-  if (isNaN(yL1) || isNaN(yR1)) return null;
-
-  const r1 = aWithUncertainty(yL1, yR1, cfg.L, cfg.lambda, 1, dy, dy, cfg.dL, cfg.dlambda);
-  if (r1.a === null){ warnings.push({level:'bad', text:'Ángulo inválido en orden 1: revisa las unidades o el valor de L.'}); return { a:null, unc:null, warnings }; }
-
-  const center1 = (yL1 + yR1) / 2;
-  let a = r1.a;
-
-  // Separamos la incertidumbre independiente (lecturas) de la común
-  // (L y lambda). Esto evita que repetir muchas veces haga desaparecer
-  // artificialmente una incertidumbre que es compartida por toda la sesión.
-  const sensitivity = (yL, yR, m)=>{
-    const hYL = Math.max(Math.abs(yL) * 1e-6, 1e-6);
-    const hYR = Math.max(Math.abs(yR) * 1e-6, 1e-6);
-    const hL  = Math.max(Math.abs(cfg.L) * 1e-6, 1e-9);
-    const hLam= Math.max(Math.abs(cfg.lambda) * 1e-6, 1e-6);
-    return {
-      dYl:(aFromRaw(yL+hYL,yR,cfg.L,cfg.lambda,m)-aFromRaw(yL-hYL,yR,cfg.L,cfg.lambda,m))/(2*hYL),
-      dYr:(aFromRaw(yL,yR+hYR,cfg.L,cfg.lambda,m)-aFromRaw(yL,yR-hYR,cfg.L,cfg.lambda,m))/(2*hYR),
-      dL:(aFromRaw(yL,yR,cfg.L+hL,cfg.lambda,m)-aFromRaw(yL,yR,cfg.L-hL,cfg.lambda,m))/(2*hL),
-      dLam:(aFromRaw(yL,yR,cfg.L,cfg.lambda+hLam,m)-aFromRaw(yL,yR,cfg.L,cfg.lambda-hLam,m))/(2*hLam)
-    };
-  };
-  const s1 = sensitivity(yL1,yR1,1);
-  const uRead = Math.sqrt((s1.dYl*dy)**2 + (s1.dYr*dy)**2);
-  const uCommon = Math.sqrt((s1.dL*cfg.dL)**2 + (s1.dLam*cfg.dlambda)**2);
-  const uRow = Math.sqrt(uRead**2 + uCommon**2);
-
-  const haveOrder2 = !isNaN(yL2) && !isNaN(yR2);
-  if (haveOrder2){
-    const r2 = aWithUncertainty(yL2, yR2, cfg.L, cfg.lambda, 2, dy, dy, cfg.dL, cfg.dlambda);
-    if (r2.a !== null){
-      const center2 = (yL2 + yR2) / 2;
-      const diff = Math.abs(r1.a - r2.a);
-      const combinedSigma = Math.sqrt(r1.unc**2 + r2.unc**2);
-      if (combinedSigma > 0 && diff > 2*combinedSigma){
-        warnings.push({level:'warn', text:`Orden 1 (${r1.a.toFixed(1)} µm) y orden 2 (${r2.a.toFixed(1)} µm) no concuerdan dentro de su incertidumbre: revisa alineación o identificación de los mínimos.`});
-      } else {
-        warnings.push({level:'info', text:`m=2 es consistente con m=1 (${r2.a.toFixed(1)} µm); se usa solo como verificación.`});
+  document.querySelectorAll('#rows tr').forEach((tr,i)=>{
+    const d=rowData(tr,c), result=tr.querySelector('.result'), flag=tr.querySelector('.flag');
+    if(Number.isFinite(d.a1)){
+      vals.push(d.a1); yvals.push(d.y1); uReads.push(d.uRead1); result.textContent=format(d.a1,d.u1);
+      let f='OK'; flag.className='flag ok';
+      if(d.a1<c.hairMin||d.a1>c.hairMax){f='REVISAR';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: ${format(d.a1,d.u1)} queda fuera del rango de control ${c.hairMin}–${c.hairMax} µm.`]);}
+      if(d.y1<2){f='y₁ pequeño';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: y₁=${d.y1.toFixed(1)} mm es muy pequeño; revisa que sea el primer mínimo.`]);}
+      const radius=c.tube/2;
+      if(d.y1>0.85*radius){f='cerca del tubo';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: y₁=${d.y1.toFixed(1)} mm queda cerca del borde del tubo Ø${c.tube.toFixed(0)} mm.`]);}
+      if(useM2 && Number.isFinite(d.a2)){
+        const rel=Math.abs(d.a2-d.a1)/((d.a2+d.a1)/2)*100;
+        const pred=expectedY2FromA(d.a1,c);
+        if(rel>c.m2tol){f='m2 ≠ m1';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: m=2 difiere de m=1 en ${rel.toFixed(1)}%.`]);}
+        if(Number.isFinite(pred) && Math.abs(d.y2-pred)/pred*100>c.m2tol){warnings.push(['info',`Fila ${i+1}: la posición de m=2 no coincide con la esperada (${pred.toFixed(1)} mm).`]);}
       }
-      if (Math.abs(center1 - center2) > cfg.tol){
-        warnings.push({level:'warn', text:`El centro de m=1 (${center1.toFixed(2)} mm) y m=2 (${center2.toFixed(2)} mm) difieren ${Math.abs(center1-center2).toFixed(2)} mm: posible desalineación.`});
-      }
+      flag.textContent=f;
+    }else{result.textContent='—';flag.textContent='—';flag.className='flag';}
+  });
+
+  const n=vals.length;
+  if(n){
+    const mean=vals.reduce((a,b)=>a+b,0)/n;
+    const s=std(vals);
+    const sem=n>1?s/Math.sqrt(n):0;
+    const uReadMean=Math.sqrt(uReads.reduce((s0,u)=>s0+u*u,0))/n;
+    const meanY=yvals.reduce((a,b)=>a+b,0)/n;
+    const common=componentsA(meanY,c,1);
+    const uCommon=common?.uCommon||0;
+    const uRandom=Math.sqrt(sem*sem+uReadMean*uReadMean);
+    const u=Math.sqrt(uRandom*uRandom+uCommon*uCommon);
+    $('final').textContent=format(mean,u);$('stickyResult').textContent=format(mean,u);
+    $('finalNote').textContent=n<3?`Preliminar · ${n}/3 mediciones`:n===3?'Resultado listo · 3 mediciones':`Refinado · ${n} mediciones`;
+    if(n>=3){
+      const cv=s/Math.max(Math.abs(mean),1e-9)*100;
+      if(cv>10) warnings.push(['warn',`Dispersión entre mediciones: ${cv.toFixed(1)}%. Conviene tomar una medición extra.`]);
+      else if(cv>5) warnings.push(['info',`Dispersión entre mediciones: ${cv.toFixed(1)}%.`]);
     }
+    if(mean<c.hairMin||mean>c.hairMax) warnings.push(['warn','El resultado final está fuera del rango de control; la alerta no modifica la medición.']);
+    let status='PRELIMINAR';
+    if(n>=3) status='LISTO';
+    if(warnings.some(w=>w[0]==='bad')) status='REVISAR';
+    else if(warnings.some(w=>w[0]==='warn')) status='REVISAR';
+    $('status').textContent=status;$('status').style.color=status==='LISTO'?'var(--ok)':status==='REVISAR'?'var(--warn)':'var(--muted)';
+  }else{
+    $('final').textContent='— µm';$('stickyResult').textContent='— µm';$('finalNote').textContent='Completa la primera medición para ver una estimación.';$('status').textContent='ESPERANDO';$('status').style.color='var(--muted)';
   }
-
-  if (!isNaN(x0)){
-    if (Math.abs(center1 - x0) > cfg.tol){
-      warnings.push({level:'warn', text:`El centro calculado (${center1.toFixed(2)} mm) difiere de tu estimación visual x₀ (${x0.toFixed(2)} mm) en más de la tolerancia: revisa que la pantalla esté perpendicular al láser.`});
-    }
-  }
-
-  return { a, unc:uRow, uRead, uCommon, dL:s1.dL, dLam:s1.dLam, warnings, center:center1, m2Checked:haveOrder2 };
+  if(warnings.length===0) $('alerts').innerHTML='<div class="alert">Sin alertas.</div>';
+  else $('alerts').innerHTML=warnings.map(w=>`<div class="alert ${w[0]}" >${w[1]}</div>`).join('');
+  updateGraphFromRow();
 }
 
-/* ---------- CONFIG: mostrar/ocultar bloque de calibración ---------- */
-document.getElementById('cal-enabled').addEventListener('change', (e)=>{
-  document.getElementById('cal-block').style.display = e.target.checked ? 'block' : 'none';
-  recalcAll();
-});
-
-/* ---------- filas de calibración ---------- */
-function calRowTemplate(n){
-  return `<tr data-row="${n}">
-    <td>${n}</td>
-    <td><input type="number" inputmode="decimal" step="any" class="cal-yl1"></td>
-    <td><input type="number" inputmode="decimal" step="any" class="cal-yr1"></td>
-    <td class="col-m2"><input type="number" inputmode="decimal" step="any" class="cal-yl2"></td>
-    <td class="col-m2"><input type="number" inputmode="decimal" step="any" class="cal-yr2"></td>
-    <td class="result-cell cal-result">—</td>
-    <td><button class="ghost-danger" onclick="this.closest('tr').remove(); recalcAll();">✕</button></td>
-  </tr>`;
-}
-function addCalRow(){
-  calRowCounter++;
-  document.getElementById('cal-tbody').insertAdjacentHTML('beforeend', calRowTemplate(calRowCounter));
-}
-function undoCalRow(){
-  const rows = document.querySelectorAll('#cal-tbody tr');
-  if (rows.length) rows[rows.length-1].remove();
-  recalcAll();
-}
-for (let i=0;i<5;i++) addCalRow();
-
-/* ---------- experimentos ---------- */
-function rowTemplate(n){
-  return `<tr data-row="${n}">
-    <td>${n}</td>
-    <td><input type="number" inputmode="decimal" step="any" class="in-yl1"></td>
-    <td><input type="number" inputmode="decimal" step="any" class="in-yr1"></td>
-    <td class="col-m2"><input type="number" inputmode="decimal" step="any" class="in-yl2"></td>
-    <td class="col-m2"><input type="number" inputmode="decimal" step="any" class="in-yr2"></td>
-    <td class="col-x0"><input type="number" inputmode="decimal" step="any" class="in-x0"></td>
-    <td class="result-cell res-a">—</td>
-    <td class="flag-cell res-flag"></td>
-    <td><button class="ghost-danger" onclick="this.closest('tr').remove(); recalcAll();">✕</button></td>
-  </tr>`;
+function expectedY2FromA(a_um,c){if(!(a_um>0))return NaN;const q=2*c.lambda/a_um/1000; if(q>=1)return NaN;return c.L*Math.tan(Math.asin(q))*1000;}
+function updateGraphFromRow(){
+  const tr=selectedRow||document.querySelector('#rows tr'); if(!tr)return;const c=cfg();const y1=parseFloat($$(tr,'.m1in').value);const y2=parseFloat($$(tr,'.m2in')?.value);if(Number.isFinite(y1)&&y1>0)graphState.m1=y1;else graphState.m1=11; if(useM2&&Number.isFinite(y2)&&y2>0)graphState.m2=y2;else graphState.m2=null;
+  $('g1').textContent=Number.isFinite(graphState.m1)?graphState.m1.toFixed(1)+' mm':'— mm';$('g2').textContent=graphState.m2?graphState.m2.toFixed(1)+' mm':'— mm';$('ga').textContent=Number.isFinite(graphState.m1)?calcA(graphState.m1,c.L,c.lambda,1).toFixed(1)+' µm':'— µm';$('g2exp').textContent=Number.isFinite(graphState.m1)?(expectedY2FromA(calcA(graphState.m1,c.L,c.lambda,1),c)||NaN).toFixed(1)+' mm':'— mm';drawGraph();
 }
 
-function addExperiment(){
-  expCounter++;
-  const id = expCounter;
-  const html = `
-  <div class="exp-card" data-exp="${id}">
-    <div class="exp-head">
-      <input type="text" class="exp-name" placeholder="Nombre / observador (ej: Constanza)">
-      <button class="ghost-danger" onclick="this.closest('.exp-card').remove(); recalcAll();">Eliminar experimento ✕</button>
-    </div>
-    <div class="exp-body">
-      <div class="tablewrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>y izq, m=1 (mm)</th>
-              <th>y der, m=1 (mm)</th>
-              <th class="col-m2">y izq, m=2 (mm)</th>
-              <th class="col-m2">y der, m=2 (mm)</th>
-              <th class="col-x0">x₀ centro visual (mm)</th>
-              <th>a (µm)</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody class="exp-tbody"></tbody>
-        </table>
-      </div>
-      <div class="btn-row">
-        <button class="small exp-add-row">+ fila de medición</button>
-        <button class="small exp-undo-row">↺ Quitar última fila</button>
-      </div>
-      <div class="stat-grid exp-stats"></div>
-    </div>
-  </div>`;
-  document.getElementById('experiments-container').insertAdjacentHTML('beforeend', html);
-  const card = document.querySelector(`.exp-card[data-exp="${id}"]`);
-  const tbody = card.querySelector('.exp-tbody');
-  let rowN = 0;
-  const addRow = () => { rowN++; tbody.insertAdjacentHTML('beforeend', rowTemplate(rowN)); };
-  card.querySelector('.exp-add-row').addEventListener('click', addRow);
-  card.querySelector('.exp-undo-row').addEventListener('click', ()=>{
-    const rows = tbody.querySelectorAll('tr');
-    if (rows.length) rows[rows.length-1].remove();
-    recalcAll();
-  });
-  for (let i=0;i<5;i++) addRow();
+function drawGraph(){
+  const svg=$('graph'),W=800,H=355,centerX=370,bottom=318,top=20,scaleX=330/graphState.range;let html='';
+  for(let mm=-graphState.range;mm<=graphState.range;mm+=5){const x=centerX+mm*scaleX;html+=`<line x1="${x}" y1="28" x2="${x}" y2="318" class="gridline" opacity="${mm%10===0?'.55':'.25'}"/><text x="${x}" y="340" text-anchor="middle" class="axis-label">${mm}</text>`}
+  html+=`<line x1="${centerX}" y1="22" x2="${centerX}" y2="318" class="center-line"/><text x="${centerX}" y="16" text-anchor="middle" class="axis-label">máximo central</text>`;
+  const pts=[];const firstZero=Math.max(graphState.m1,3);for(let i=0;i<=700;i+=4){const mm=-graphState.range+i*(2*graphState.range/700);const u=Math.PI*mm/firstZero||1e-6;const I=(Math.sin(u)/u)**2;const x=centerX+mm*scaleX;const y=265-215*I;pts.push([x,y]);}
+  let d=`M${pts[0][0]},318`;pts.forEach(p=>d+=` L${p[0]},${p[1]}`);d+=` L${pts[pts.length-1][0]},318 Z`;html+=`<path d="${d}" class="lobe"/><polyline points="${pts.map(p=>p.join(',')).join(' ')}" class="beam"/>`;
+  const drawMarker=(mm,label,cls,ypos,enabled)=>{if(!enabled)return '';const x=centerX+mm*scaleX;return `<g class="marker" data-marker="${label}" transform="translate(${x} ${ypos})"><line x1="0" y1="0" x2="0" y2="48" class="${cls}" stroke-width="3"/><circle cx="0" cy="54" r="8" class="${cls}"/><rect x="-55" y="-24" width="110" height="22" class="label-bg" fill="${cls==='m1'?'#63b3ff':'#ffc15c'}" opacity=".95"/><text x="0" y="-9" text-anchor="middle" class="marker-label">${label} ${mm.toFixed(1)} mm</text></g>`};
+  html+=drawMarker(graphState.m1,'m=1','m1',62,true); if(useM2)html+=drawMarker(graphState.m2||Math.max(graphState.m1*2,2),'m=2','m2',154,true); svg.innerHTML=html;
+  svg.querySelectorAll('.marker').forEach(el=>el.addEventListener('pointerdown',beginDrag));
 }
-addExperiment(); // arranca con un experimento listo para usar
+function beginDrag(e){const el=e.currentTarget;const rect=$('graph').getBoundingClientRect();graphState.drag={id:el.dataset.marker,pointerId:e.pointerId,rect};el.setPointerCapture?.(e.pointerId);el.addEventListener('pointermove',dragMove);el.addEventListener('pointerup',endDrag,{once:true});}
+function dragMove(e){if(!graphState.drag)return;const rect=graphState.drag.rect;let px=e.clientX-rect.left;px=Math.max(40,Math.min(rect.width-40,px));const centerX=rect.width*(370/800);const scale=(rect.width*(330/800))/graphState.range;let mm=(px-centerX)/scale;mm=Math.max(0.5,Math.min(graphState.range,mm));if(graphState.drag.id==='m=1')graphState.m1=mm;else graphState.m2=mm;updateGraphReadoutOnly();drawGraph();}
+function endDrag(){graphState.drag=null}
+function updateGraphReadoutOnly(){const c=cfg();$('g1').textContent=graphState.m1.toFixed(1)+' mm';$('g2').textContent=graphState.m2?graphState.m2.toFixed(1)+' mm':'— mm';$('ga').textContent=calcA(graphState.m1,c.L,c.lambda,1).toFixed(1)+' µm';const e=expectedY2FromA(calcA(graphState.m1,c.L,c.lambda,1),c);$('g2exp').textContent=Number.isFinite(e)?e.toFixed(1)+' mm':'— mm';}
+function useGraphic(cls){if(!selectedRow)selectRow(document.querySelector('#rows tr'));const inp=selectedRow?.querySelector(cls);if(!inp)return;inp.value=(cls==='.m1in'?graphState.m1:graphState.m2||graphState.m1*2).toFixed(1);recalc();inp.focus();}
 
-/* ---------- modo rápido ---------- */
-document.getElementById('modo-rapido-toggle').addEventListener('change', (e)=>{
-  document.body.classList.toggle('modo-rapido', e.target.checked);
-});
+function updateM2Visibility(){document.querySelectorAll('.m2col').forEach(el=>el.style.display=useM2?'table-cell':'none');}
+$('useM2').addEventListener('change',e=>{useM2=e.target.checked;updateM2Visibility();recalc();});
+['lambda','dlambda','L','res','dL','tube','hairMin','hairMax','m2tol'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',recalc);});
+$('settingsBtn').addEventListener('click',()=>$('settings').classList.toggle('open'));
+$('extraBtn').addEventListener('click',()=>{const tr=addRow(true);tr.querySelector('.m1in').focus();});
+$('clearBtn').addEventListener('click',()=>{if(!confirm('¿Borrar todas las mediciones?'))return;$('rows').innerHTML='';extraRows=0;selectedRow=null;for(let i=0;i<3;i++)addRow();recalc();});
+$('resetGraph').addEventListener('click',()=>{graphState.m1=11;graphState.m2=22;updateGraphReadoutOnly();drawGraph();});
+$('useG1').addEventListener('click',()=>useGraphic('.m1in'));$('useG2').addEventListener('click',()=>{if(!useM2){$('useM2').checked=true;useM2=true;updateM2Visibility();}useGraphic('.m2in');});
 
-/* ---------- cronómetro de 5 minutos ---------- */
-let timerSeconds = 300;
-let timerInterval = null;
+function tick(){timer=Math.max(0,timer-1);$('timer').textContent=String(Math.floor(timer/60)).padStart(2,'0')+':'+String(timer%60).padStart(2,'0');$('timer').classList.toggle('warn',timer<=120&&timer>30);$('timer').classList.toggle('crit',timer<=30);if(timer===0){clearInterval(timerId);timerId=null;$('start').style.display='inline-block';$('pause').style.display='none';$('start').textContent='Terminado';}}
+$('start').addEventListener('click',()=>{if(timerId)return;$('start').style.display='none';$('pause').style.display='inline-block';timerId=setInterval(tick,1000);});$('pause').addEventListener('click',()=>{clearInterval(timerId);timerId=null;$('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Reanudar';});$('reset').addEventListener('click',()=>{clearInterval(timerId);timerId=null;timer=300;$('timer').textContent='05:00';$('timer').className='timer';$('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Iniciar';});
+$('csvBtn').addEventListener('click',()=>{recalc();const c=cfg();const lines=['Medidor de grosor por difraccion de Fraunhofer','','Configuracion',`lambda_nm,${c.lambda}`,`dlambda_nm,${c.dlambda}`,`L_m,${c.L}`,`dL_m,${c.dL}`,`resolucion_mm,${c.res}`,`diametro_tubo_mm,${c.tube}`,'','','Datos','fila,y_m1_mm,y_m2_mm,a_m1_um,u_m1_um'];document.querySelectorAll('#rows tr').forEach((tr,i)=>{const d=rowData(tr,c);lines.push([i+1,d.y1||'',d.y2||'',Number.isFinite(d.a1)?d.a1.toFixed(5):'',Number.isFinite(d.u1)?d.u1.toFixed(5):''].join(','));});const vals=[...document.querySelectorAll('#rows tr')].map(tr=>rowData(tr,c).a1).filter(Number.isFinite);if(vals.length){const m=vals.reduce((a,b)=>a+b,0)/vals.length;lines.push('','','Resultado_final_um',m.toFixed(5));}const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='medicion_cabello_'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);});
 
-function formatTimer(s){
-  const m = Math.floor(s/60), r = s%60;
-  return String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0');
-}
-function updateTimerDisplay(){
-  const el = document.getElementById('timer-display');
-  el.textContent = formatTimer(timerSeconds);
-  el.classList.remove('warn','crit');
-  if (timerSeconds <= 30) el.classList.add('crit');
-  else if (timerSeconds <= 120) el.classList.add('warn');
-}
-function startTimer(){
-  if (timerInterval) return;
-  document.getElementById('timer-start').style.display = 'none';
-  document.getElementById('timer-pause').style.display = 'inline-block';
-  timerInterval = setInterval(()=>{
-    timerSeconds--;
-    if (timerSeconds <= 0){
-      timerSeconds = 0;
-      clearInterval(timerInterval);
-      timerInterval = null;
-      document.getElementById('timer-pause').style.display = 'none';
-      document.getElementById('timer-start').style.display = 'inline-block';
-      document.getElementById('timer-start').textContent = 'Tiempo terminado';
-    }
-    updateTimerDisplay();
-  }, 1000);
-}
-function pauseTimer(){
-  clearInterval(timerInterval);
-  timerInterval = null;
-  document.getElementById('timer-pause').style.display = 'none';
-  document.getElementById('timer-start').style.display = 'inline-block';
-  document.getElementById('timer-start').textContent = 'Reanudar';
-}
-function resetTimer(){
-  clearInterval(timerInterval);
-  timerInterval = null;
-  timerSeconds = 300;
-  document.getElementById('timer-pause').style.display = 'none';
-  document.getElementById('timer-start').style.display = 'inline-block';
-  document.getElementById('timer-start').textContent = 'Iniciar';
-  updateTimerDisplay();
-}
-updateTimerDisplay();
-
-/* ---------- Enter: navegación exclusiva de las mediciones ---------- */
-document.addEventListener('keydown',(e)=>{
-  if(e.key!=='Enter' || e.target.tagName!=='INPUT' || !e.target.closest('.exp-card')) return;
-  e.preventDefault();
-  const row = e.target.closest('tr');
-  const tbody = row.parentElement;
-  const fields = Array.from(row.querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
-  const i = fields.indexOf(e.target);
-
-  // Dentro de la misma medición: izquierda -> derecha -> siguiente campo visible.
-  if(i >= 0 && i < fields.length-1){
-    fields[i+1].focus();
-    fields[i+1].select?.();
-    return;
-  }
-
-  // Al terminar la fila: ir a la siguiente fila.
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  const ri = rows.indexOf(row);
-  if(ri >= 0 && ri < rows.length-1){
-    const nextFields = Array.from(rows[ri+1].querySelectorAll('input[type="number"]')).filter(el => el.offsetParent !== null);
-    if(nextFields[0]){ nextFields[0].focus(); nextFields[0].select?.(); syncInteractiveFromRow(rows[ri+1]); }
-    return;
-  }
-
-  // Si era la última fila, crea automáticamente una nueva para no romper el ritmo.
-  const card = row.closest('.exp-card');
-  const addBtn = card?.querySelector('.exp-add-row');
-  if(addBtn){
-    addBtn.click();
-    const newRow = tbody.lastElementChild;
-    const first = newRow?.querySelector('input[type="number"]');
-    if(first){ first.focus(); first.select?.(); syncInteractiveFromRow(newRow); }
-  }
-});
-
-/* ---------- limpiar todo ---------- */
-function clearAll(){
-  if (!confirm('¿Seguro que quieres borrar todos los datos ingresados? Esta acción no se puede deshacer.')) return;
-  document.getElementById('experiments-container').innerHTML = '';
-  expCounter = 0;
-  addExperiment();
-  document.getElementById('cal-tbody').innerHTML = '';
-  calRowCounter = 0;
-  for (let i=0;i<5;i++) addCalRow();
-  document.getElementById('cal-enabled').checked = false;
-  document.getElementById('cal-block').style.display = 'none';
-  document.getElementById('cal-name').value = '';
-  document.getElementById('cal-a').value = '';
-  document.getElementById('cal-da').value = '';
-  resetTimer();
-  recalcAll();
-}
-
-/* ---------- recalculo global (delegado por input en todo el documento) ---------- */
-document.addEventListener('input', ()=> recalcAll());
-
-function num(el){ const v = parseFloat(el.value); return v; }
-
-function recalcAll(){
-  const cfg = readConfig();
-  const allWarnings = [];
-
-  if (!(cfg.L > 0) || !(cfg.lambda > 0)){
-    allWarnings.push({level:'bad', text:'Revisa λ y L: deben ser números positivos.'});
-  }
-
-  /* --- calibración --- */
-  let calibration = null;
-  const calEnabled = document.getElementById('cal-enabled').checked;
-  if (calEnabled){
-    const aTrue = parseFloat(document.getElementById('cal-a').value);
-    const daTrue = Math.abs(parseFloat(document.getElementById('cal-da').value) || 0);
-    const rows = [...document.querySelectorAll('#cal-tbody tr')];
-    const values = [];
-    rows.forEach(tr=>{
-      const yl1 = num(tr.querySelector('.cal-yl1'));
-      const yr1 = num(tr.querySelector('.cal-yr1'));
-      const yl2 = num(tr.querySelector('.cal-yl2'));
-      const yr2 = num(tr.querySelector('.cal-yr2'));
-      const cell = tr.querySelector('.cal-result');
-      const res = computeRow(cfg, yl1, yr1, yl2, yr2, NaN);
-      if (res && res.a !== null){
-        cell.textContent = res.a.toFixed(2) + ' ± ' + res.unc.toFixed(2);
-        values.push(res);
-      } else {
-        cell.textContent = '—';
-      }
-    });
-    const statsDiv = document.getElementById('cal-stats');
-    if (values.length > 0 && aTrue > 0){
-      const aVals = values.map(v=>v.a);
-      const m = mean(aVals);
-      const std = sampleStd(aVals, m);
-      const sem = values.length > 1 ? std/Math.sqrt(values.length) : mean(values.map(v=>v.unc));
-      const instrUnc = Math.sqrt(values.reduce((s,v)=>s+v.unc**2,0)) / values.length;
-      const totalUnc = Math.sqrt(sem**2 + instrUnc**2);
-      const k = aTrue / m;
-      const relUncK = Math.sqrt((daTrue/aTrue)**2 + (totalUnc/m)**2);
-      calibration = { mean:m, unc:totalUnc, k, relUncK, n: values.length };
-      statsDiv.innerHTML = `
-        <div class="stat"><div class="k">N mediciones</div><div class="v">${values.length}</div></div>
-        <div class="stat"><div class="k">a medida (µm)</div><div class="v">${m.toFixed(2)} ± ${totalUnc.toFixed(2)}</div></div>
-        <div class="stat"><div class="k">Factor de corrección k</div><div class="v">${k.toFixed(3)}</div></div>
-        <div class="stat"><div class="k">Incert. relativa de k</div><div class="v">${(relUncK*100).toFixed(1)}%</div></div>`;
-      if (Math.abs(k-1) > 0.15){
-        allWarnings.push({level:'warn', text:`El factor de calibración k=${k.toFixed(3)} se aleja bastante de 1: hay un error sistemático relevante en λ, L o la técnica de medición, pero la calibración lo está corrigiendo.`});
-      }
-    } else {
-      statsDiv.innerHTML = `<div class="stat"><div class="k">Estado</div><div class="v">Faltan datos</div></div>`;
-      if (!(aTrue>0)) allWarnings.push({level:'info', text:'Ingresa el ancho conocido del objeto de referencia para activar la calibración.'});
-    }
-  }
-
-  /* --- experimentos --- */
-  const expCards = [...document.querySelectorAll('.exp-card')];
-  const experimentResults = [];
-  const rawRows = [];
-
-  expCards.forEach(card=>{
-    const name = card.querySelector('.exp-name').value.trim() || `Experimento`;
-    const rows = [...card.querySelectorAll('tbody tr')];
-    const values = [];
-    rows.forEach(tr=>{
-      const yl1 = num(tr.querySelector('.in-yl1'));
-      const yr1 = num(tr.querySelector('.in-yr1'));
-      const yl2 = num(tr.querySelector('.in-yl2'));
-      const yr2 = num(tr.querySelector('.in-yr2'));
-      const x0  = num(tr.querySelector('.in-x0'));
-      const resCell = tr.querySelector('.res-a');
-      const flagCell = tr.querySelector('.res-flag');
-      const res = computeRow(cfg, yl1, yr1, yl2, yr2, x0);
-      if (res && res.a !== null){
-        resCell.textContent = res.a.toFixed(2) + ' ± ' + res.unc.toFixed(2);
-        values.push(res);
-        rawRows.push({
-          experiment:name, row:tr.dataset.row||'', yl1,yr1,yl2,yr2,x0,
-          a:res.a, unc:res.unc, uRead:res.uRead, uCommon:res.uCommon
-        });
-        if (res.warnings.length){
-          const hasRealWarning = res.warnings.some(w=>w.level==='warn'||w.level==='bad');
-          flagCell.textContent = hasRealWarning ? '⚠' : '✓';
-          flagCell.title = res.warnings.map(w=>w.text).join(' / ');
-          res.warnings.forEach(w=>{
-            // La validación informativa de m=2 no llena el panel de alertas.
-            if (w.level !== 'info') allWarnings.push({level:w.level, text:`[${name}, fila ${tr.dataset.row||''}] ${w.text}`});
-          });
-        } else {
-          flagCell.textContent = '';
-          flagCell.title = '';
-        }
-      } else {
-        resCell.textContent = '—';
-        flagCell.textContent = '';
-      }
-    });
-
-    const statsDiv = card.querySelector('.exp-stats');
-    if (values.length > 0){
-      const aVals = values.map(v=>v.a);
-      const m = mean(aVals);
-      const std = sampleStd(aVals, m);
-      const repeatUnc = values.length > 1 ? std/Math.sqrt(values.length) : 0;
-      const readMeanUnc = Math.sqrt(values.reduce((s,v)=>s+v.uRead**2,0)) / values.length;
-      const dLMean = values.reduce((s,v)=>s+v.dL,0) / values.length;
-      const dLamMean = values.reduce((s,v)=>s+v.dLam,0) / values.length;
-      const commonUnc = Math.sqrt((dLMean*cfg.dL)**2 + (dLamMean*cfg.dlambda)**2);
-      const randomUnc = Math.sqrt(repeatUnc**2 + readMeanUnc**2);
-      const totalUnc = Math.sqrt(randomUnc**2 + commonUnc**2);
-      statsDiv.innerHTML = `
-        <div class="stat"><div class="k">N mediciones</div><div class="v">${values.length}</div></div>
-        <div class="stat"><div class="k">Media m=1</div><div class="v">${m.toFixed(2)} µm</div></div>
-        <div class="stat"><div class="k">Incert. aleatoria</div><div class="v">± ${randomUnc.toFixed(2)} µm</div></div>
-        <div class="stat"><div class="k">Incert. común</div><div class="v">± ${commonUnc.toFixed(2)} µm</div></div>
-        <div class="stat"><div class="k">Incert. total</div><div class="v">± ${totalUnc.toFixed(2)} µm</div></div>`;
-      experimentResults.push({ name, n: values.length, mean: m, unc: totalUnc, uRandom:randomUnc, uCommon:commonUnc, dL:dLMean, dLam:dLamMean });
-      if (values.length < 5){
-        allWarnings.push({level:'info', text:`"${name}" tiene solo ${values.length} repeticiones; para la competencia conviene completar al menos 5.`});
-      }
-    } else {
-      statsDiv.innerHTML = `<div class="stat"><div class="k">Estado</div><div class="v">Sin datos</div></div>`;
-    }
-  });
-
-  /* --- combinación final: la parte aleatoria baja con N; la común no --- */
-  const finalBox = document.getElementById('final-box');
-  const summaryBody = document.getElementById('summary-tbody');
-  summaryBody.innerHTML = '';
-  const stickyResult = document.getElementById('sticky-result');
-  const stickyStatus = document.getElementById('sticky-status');
-
-  if (experimentResults.length === 0){
-    finalBox.innerHTML = `<div class="big">— µm</div><div class="small">Agrega al menos un experimento con datos para ver el resultado</div>`;
-    stickyResult.textContent = '— µm';
-    stickyStatus.textContent = 'Esperando datos';
-    stickyStatus.className = '';
-  } else {
-    const usable = experimentResults.filter(e => e.uRandom > 0);
-    const weights = experimentResults.map(e => e.uRandom > 0 ? 1/(e.uRandom**2) : 1);
-    const sumW = weights.reduce((s,w)=>s+w,0);
-    const weightedMean = experimentResults.reduce((s,e,i)=>s + e.mean*weights[i],0)/sumW;
-    const randomFinal = usable.length ? 1/Math.sqrt(usable.reduce((s,e)=>s + 1/(e.uRandom**2),0)) : 0;
-    const dLFinal = experimentResults.reduce((s,e,i)=>s + (weights[i]/sumW)*e.dL,0);
-    const dLamFinal = experimentResults.reduce((s,e,i)=>s + (weights[i]/sumW)*e.dLam,0);
-    const commonFinal = Math.sqrt((dLFinal*cfg.dL)**2 + (dLamFinal*cfg.dlambda)**2);
-    const combinedUnc = Math.sqrt(randomFinal**2 + commonFinal**2);
-
-    experimentResults.forEach((e,i)=>{
-      const pct = (weights[i]/sumW*100).toFixed(1);
-      summaryBody.insertAdjacentHTML('beforeend', `<tr>
-        <td>${e.name}</td><td>${e.n}</td><td>${e.mean.toFixed(2)}</td><td>${e.uRandom.toFixed(2)}</td><td>${e.uCommon.toFixed(2)}</td><td>${e.unc.toFixed(2)}</td><td>${pct}%</td>
-      </tr>`);
-    });
-
-    let finalVal = weightedMean, finalUnc = combinedUnc, calNote = '';
-    if (calibration){
-      finalVal = weightedMean * calibration.k;
-      finalUnc = finalVal * Math.sqrt((combinedUnc/weightedMean)**2 + calibration.relUncK**2);
-      calNote = ` · calibración k=${calibration.k.toFixed(3)}`;
-    }
-
-    if (finalVal < 15 || finalVal > 200){
-      allWarnings.push({level:'warn', text:`El resultado final (${finalVal.toFixed(1)} µm) está muy alejado del rango de referencia usado por la herramienta (17–181 µm). Revisa unidades y montaje antes de entregar.`});
-    }
-
-    const warningCount = allWarnings.filter(w=>w.level==='warn'||w.level==='bad').length;
-    const statusText = warningCount ? 'REVISAR' : (experimentResults.some(e=>e.n<5) ? 'FALTAN REPETICIONES' : 'CONSISTENTE');
-    stickyResult.textContent = `${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm`;
-    stickyStatus.textContent = statusText;
-    stickyStatus.className = warningCount ? (allWarnings.some(w=>w.level==='bad') ? 'bad':'warn') : (experimentResults.some(e=>e.n<5) ? 'warn':'ok');
-
-    finalBox.innerHTML = `<div class="big">${finalVal.toFixed(2)} ± ${finalUnc.toFixed(2)} µm</div>
-      <div class="small">Resultado final basado en m=1 · ${experimentResults.length} experimento(s)${calNote}</div>`;
-    drawChart(experimentResults, finalVal);
-  }
-
-  /* --- panel de alertas --- */
-  const warnList = document.getElementById('warn-list');
-  if (allWarnings.length === 0){
-    warnList.innerHTML = `<li class="info">Sin alertas por ahora.</li>`;
-  } else {
-    warnList.innerHTML = allWarnings.map(w=>`<li class="${w.level}">${w.text}</li>`).join('');
-  }
-
-  refreshGraphicTargetOptions();
-  updateIaRowOptions();
-
-  lastResults = { cfg, calibration, experimentResults, allWarnings, rawRows };
-}
-
-/* ---------- gráfico simple de barras con error ---------- */
-function drawChart(experiments, finalVal){
-  const canvas = document.getElementById('chart');
-  canvas.style.display = 'block';
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width = canvas.clientWidth || 760;
-  const h = canvas.height = 170;
-  ctx.clearRect(0,0,w,h);
-
-  const vals = experiments.map(e=>e.mean);
-  const uncs = experiments.map(e=>e.unc);
-  const lo = Math.min(...vals.map((v,i)=>v-uncs[i]), finalVal) * 0.95;
-  const hi = Math.max(...vals.map((v,i)=>v+uncs[i]), finalVal) * 1.05;
-  const pad = 40;
-  const plotW = w - pad*2;
-  const plotH = h - 30;
-
-  function xFor(i){ return pad + (i+0.5) * (plotW/experiments.length); }
-  function yFor(v){ return 20 + plotH * (1 - (v-lo)/(hi-lo)); }
-
-  // línea final
-  ctx.strokeStyle = '#35d399';
-  ctx.setLineDash([4,3]);
-  ctx.beginPath();
-  ctx.moveTo(pad, yFor(finalVal));
-  ctx.lineTo(w-pad, yFor(finalVal));
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = '#35d399';
-  ctx.font = '11px sans-serif';
-  ctx.fillText('resultado final', pad, yFor(finalVal)-6);
-
-  experiments.forEach((e,i)=>{
-    const x = xFor(i);
-    const yTop = yFor(e.mean + e.unc);
-    const yBot = yFor(e.mean - e.unc);
-    const yMean = yFor(e.mean);
-    ctx.strokeStyle = '#5aa9ff';
-    ctx.beginPath();
-    ctx.moveTo(x, yTop); ctx.lineTo(x, yBot);
-    ctx.moveTo(x-6, yTop); ctx.lineTo(x+6, yTop);
-    ctx.moveTo(x-6, yBot); ctx.lineTo(x+6, yBot);
-    ctx.stroke();
-    ctx.fillStyle = '#e7ecf2';
-    ctx.beginPath(); ctx.arc(x, yMean, 4, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#8b98a8';
-    ctx.font = '10.5px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(e.name.slice(0,12), x, h-6);
-  });
-  ctx.textAlign = 'left';
-}
-
-/* ---------- exportar CSV ---------- */
-function exportCSV(){
-  recalcAll();
-  if (!lastResults) return;
-  const { cfg, calibration, experimentResults, allWarnings, rawRows } = lastResults;
-  let lines = [];
-  lines.push('Medidor de grosor - Difraccion de Fraunhofer');
-  lines.push('');
-  lines.push('Configuracion');
-  lines.push(`lambda_nm,${cfg.lambda}`);
-  lines.push(`dlambda_nm,${cfg.dlambda}`);
-  lines.push(`L_m,${cfg.L}`);
-  lines.push(`dL_m,${cfg.dL}`);
-  lines.push(`resolucion_mm,${cfg.res}`);
-  lines.push('');
-  if (calibration){
-    lines.push('Calibracion');
-    lines.push(`a_medida_um,${calibration.mean.toFixed(4)}`);
-    lines.push(`unc_um,${calibration.unc.toFixed(4)}`);
-    lines.push(`k,${calibration.k.toFixed(5)}`);
-    lines.push(`unc_relativa_k,${calibration.relUncK.toFixed(5)}`);
-    lines.push('');
-  }
-  lines.push('Resumen_experimentos');
-  lines.push('Experimento,N,Media_um,U_aleatoria_um,U_comun_um,U_total_um');
-  experimentResults.forEach(e=>{
-    lines.push(`${csvEscape(e.name)},${e.n},${e.mean.toFixed(4)},${e.uRandom.toFixed(4)},${e.uCommon.toFixed(4)},${e.unc.toFixed(4)}`);
-  });
-  lines.push('');
-  lines.push('Datos_crudos_m1');
-  lines.push('Experimento,Fila,yIzq_m1_mm,yDer_m1_mm,yIzq_m2_mm,yDer_m2_mm,x0_mm,a_m1_um,U_m1_um,U_lectura_um,U_comun_um');
-  rawRows.forEach(r=>{
-    lines.push(`${csvEscape(r.experiment)},${r.row},${csvNum(r.yl1)},${csvNum(r.yr1)},${csvNum(r.yl2)},${csvNum(r.yr2)},${csvNum(r.x0)},${csvNum(r.a,4)},${csvNum(r.unc,4)},${csvNum(r.uRead,4)},${csvNum(r.uCommon,4)}`);
-  });
-  lines.push('');
-  lines.push('Alertas');
-  allWarnings.forEach(w=> lines.push(`${w.level},${csvEscape(w.text)}`));
-
-  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'medicion_cabello_' + new Date().toISOString().slice(0,10) + '.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function csvEscape(v){
-  const s = String(v ?? '');
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-}
-function csvNum(v, digits=6){
-  return Number.isFinite(v) ? Number(v).toFixed(digits) : '';
-}
-
-/* ---------- modo interactivo: dibujo del patrón con marcadores arrastrables ---------- */
-function refreshGraphicTargetOptions(){
-  const sel = document.getElementById('ia-target');
-  if (!sel) return;
-  const prev = sel.value;
-  const opts = [];
-  if (document.getElementById('cal-enabled').checked){
-    opts.push(`<option value="calibration">Calibración (objeto de referencia)</option>`);
-  }
-  document.querySelectorAll('.exp-card').forEach(c=>{
-    const id = c.getAttribute('data-exp');
-    const name = c.querySelector('.exp-name').value.trim() || ('Experimento ' + id);
-    opts.push(`<option value="${id}">${name}</option>`);
-  });
-  sel.innerHTML = opts.join('');
-  const values = [...sel.options].map(o=>o.value);
-  if (values.includes(prev)) sel.value = prev;
-}
-
-function addGraphicRow(target, values){
-  const isCalibration = target === 'calibration';
-  let tbody;
-  if (isCalibration){
-    tbody = document.getElementById('cal-tbody');
-  } else {
-    const card = document.querySelector(`.exp-card[data-exp="${target}"]`);
-    if (!card) return;
-    tbody = card.querySelector('.exp-tbody');
-  }
-  const n = tbody.querySelectorAll('tr').length + 1;
-  tbody.insertAdjacentHTML('beforeend', isCalibration ? calRowTemplate(n) : rowTemplate(n));
-  const tr = tbody.lastElementChild;
-  const setVal = (cls, val) => { const el = tr.querySelector(cls); if (el && val !== undefined) el.value = val.toFixed(2); };
-  if (isCalibration){
-    setVal('.cal-yl1', values.yl1); setVal('.cal-yr1', values.yr1);
-    setVal('.cal-yl2', values.yl2); setVal('.cal-yr2', values.yr2);
-  } else {
-    setVal('.in-yl1', values.yl1); setVal('.in-yr1', values.yr1);
-    setVal('.in-yl2', values.yl2); setVal('.in-yr2', values.yr2);
-    setVal('.in-x0', values.x0);
-  }
-  recalcAll();
-}
-
-
-/* ---------- widget interactivo: marcadores arrastrables + dibujo ilustrativo ---------- */
-const iaPinDefs = [
-  { id:'yl1', label:'Mín. izq (m=1)', color:'#5aa9ff', top:'26%', defaultMm:-22, group:'req' },
-  { id:'yr1', label:'Mín. der (m=1)', color:'#5aa9ff', top:'26%', defaultMm: 22, group:'req' },
-  { id:'yl2', label:'Mín. izq (m=2)', color:'#ffb454', top:'52%', defaultMm:-42, group:'m2'  },
-  { id:'yr2', label:'Mín. der (m=2)', color:'#ffb454', top:'52%', defaultMm: 42, group:'m2'  },
-  { id:'x0',  label:'Centro visual x₀', color:'#35d399', top:'78%', defaultMm: 3, group:'x0'  }
-];
-const iaState = {
-  range: 80,
-  values: {},
-  viewCenter: 0,
-  selectedRow: null,
-  selectedTarget: null
-};
-iaPinDefs.forEach(p => iaState.values[p.id] = p.defaultMm);
-
-function iaIncluded(group){
-  if (group === 'req') return true;
-  if (group === 'm2') return document.getElementById('ia-include-m2').checked;
-  if (group === 'x0') return document.getElementById('ia-include-x0').checked;
-  return true;
-}
-
-function iaTrackWidth(){
-  return document.getElementById('ia-track').clientWidth;
-}
-function iaMmToPx(mm){
-  const W = iaTrackWidth();
-  return W/2 + ((mm - iaState.viewCenter)/iaState.range) * (W/2);
-}
-function iaPxToMm(px){
-  const W = iaTrackWidth();
-  return iaState.viewCenter + ((px - W/2) / (W/2)) * iaState.range;
-}
-function iaSetViewCenter(){
-  const yl1 = Number(iaState.values.yl1);
-  const yr1 = Number(iaState.values.yr1);
-  if (Number.isFinite(yl1) && Number.isFinite(yr1)) iaState.viewCenter = (yl1 + yr1) / 2;
-}
-
-function buildIaEnvelope(){
-  const svg = document.getElementById('ia-envelope');
-  const pts = [];
-  for (let x=0; x<=1000; x+=4){
-    const u = (x-500)/55 || 0.0001;
-    const intensity = Math.pow(Math.sin(u)/u, 2);
-    const y = 118 - 100*Math.min(intensity,1);
-    pts.push(x+','+y.toFixed(1));
-  }
-  const d = `M0,120 L${pts.join(' L')} L1000,120 Z`;
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="iaGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff5a4a" stop-opacity="0.85"/>
-        <stop offset="100%" stop-color="#ff5a4a" stop-opacity="0.05"/>
-      </linearGradient>
-    </defs>
-    <path d="${d}" fill="url(#iaGrad)"></path>`;
-}
-
-function buildIaTicks(){
-  const wrap = document.getElementById('ia-ticks');
-  wrap.innerHTML = '';
-  const W = iaTrackWidth();
-  const R = iaState.range;
-  let step = 10;
-  if (R > 150) step = 25;
-  else if (R > 60) step = 10;
-  else step = 5;
-  for (let offset = -Math.floor(R/step)*step; offset <= R; offset += step){
-    const mm = iaState.viewCenter + offset;
-    const px = iaMmToPx(mm);
-    if (px < 0 || px > W) continue;
-    const major = (Math.round(mm/step) % 2 === 0) || step >= 10;
-    const tick = document.createElement('div');
-    tick.className = 'ia-tick ' + (major ? 'major':'minor');
-    tick.style.left = px + 'px';
-    wrap.appendChild(tick);
-    if (major){
-      const lbl = document.createElement('div');
-      lbl.className = 'ia-tick-label';
-      lbl.style.left = px + 'px';
-      lbl.textContent = mm;
-      wrap.appendChild(lbl);
-    }
-  }
-}
-
-function renderIaPins(){
-  const wrap = document.getElementById('ia-pins');
-  wrap.innerHTML = '';
-  iaPinDefs.forEach(def=>{
-    if (!iaIncluded(def.group)) return;
-    const mm = iaState.values[def.id];
-    const px = iaMmToPx(mm);
-    const pin = document.createElement('div');
-    pin.className = 'ia-pin';
-    pin.style.left = px + 'px';
-    pin.style.top = def.top;
-    pin.dataset.id = def.id;
-    pin.innerHTML = `
-      <div class="flag" style="background:${def.color}">${def.label}: <span class="ia-val">${mm.toFixed(1)}</span> mm</div>
-      <div class="stem" style="background:${def.color}"></div>
-      <div class="knob" style="background:${def.color}"></div>`;
-    wrap.appendChild(pin);
-    pin.addEventListener('pointerdown', iaOnPointerDown);
-  });
-}
-
-function renderIaTrack(){
-  iaSetViewCenter();
-  const cl = document.getElementById('ia-center-label');
-  if (cl) cl.textContent = `centro de la fila: ${iaState.viewCenter.toFixed(1)} mm`;
-  buildIaTicks();
-  renderIaPins();
-  updateIaReadout();
-}
-
-let iaDragId = null;
-function iaOnPointerDown(e){
-  const pin = e.currentTarget;
-  iaDragId = pin.dataset.id;
-  pin.setPointerCapture(e.pointerId);
-  pin.addEventListener('pointermove', iaOnPointerMove);
-  pin.addEventListener('pointerup', iaOnPointerUp);
-  pin.addEventListener('pointercancel', iaOnPointerUp);
-}
-function iaOnPointerMove(e){
-  if (!iaDragId) return;
-  const track = document.getElementById('ia-track');
-  const rect = track.getBoundingClientRect();
-  let px = e.clientX - rect.left;
-  px = Math.max(0, Math.min(rect.width, px));
-  const mm = iaPxToMm(px);
-  iaState.values[iaDragId] = mm;
-  const pin = e.currentTarget;
-  pin.style.left = px + 'px';
-  const valEl = pin.querySelector('.ia-val');
-  if (valEl) valEl.textContent = mm.toFixed(1);
-  updateIaReadout();
-}
-function iaOnPointerUp(e){
-  const pin = e.currentTarget;
-  pin.removeEventListener('pointermove', iaOnPointerMove);
-  pin.removeEventListener('pointerup', iaOnPointerUp);
-  pin.removeEventListener('pointercancel', iaOnPointerUp);
-  iaDragId = null;
-}
-
-function updateIaReadout(){
-  const cfg = readConfig();
-  const v = iaState.values;
-  const includeM2 = document.getElementById('ia-include-m2').checked;
-  const includeX0 = document.getElementById('ia-include-x0').checked;
-  const res = computeRow(cfg, v.yl1, v.yr1, includeM2 ? v.yl2 : NaN, includeM2 ? v.yr2 : NaN, includeX0 ? v.x0 : NaN);
-  const box = document.getElementById('ia-readout');
-  if (!res || res.a === null){
-    box.innerHTML = `<div class="stat"><div class="k">Estado</div><div class="v">Ajusta los marcadores</div></div>`;
-    return;
-  }
-  let warnHtml = res.warnings.length
-    ? `<div class="stat" style="grid-column:1/-1;"><div class="k">Alertas de esta fila</div><div class="v" style="font-size:12px; color:var(--warn);">${res.warnings.map(w=>w.text).join('<br>')}</div></div>`
-    : '';
-  const sep1 = Math.abs(v.yr1 - v.yl1);
-  const center1 = (v.yl1 + v.yr1) / 2;
-  let symmetry = '—';
-  if (includeM2 && Number.isFinite(v.yl2) && Number.isFinite(v.yr2)) {
-    const center2 = (v.yl2 + v.yr2) / 2;
-    symmetry = Math.abs(center1 - center2).toFixed(1) + ' mm';
-  }
-  box.innerHTML = `
-    <div class="stat"><div class="k">a estimada</div><div class="v">${res.a.toFixed(2)} µm</div></div>
-    <div class="stat"><div class="k">Separación m=1</div><div class="v">${sep1.toFixed(1)} mm</div></div>
-    <div class="stat"><div class="k">Centro m=1</div><div class="v">${center1.toFixed(1)} mm</div></div>
-    <div class="stat"><div class="k">Centros m=1 ↔ m=2</div><div class="v">${symmetry}</div></div>
-    <div class="stat"><div class="k">Incertidumbre</div><div class="v">± ${res.unc.toFixed(2)} µm</div></div>
-    ${warnHtml}`;
-}
-
-
-function syncInteractiveFromRow(tr){
-  if (!tr) return;
-  iaState.selectedRow = tr;
-  const card = tr.closest('.exp-card');
-  iaState.selectedTarget = card ? card.getAttribute('data-exp') : null;
-  const get = sel => {
-    const el = tr.querySelector(sel);
-    const v = el ? parseFloat(el.value) : NaN;
-    return Number.isFinite(v) ? v : undefined;
-  };
-  const yl1 = get('.in-yl1'), yr1 = get('.in-yr1');
-  if (yl1 !== undefined) iaState.values.yl1 = yl1;
-  if (yr1 !== undefined) iaState.values.yr1 = yr1;
-  const yl2 = get('.in-yl2'), yr2 = get('.in-yr2'), x0 = get('.in-x0');
-  if (yl2 !== undefined) iaState.values.yl2 = yl2;
-  if (yr2 !== undefined) iaState.values.yr2 = yr2;
-  if (x0 !== undefined) iaState.values.x0 = x0;
-  iaSetViewCenter();
-  document.querySelectorAll('.exp-tbody tr.active-row').forEach(r=>r.classList.remove('active-row'));
-  tr.classList.add('active-row');
-  const st = document.getElementById('ia-link-status');
-  if (st){
-    const name = card?.querySelector('.exp-name')?.value.trim() || `Experimento ${iaState.selectedTarget || ''}`;
-    st.textContent = `Fila vinculada: ${name} · #${tr.dataset.row || '?'}`;
-    st.classList.add('active');
-  }
-  renderIaTrack();
-}
-
-function updateIaRowOptions(){
-  const sel = document.getElementById('ia-row-select');
-  if (!sel) return;
-  const prev = iaState.selectedRow;
-  sel.innerHTML = '<option value="">Selecciona una fila...</option>';
-  document.querySelectorAll('.exp-card').forEach(card=>{
-    const id = card.dataset.exp;
-    const name = card.querySelector('.exp-name')?.value.trim() || `Experimento ${id}`;
-    [...card.querySelectorAll('.exp-tbody tr')].forEach(tr=>{
-      const opt = document.createElement('option');
-      opt.value = `${id}:${tr.dataset.row || ''}`;
-      opt.textContent = `${name} · fila ${tr.dataset.row || '?'}`;
-      sel.appendChild(opt);
-      if (tr === prev) sel.value = opt.value;
-    });
-  });
-}
-
-document.getElementById('ia-row-select').addEventListener('change', e=>{
-  const value = e.target.value;
-  if (!value) return;
-  const [expId, rowN] = value.split(':');
-  const card = document.querySelector(`.exp-card[data-exp="${expId}"]`);
-  const row = card ? [...card.querySelectorAll('.exp-tbody tr')].find(r=>r.dataset.row === rowN) : null;
-  if (row) syncInteractiveFromRow(row);
-});
-
-function findSelectedRow(){
-  if (iaState.selectedRow && document.body.contains(iaState.selectedRow)) return iaState.selectedRow;
-  return null;
-}
-
-document.addEventListener('click', e=>{
-  const tr = e.target.closest('.exp-tbody tr');
-  if (tr) syncInteractiveFromRow(tr);
-});
-
-function applyInteractiveToSelectedRow(){
-  const tr = findSelectedRow();
-  if (!tr){
-    alert('Primero selecciona una fila de medición haciendo clic en ella.');
-    return;
-  }
-  const v = iaState.values;
-  const set = (sel, val) => {
-    const el = tr.querySelector(sel);
-    if (el && Number.isFinite(Number(val))) el.value = Number(val).toFixed(2);
-  };
-  set('.in-yl1', v.yl1); set('.in-yr1', v.yr1);
-  if (document.getElementById('ia-include-m2').checked){ set('.in-yl2', v.yl2); set('.in-yr2', v.yr2); }
-  if (document.getElementById('ia-include-x0').checked){ set('.in-x0', v.x0); }
-  recalcAll();
-  syncInteractiveFromRow(tr);
-}
-
-document.getElementById('ia-add-row').addEventListener('click', applyInteractiveToSelectedRow);
-document.getElementById('ia-new-row').addEventListener('click', ()=>{
-  const target = document.getElementById('ia-target').value;
-  if (!target){ alert('Selecciona un experimento de destino para crear una nueva fila.'); return; }
-  const includeM2 = document.getElementById('ia-include-m2').checked;
-  const includeX0 = document.getElementById('ia-include-x0').checked;
-  const v = iaState.values;
-  addGraphicRow(target, {
-    yl1: v.yl1, yr1: v.yr1,
-    yl2: includeM2 ? v.yl2 : undefined,
-    yr2: includeM2 ? v.yr2 : undefined,
-    x0: includeX0 ? v.x0 : undefined
-  });
-  const card = document.querySelector(`.exp-card[data-exp="${target}"]`);
-  const rows = card ? card.querySelectorAll('.exp-tbody tr') : [];
-  if (rows.length) syncInteractiveFromRow(rows[rows.length-1]);
-});
-
-document.getElementById('ia-range').addEventListener('input', (e)=>{
-  const r = parseFloat(e.target.value);
-  iaState.range = (r > 0) ? r : 80;
-  renderIaTrack();
-});
-document.getElementById('ia-include-m2').addEventListener('change', renderIaTrack);
-document.getElementById('ia-include-x0').addEventListener('change', renderIaTrack);
-
-document.getElementById('ia-reset').addEventListener('click', ()=>{
-  const c = Number.isFinite(iaState.viewCenter) ? iaState.viewCenter : 0;
-  iaState.values.yl1 = c - 22;
-  iaState.values.yr1 = c + 22;
-  iaState.values.yl2 = c - 42;
-  iaState.values.yr2 = c + 42;
-  iaState.values.x0 = c;
-  renderIaTrack();
-});
-
-buildIaEnvelope();
-window.addEventListener('resize', ()=>{
-  if (!document.getElementById('ia-modal-overlay').classList.contains('ia-hidden')) renderIaTrack();
-});
-
-function openIaModal(){
-  const panel = document.getElementById('ia-modal-overlay');
-  panel.classList.remove('ia-hidden');
-  const btn = document.getElementById('open-ia-modal');
-  if (btn) btn.textContent = 'Ocultar guía';
-  requestAnimationFrame(renderIaTrack);
-}
-function closeIaModal(){
-  const panel = document.getElementById('ia-modal-overlay');
-  panel.classList.add('ia-hidden');
-  const btn = document.getElementById('open-ia-modal');
-  if (btn) btn.textContent = 'Mostrar guía';
-}
-const iaToggle = document.getElementById('open-ia-modal');
-if (iaToggle) iaToggle.addEventListener('click', ()=>{
-  const panel = document.getElementById('ia-modal-overlay');
-  if (panel.classList.contains('ia-hidden')) openIaModal(); else closeIaModal();
-});
-const iaClose = document.getElementById('close-ia-modal');
-if (iaClose) iaClose.addEventListener('click', closeIaModal);
-document.addEventListener('keydown', (e)=>{
-  if (e.key === 'Escape') closeIaModal();
-});
-
-/* ---------- primer cálculo ---------- */
-recalcAll();
-</script></body>
+// iniciar con 3 filas y gráfico
+for(let i=0;i<3;i++)addRow();updateM2Visibility();drawGraph();recalc();
+</script>
+</body>
 </html>
