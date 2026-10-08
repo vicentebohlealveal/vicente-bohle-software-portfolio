@@ -12,246 +12,589 @@
   --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.35;padding-bottom:48px}
-button,input{font:inherit} button{cursor:pointer}
+button,input,select{font:inherit} button{cursor:pointer}
 .sticky{position:sticky;top:0;z-index:20;background:rgba(27,36,48,.97);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .sticky .group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timer{font:700 21px var(--mono);min-width:65px;text-align:center}.timer.warn{color:var(--warn)}.timer.crit{color:var(--bad)}
 button{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:13px}button:hover{border-color:var(--info)}
 button.primary{background:var(--laser);border-color:var(--laser);color:#1a0c09;font-weight:800}.pill{padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font:11px var(--mono)}
+select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font:12px var(--mono)}select:focus{outline:none;border-color:var(--info)}
 .wrap{max-width:1280px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:10px}.top h1{margin:0;font-size:21px}.top p{margin:3px 0 0;color:var(--muted);font-size:12px}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:14px;align-items:start}.left,.right{min-width:0}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:12px}.head{padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}.head h2{font-size:14px;margin:0}.head .sub{color:var(--muted);font-size:10.5px;margin-top:2px}.body{padding:12px}
 .measure-instruction{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.instruction{font-size:13px}.instruction strong{color:var(--text)}
-.config-line{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.field label{display:block;color:var(--muted);font-size:10.5px;margin-bottom:4px}.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:12px var(--mono)}.field input:focus{outline:none;border-color:var(--info)}
+.config-line{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:10px}.field label{display:block;color:var(--muted);font-size:10.5px;margin-bottom:4px}.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:12px var(--mono)}.field input:focus{outline:none;border-color:var(--info)}
 .toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}.toggle input{accent-color:var(--info)}
-.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:8px}.table{border-collapse:collapse;width:100%;min-width:590px}.table th{background:var(--panel2);color:var(--muted);font-size:10.5px;font-weight:700;text-align:left;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap}.table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}.table tr:last-child td{border-bottom:none}.num{width:105px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:13px var(--mono)}.num:focus{outline:none;border-color:var(--info);box-shadow:0 0 0 1px rgba(99,179,255,.16)}.result{font:700 13px var(--mono);white-space:nowrap}.flag{font-size:11px;font-weight:700}.flag.ok{color:var(--ok)}.flag.warn{color:var(--warn)}.flag.bad{color:var(--bad)}
+.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:8px}.table{border-collapse:collapse;width:100%;min-width:560px}.table th{background:var(--panel2);color:var(--muted);font-size:10.5px;font-weight:700;text-align:left;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap}.table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}.table tr:last-child td{border-bottom:none}.table tr.active td:first-child{box-shadow:inset 3px 0 0 var(--info)}.num{width:92px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:13px var(--mono)}.num:focus{outline:none;border-color:var(--info);box-shadow:0 0 0 1px rgba(99,179,255,.16)}.result{font:700 13px var(--mono);white-space:nowrap}.flag{font-size:11px;font-weight:700;white-space:nowrap}.flag.ok{color:var(--ok)}.flag.warn{color:var(--warn)}.flag.info{color:var(--info)}.flag.bad{color:var(--bad)}
 .row3{outline:1px solid rgba(85,230,163,.22)}.row3 td{background:rgba(85,230,163,.03)}
-.bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.resultbox{background:linear-gradient(180deg,#1c2931,#15211f);border:1px solid rgba(85,230,163,.45);border-radius:8px;padding:11px}.resultbox .k{font-size:10.5px;color:var(--muted)}.resultbox .v{font:800 28px var(--mono);color:var(--ok);margin-top:2px}.resultbox .note{font-size:11px;color:var(--muted);margin-top:3px}.diagnostics{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px}.diagnostics strong{color:var(--text)}.alerts{display:grid;gap:5px;margin-top:7px}.alert{padding:6px 8px;border-radius:6px;background:rgba(99,179,255,.07);border-left:3px solid var(--info);color:#cad8e6}.alert.warn{background:rgba(255,193,92,.08);border-left-color:var(--warn)}.alert.bad{background:rgba(255,114,114,.08);border-left-color:var(--bad)}
+body.mode1 .m2col,body.mode1 .m3col,body.mode2 .m3col{display:none}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.resultbox{background:linear-gradient(180deg,#1c2931,#15211f);border:1px solid rgba(85,230,163,.45);border-radius:8px;padding:11px}.resultbox .k{font-size:10.5px;color:var(--muted)}.resultbox .v{font:800 28px var(--mono);color:var(--ok);margin-top:2px}.resultbox .note{font-size:11px;color:var(--muted);margin-top:3px}.resultbox .sanity{margin-top:8px}.diagnostics{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px}.diagnostics strong{color:var(--text)}.alerts{display:grid;gap:5px;margin-top:7px;max-height:230px;overflow:auto}.alert{padding:6px 8px;border-radius:6px;background:rgba(99,179,255,.07);border-left:3px solid var(--info);color:#cad8e6}.alert.warn{background:rgba(255,193,92,.08);border-left-color:var(--warn)}.alert.bad{background:rgba(255,114,114,.08);border-left-color:var(--bad)}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions .spacer{flex:1}.small{font-size:12px;padding:6px 9px}
 .settings{display:none}.settings.open{display:block}.settings-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.settings-note{color:var(--muted);font-size:10.5px;margin-top:8px}
-.graph-card{position:sticky;top:59px}.graph-wrap{position:relative;height:355px;border:1px solid var(--border);border-radius:8px;background:#05070a;overflow:hidden}.graph-svg{position:absolute;inset:0;width:100%;height:100%}.axis-label{font-size:10px;fill:#91a0b2}.center-line{stroke:rgba(255,255,255,.32);stroke-dasharray:5 5}.gridline{stroke:var(--grid);stroke-width:1}.beam{stroke:var(--laser);stroke-width:2.2;fill:none;opacity:.9}.lobe{fill:rgba(255,99,84,.08);stroke:none}.marker{cursor:grab}.marker:active{cursor:grabbing}.m1{stroke:var(--info);fill:var(--info)}.m2{stroke:var(--warn);fill:var(--warn)}.marker-label{font:700 11px var(--mono);fill:#081018}.label-bg{rx:5;ry:5}.graph-legend{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:10.5px;margin-top:7px}.legend-item{display:flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%}.dot.m1{background:var(--info)}.dot.m2{background:var(--warn)}
-.graph-readout{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.stat{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:7px 8px}.stat .k{font-size:9.5px;color:var(--muted)}.stat .v{font:700 12.5px var(--mono);margin-top:2px}.graph-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.graph-actions button{width:100%}
+details.physics{margin-bottom:12px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:12px;color:#cad8e6}details.physics summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--text)}details.physics p,details.physics li{color:var(--muted);font-size:11.5px;line-height:1.5}details.physics code{font:11.5px var(--mono);color:var(--text)}details.physics ul{margin:6px 0;padding-left:18px}
+.graph-card{position:sticky;top:59px}.graph-wrap{position:relative;height:355px;border:1px solid var(--border);border-radius:8px;background:#05070a;overflow:hidden}.graph-svg{position:absolute;inset:0;width:100%;height:100%}.axis-label{font-size:10px;fill:#91a0b2}.center-line{stroke:rgba(255,255,255,.32);stroke-dasharray:5 5}.tube-edge{stroke:rgba(255,114,114,.6);stroke-dasharray:3 4;stroke-width:1.2}.gridline{stroke:var(--grid);stroke-width:1}.beam{stroke:var(--laser);stroke-width:2.2;fill:none;opacity:.9}.lobe{fill:rgba(255,99,84,.08);stroke:none}.marker{cursor:grab;touch-action:none}.marker:active{cursor:grabbing}.m1{stroke:var(--info);fill:var(--info)}.m2{stroke:var(--warn);fill:var(--warn)}.m3{stroke:var(--ok);fill:var(--ok)}.marker-label{font:700 11px var(--mono);fill:#081018}.label-bg{rx:5;ry:5}.graph-legend{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:10.5px;margin-top:7px}.legend-item{display:flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%}.dot.m1{background:var(--info)}.dot.m2{background:var(--warn)}.dot.m3{background:var(--ok)}
+.graph-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.graph-fields .field input{padding:6px 7px}
+.graph-readout{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.stat{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:7px 8px}.stat .k{font-size:9.5px;color:var(--muted)}.stat .v{font:700 12.5px var(--mono);margin-top:2px}.graph-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.graph-actions button{width:100%;font-size:11.5px;padding:6px 4px}
 .notice{font-size:10.5px;color:var(--muted);line-height:1.4}.notice strong{color:var(--text)}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:60;padding:11px 20px;border-radius:9px;font:700 14px var(--sans);background:var(--panel2);color:var(--text);border:1px solid var(--border);box-shadow:0 6px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .12s}.toast.show{opacity:1}.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.warn{border-color:var(--warn);color:var(--warn)}.toast.bad{border-color:var(--bad);color:var(--bad)}
 footer{max-width:1280px;margin:10px auto;color:var(--muted);font-size:10px;padding:0 14px}
-@media(max-width:1000px){.layout{grid-template-columns:1fr}.graph-card{position:static}.config-line{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.graph-card{position:static}.config-line{grid-template-columns:repeat(3,minmax(0,1fr))}.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.wrap{padding:10px}.top{display:block}.layout{gap:10px}.config-line{grid-template-columns:1fr 1fr}.bottom{grid-template-columns:1fr}.graph-wrap{height:300px}.sticky{padding:7px 10px}.timer{font-size:18px}.top h1{font-size:18px}}
 </style>
 </head>
-<body>
+<body class="mode1">
 <div class="sticky">
   <div class="group"><span id="timer" class="timer">05:00</span><button class="small" id="start">Iniciar</button><button class="small" id="pause" style="display:none">Pausar</button><button class="small" id="reset">Reiniciar</button></div>
-  <div class="group"><span class="pill">λ 532 ± 10 nm</span><span class="pill">L 1,00 m</span></div>
-  <div class="group"><span style="color:var(--muted);font-size:11px">Estado:</span><span id="status" class="pill">Esperando</span><strong id="stickyResult" style="font:700 16px var(--mono);color:var(--ok)">— µm</strong></div>
+  <div class="group"><span class="pill" id="pillLambda">λ 532 ± 10 nm</span><span class="pill" id="pillL">L 1,00 m</span></div>
+  <div class="group"><span style="color:var(--muted);font-size:11px">Estado:</span><span id="status" class="pill">ESPERANDO</span><strong id="stickyResult" style="font:700 16px var(--mono);color:var(--ok)">— µm</strong></div>
 </div>
 <div class="wrap">
-  <div class="top"><div><h1>Medidor de grosor por difracción</h1><p>Babinet · Fraunhofer · FIS140 · diseñado para medición rápida en competencia</p></div><div class="toggle"><input type="checkbox" id="useM2"><label for="useM2">Usar m=2 como comprobación</label></div></div>
+  <div class="top"><div><h1>Medidor de grosor por difracción</h1><p>Babinet · Fraunhofer · FIS140 · diseñado para medición rápida en competencia</p></div><div class="toggle"><label for="modeSel">Mediciones:</label><select id="modeSel"><option value="1">Solo m=1</option><option value="2">m=1 + m=2</option><option value="3">m=1 + m=2 + m=3</option></select></div></div>
 
   <div class="layout">
     <main class="left">
       <section class="card">
-        <div class="head"><div><h2>Medición rápida</h2><div class="sub">3 mediciones forman el resultado de competencia. Puedes agregar una 4ª o 5ª solo si hay dispersión.</div></div><button id="settingsBtn" class="small">⚙ Ajustes</button></div>
+        <div class="head"><div><h2>Medición rápida</h2><div class="sub">Con 1 o 2 mediciones el resultado es preliminar; con 3 mediciones de m=1 queda LISTO. Puedes agregar una 4.ª o 5.ª si hay dispersión.</div></div><button id="settingsBtn" class="small">⚙ Ajustes</button></div>
         <div class="body">
-          <div class="measure-instruction"><div class="instruction"><strong>Mide desde el máximo central hasta el mínimo oscuro.</strong> Usa un solo lado. La dirección no afecta el cálculo.</div></div>
+          <div class="measure-instruction"><div class="instruction"><strong>Mide desde el máximo central hasta el mínimo oscuro del mismo lado (y).</strong> m=1 es el resultado oficial; m=2 y m=3 (2.º y 3.er mínimo del mismo lado) son opcionales y solo comprueban consistencia.</div></div>
           <div class="config-line">
-            <div class="field"><label>λ del láser (nm)</label><input id="lambda" type="number" step="any" value="532"></div>
-            <div class="field"><label>Error de λ (± nm)</label><input id="dlambda" type="number" step="any" value="10"></div>
-            <div class="field"><label>L: pelo → pantalla (m)</label><input id="L" type="number" step="any" value="1.00"></div>
-            <div class="field"><label>División papel (mm)</label><input id="res" type="number" step="any" value="1"></div>
+            <div class="field"><label>λ del láser (nm)</label><input id="lambda" type="number" step="any" inputmode="decimal" value="532"></div>
+            <div class="field"><label>Error de λ (± nm)</label><input id="dlambda" type="number" step="any" inputmode="decimal" value="10"></div>
+            <div class="field"><label>L: pelo → pantalla (m)</label><input id="L" type="number" step="any" inputmode="decimal" value="1.00"></div>
+            <div class="field"><label>Error de L (± m)</label><input id="dL" type="number" step="any" inputmode="decimal" value="0.003"></div>
+            <div class="field"><label>División papel (mm)</label><input id="res" type="number" step="any" inputmode="decimal" value="1"></div>
+            <div class="field"><label>Ø interior tubo (mm)</label><input id="tube" type="number" step="any" inputmode="decimal" value="75"></div>
           </div>
           <div class="tablewrap">
-            <table class="table"><thead><tr><th>#</th><th>m=1 · distancia al centro (mm)</th><th class="m2col" style="display:none">m=2 · distancia al centro (mm)</th><th>Grosor por m=1</th><th>Control</th></tr></thead>
+            <table class="table"><thead><tr><th>#</th><th>m=1 · y (mm)</th><th class="m2col">m=2 · y (mm)</th><th class="m3col">m=3 · y (mm)</th><th>Grosor por m=1</th><th>Control</th></tr></thead>
             <tbody id="rows"></tbody></table>
           </div>
-          <div class="actions"><button id="extraBtn" class="small">+ Medición extra</button><button id="clearBtn" class="small">Limpiar</button><div class="spacer"></div><button id="csvBtn" class="small">Exportar CSV</button></div>
-          <div class="bottom"><div class="resultbox"><div class="k">Resultado actual</div><div class="v" id="final">— µm</div><div class="note" id="finalNote">Completa la primera medición para ver una estimación.</div></div><div class="diagnostics"><strong>Diagnóstico rápido</strong><div id="alerts" class="alerts"><div class="alert">Sin alertas.</div></div></div></div>
+          <div class="actions"><button id="extraBtn" class="small">+ Medición extra</button><button id="clearBtn" class="small">Borrar mediciones</button><div class="spacer"></div><button id="csvBtn" class="small">Exportar CSV</button></div>
+          <div class="bottom">
+            <div class="resultbox"><div class="k">Resultado oficial (m=1)</div><div class="v" id="final">— µm</div><div class="note" id="finalNote">Ingresa la primera medición para ver una estimación.</div><div class="sanity"><button id="sanityBtn" class="small">¿Es razonable?</button></div></div>
+            <div class="diagnostics"><strong>Diagnóstico rápido</strong><div id="alerts" class="alerts"><div class="alert">Sin alertas.</div></div></div>
+          </div>
         </div>
       </section>
-      <section class="card settings" id="settings"><div class="head"><div><h2>Ajustes de medición</h2><div class="sub">Normalmente no necesitas tocar estos valores.</div></div></div><div class="body">
-        <div class="settings-grid"><div class="field"><label>Incertidumbre de L (± m)</label><input id="dL" type="number" step="any" value="0.003"></div><div class="field"><label>Ø interno tubo (mm)</label><input id="tube" type="number" step="any" value="75"></div><div class="field"><label>Rango inferior de alerta (µm)</label><input id="hairMin" type="number" step="any" value="30"></div><div class="field"><label>Rango superior de alerta (µm)</label><input id="hairMax" type="number" step="any" value="150"></div><div class="field"><label>Tolerancia m=2 (%)</label><input id="m2tol" type="number" step="any" value="12"></div></div>
-        <div class="settings-note">La interfaz usa 532 ± 10 nm como valor nominal del láser verde 303. El cálculo interno usa la fórmula exacta, no la aproximación de ángulo pequeño.</div>
+      <section class="card settings" id="settings"><div class="head"><div><h2>Ajustes de control</h2><div class="sub">Rangos prácticos para detectar errores; no son leyes físicas y nunca modifican el resultado.</div></div></div><div class="body">
+        <div class="settings-grid">
+          <div class="field"><label>Rango de control: mínimo (µm)</label><input id="hairMin" type="number" step="any" inputmode="decimal" value="30"></div>
+          <div class="field"><label>Rango de control: máximo (µm)</label><input id="hairMax" type="number" step="any" inputmode="decimal" value="150"></div>
+          <div class="field"><label>Rango amplio: mínimo (µm)</label><input id="wideMin" type="number" step="any" inputmode="decimal" value="25"></div>
+          <div class="field"><label>Rango amplio: máximo (µm)</label><input id="wideMax" type="number" step="any" inputmode="decimal" value="200"></div>
+          <div class="field"><label>Tolerancia m=2 / m=3 vs m=1 (%)</label><input id="tol" type="number" step="any" inputmode="decimal" value="8"></div>
+        </div>
+        <div class="settings-note">Valores nominales del láser verde tipo 303: 532 ± 10 nm. El cálculo usa la fórmula exacta θ = arctan(y/L), no la aproximación de ángulo pequeño.</div>
       </div></section>
+      <details class="physics"><summary>Física y método (desplegable)</summary>
+        <p>Fórmula: <code>a · sen(θ) = m · λ</code>, con <code>θ = arctan(y/L)</code>, por lo tanto <code>a = m·λ / sen(arctan(y/L))</code>.</p>
+        <ul>
+          <li><strong>y</strong> es la distancia desde el máximo central hasta el mínimo del mismo lado. No se usa la mitad de la separación izquierda–derecha.</li>
+          <li>El resultado oficial es el promedio de las mediciones de <strong>m=1</strong>. Se muestra desde la primera medición (preliminar); con 3 queda LISTO.</li>
+          <li><strong>m=2</strong> (<code>a = 2λ/sen θ</code>) y <strong>m=3</strong> (<code>a = 3λ/sen θ</code>) se comparan con m=1 de la misma fila. No se promedian con m=1 ni lo reemplazan.</li>
+          <li>Incertidumbre: componente aleatoria (repetibilidad entre filas y lectura de y, que baja al promediar) y componente común por λ y L (no baja al promediar), combinadas en cuadratura.</li>
+          <li>Ejemplo con L = 1 m y un cabello de ≈ 50 µm: m=1 ≈ 10,6 mm, m=2 ≈ 21,3 mm, m=3 ≈ 32 mm. En un tubo de Ø 75 mm (radio 37,5 mm), m=3 queda cerca del borde.</li>
+          <li>Los rangos 30–150 µm y 25–200 µm son controles prácticos configurables, no una ley física ni una corrección.</li>
+        </ul>
+      </details>
     </main>
 
     <aside class="right">
       <section class="card graph-card">
-        <div class="head"><div><h2>Guía visual del patrón</h2><div class="sub">Los marcadores se pueden arrastrar. El m=2 es opcional.</div></div><button id="resetGraph" class="small">Restablecer</button></div>
+        <div class="head"><div><h2>Guía visual del patrón</h2><div class="sub">Arrastra los marcadores o escribe los mm. m=2 y m=3 son opcionales.</div></div><button id="resetGraph" class="small">Restablecer</button></div>
         <div class="body">
           <div class="graph-wrap"><svg id="graph" class="graph-svg" viewBox="0 0 800 355" preserveAspectRatio="none"></svg></div>
-          <div class="graph-legend"><div class="legend-item"><span class="dot m1"></span> m=1</div><div class="legend-item"><span class="dot m2"></span> m=2</div><div class="legend-item">arrastra el marcador para ajustar</div></div>
-          <div class="graph-readout"><div class="stat"><div class="k">m=1</div><div class="v" id="g1">— mm</div></div><div class="stat"><div class="k">m=2</div><div class="v" id="g2">— mm</div></div><div class="stat"><div class="k">a desde m=1</div><div class="v" id="ga">— µm</div></div><div class="stat"><div class="k">m=2 esperado</div><div class="v" id="g2exp">— mm</div></div></div>
-          <div class="graph-actions"><button id="useG1">Usar m=1 en fila actual</button><button id="useG2">Usar m=2 en fila actual</button></div>
-          <div class="notice" style="margin-top:8px"><strong>Lectura:</strong> el valor del gráfico representa la distancia positiva desde el máximo central hasta el mínimo del lado seleccionado.</div>
+          <div class="graph-legend"><div class="legend-item"><span class="dot m1"></span> m=1</div><div class="legend-item"><span class="dot m2"></span> m=2</div><div class="legend-item"><span class="dot m3"></span> m=3</div><div class="legend-item">arrastra horizontalmente</div></div>
+          <div class="graph-fields">
+            <div class="field"><label>m=1 (mm)</label><input id="g1in" type="number" step="any" inputmode="decimal"></div>
+            <div class="field"><label>m=2 (mm)</label><input id="g2in" type="number" step="any" inputmode="decimal"></div>
+            <div class="field"><label>m=3 (mm)</label><input id="g3in" type="number" step="any" inputmode="decimal"></div>
+          </div>
+          <div class="graph-readout"><div class="stat"><div class="k">a desde m=1</div><div class="v" id="ga">— µm</div></div><div class="stat"><div class="k">m=2 / m=3 esperados</div><div class="v" id="gexp">— / — mm</div></div></div>
+          <div class="graph-actions"><button id="useG1">Usar m=1 en fila</button><button id="useG2">Usar m=2 en fila</button><button id="useG3">Usar m=3 en fila</button></div>
+          <div class="notice" style="margin-top:8px"><strong>Guía conceptual:</strong> no es una fotografía calibrada del patrón real; la forma de las franjas es ilustrativa. El valor de cada marcador es la distancia positiva desde el máximo central hasta el mínimo del mismo lado. La línea roja punteada marca el borde del tubo.</div>
         </div>
       </section>
     </aside>
   </div>
 </div>
-<footer>Resultado oficial: promedio de las mediciones válidas de m=1. m=2 se usa únicamente como control de consistencia. Las alertas no modifican los datos medidos.</footer>
+<footer>Resultado oficial: promedio de las mediciones válidas de m=1. m=2 y m=3 se usan únicamente como control de consistencia. Las alertas no modifican los datos medidos. Funciona sin conexión.</footer>
+<div id="toast" class="toast"></div>
 
 <script>
-const $=id=>document.getElementById(id);
-let extraRows=0, selectedRow=null, useM2=false;
-let timer=300,timerId=null;
-const graphState={m1:11,m2:null,drag:null,range:35};
+function $(id){return document.getElementById(id);}
+function $$(root,sel){return root.querySelector(sel);}
 
-function addRow(force=false){
-  extraRows++;
+let rowCount=0, selectedRow=null, maxOrder=1;
+let timer=300, timerId=null, toastId=null, lastResult=null;
+const graphState={m:{1:10.6,2:21.3,3:32.0},drag:null,range:40};
+const COLORS={1:'#63b3ff',2:'#ffc15c',3:'#55e6a3'};
+const YPOS={1:62,2:154,3:246};
+
+/* ---------- formato (coma decimal en pantalla) ---------- */
+function g(x,d){if(!Number.isFinite(x))return '—';return String(+x.toFixed(d===undefined?1:d)).replace('.',',');}
+function fx(x,d){if(!Number.isFinite(x))return '—';return x.toFixed(d).replace('.',',');}
+function fmtResult(v,u){
+  if(!Number.isFinite(v)) return '— µm';
+  if(!Number.isFinite(u)||u<=0) return fx(v,1)+' µm';
+  const p=Math.floor(Math.log10(u));
+  const f=Math.pow(10,1-p);
+  const ru=Math.round(u*f)/f;               // incertidumbre con 2 cifras significativas
+  const p2=Math.floor(Math.log10(ru));
+  const dec=Math.max(0,1-p2);
+  return fx(v,dec)+' ± '+fx(ru,dec)+' µm';
+}
+function csvNum(v,d){return Number.isFinite(v)?v.toFixed(d):'';}
+
+/* ---------- física ---------- */
+function cfg(){
+  const n=(id,def)=>{const v=parseFloat($(id).value);return Number.isFinite(v)?v:def;};
+  return{
+    lambda:n('lambda',NaN),dlambda:Math.abs(n('dlambda',0)),
+    L:n('L',NaN),dL:Math.abs(n('dL',0)),
+    res:Math.abs(n('res',1))||1,tube:Math.abs(n('tube',75))||75,
+    hairMin:n('hairMin',30),hairMax:n('hairMax',150),
+    wideMin:n('wideMin',25),wideMax:n('wideMax',200),
+    tol:Math.abs(n('tol',8))
+  };
+}
+// a = m*lambda / sin(arctan(y/L)); y en mm, L en m, lambda en nm, resultado en µm
+function calcA(y_mm,L,lambda_nm,m){
+  if(!(y_mm>0)||!(L>0)||!(lambda_nm>0)||!(m>0))return NaN;
+  const y=y_mm/1000,lam=lambda_nm*1e-9;
+  const s=y/Math.sqrt(L*L+y*y);
+  return (m*lam/s)*1e6;
+}
+function deriv(f,x,h){const hh=Math.max(Math.abs(h),1e-12);return(f(x+hh)-f(x-hh))/(2*hh);}
+function componentsA(y_mm,c,m){
+  if(!(y_mm>0)||!(c.L>0)||!(c.lambda>0))return null;
+  const a=calcA(y_mm,c.L,c.lambda,m);
+  if(!Number.isFinite(a))return null;
+  const uy=Math.max(c.res/2,0.01);                       // incertidumbre de lectura de y
+  const hy=Math.min(Math.max(0.01,uy/4),y_mm/2);
+  const hL=Math.min(Math.max(1e-5,c.dL/4),c.L/2);
+  const hl=Math.min(Math.max(0.01,c.dlambda/4),c.lambda/2);
+  const dy=deriv(y=>calcA(y,c.L,c.lambda,m),y_mm,hy);
+  const dL=deriv(L=>calcA(y_mm,L,c.lambda,m),c.L,hL);
+  const dl=deriv(l=>calcA(y_mm,c.L,l,m),c.lambda,hl);
+  const uRead=Math.abs(dy)*uy;                           // aleatoria (baja al promediar)
+  const uCommon=Math.sqrt((dL*c.dL)*(dL*c.dL)+(dl*c.dlambda)*(dl*c.dlambda)); // común: λ y L
+  return{a:a,uRead:uRead,uCommon:uCommon,uTotal:Math.sqrt(uRead*uRead+uCommon*uCommon)};
+}
+function expectedY(a_um,m,c){
+  if(!(a_um>0)||!(c.L>0)||!(c.lambda>0))return NaN;
+  const q=m*c.lambda/(a_um*1000);
+  if(q>=1)return NaN;
+  return c.L*Math.tan(Math.asin(q))*1000;
+}
+function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
+function std(arr){
+  if(arr.length<2)return 0;
+  const m=mean(arr);
+  return Math.sqrt(arr.reduce((s,x)=>s+(x-m)*(x-m),0)/(arr.length-1));
+}
+function readVal(tr,cls){const el=$$(tr,cls);const v=el?parseFloat(el.value):NaN;return Number.isFinite(v)?v:NaN;}
+function rowData(tr,c){
+  const y={1:readVal(tr,'.in1'),2:readVal(tr,'.in2'),3:readVal(tr,'.in3')};
+  const q={1:null,2:null,3:null};
+  for(let m=1;m<=3;m++){ if(m<=maxOrder&&y[m]>0) q[m]=componentsA(y[m],c,m); }
+  return{
+    y:y,q:q,
+    a1:q[1]?q[1].a:NaN,u1:q[1]?q[1].uTotal:NaN,uRead1:q[1]?q[1].uRead:NaN,
+    a2:q[2]?q[2].a:NaN,a3:q[3]?q[3].a:NaN
+  };
+}
+
+/* ---------- filas, selección y navegación con Enter ---------- */
+function addRow(){
+  rowCount++;
+  const n=rowCount;
   const tr=document.createElement('tr');
-  if(extraRows===3) tr.className='row3';
-  tr.innerHTML=`<td>${extraRows}</td><td><input class="num m1in" type="number" step="any" inputmode="decimal" aria-label="m=1 fila ${extraRows}"></td><td class="m2col" style="display:none"><input class="num m2in" type="number" step="any" inputmode="decimal" aria-label="m=2 fila ${extraRows}"></td><td class="result">—</td><td class="flag">—</td>`;
+  if(n===3)tr.className='row3';
+  tr.innerHTML='<td>'+n+'</td>'+
+    '<td><input class="num in1" type="number" step="any" inputmode="decimal" aria-label="m=1 fila '+n+'"></td>'+
+    '<td class="m2col"><input class="num in2" type="number" step="any" inputmode="decimal" aria-label="m=2 fila '+n+'"></td>'+
+    '<td class="m3col"><input class="num in3" type="number" step="any" inputmode="decimal" aria-label="m=3 fila '+n+'"></td>'+
+    '<td class="result">—</td><td class="flag">—</td>';
   $('rows').appendChild(tr);
   attachRow(tr);
-  updateM2Visibility();
-  if(!selectedRow) selectRow(tr);
+  if(!selectedRow)selectRow(tr,true);
   return tr;
 }
 function attachRow(tr){
   tr.addEventListener('click',()=>selectRow(tr));
-  tr.querySelectorAll('input').forEach(inp=>{inp.addEventListener('input',()=>{selectRow(tr);recalc();});});
-  tr.querySelectorAll('input').forEach(inp=>inp.addEventListener('keydown',enterNav));
+  tr.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{selectRow(tr);recalc();updateGraphFromRow();});
+    inp.addEventListener('focus',()=>selectRow(tr));
+    inp.addEventListener('keydown',enterNav);
+  });
 }
-function selectRow(tr){document.querySelectorAll('#rows tr').forEach(r=>r.style.boxShadow='');selectedRow=tr;tr.style.boxShadow='inset 3px 0 0 var(--info)';updateGraphFromRow();}
-function enterNav(e){if(e.key!=='Enter')return;e.preventDefault();const tr=e.target.closest('tr');const fields=[tr.querySelector('.m1in'), ...(useM2?[tr.querySelector('.m2in')]:[])].filter(Boolean);const i=fields.indexOf(e.target);if(i<fields.length-1){fields[i+1].focus();fields[i+1].select?.();return;}const rows=[...document.querySelectorAll('#rows tr')];const idx=rows.indexOf(tr);if(idx<rows.length-1){const nf=rows[idx+1].querySelector('.m1in');nf.focus();nf.select?.();selectRow(rows[idx+1]);}else if(idx===rows.length-1 && rows.length<3){const nr=addRow();nr.querySelector('.m1in').focus();}else{e.target.blur();}}
+function selectRow(tr,force){
+  if(!tr)return;
+  if(selectedRow===tr&&!force)return;
+  document.querySelectorAll('#rows tr').forEach(r=>r.classList.remove('active'));
+  selectedRow=tr;tr.classList.add('active');
+  updateGraphFromRow();
+}
+function enterNav(e){
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  const tr=e.target.closest('tr');
+  const order=['.in1'];
+  if(maxOrder>=2)order.push('.in2');
+  if(maxOrder>=3)order.push('.in3');
+  let cur=-1;
+  order.forEach((sel,i)=>{if(e.target.matches(sel))cur=i;});
+  let target=null;
+  if(cur>=0&&cur<order.length-1){
+    target=$$(tr,order[cur+1]);                 // siguiente orden dentro de la misma fila
+  }else{
+    const rows=[...document.querySelectorAll('#rows tr')];
+    const idx=rows.indexOf(tr);
+    let next=rows[idx+1];
+    if(!next)next=addRow();                      // al final: crear fila nueva
+    target=$$(next,'.in1');                      // siguiente fila, empezando por m=1
+  }
+  if(target){target.focus();if(target.select)target.select();}
+}
+function setMode(n){
+  maxOrder=n;
+  document.body.classList.remove('mode1','mode2','mode3');
+  document.body.classList.add('mode'+n);
+  $('modeSel').value=String(n);
+  recalc();
+}
 
-function cfg(){return{lambda:+$('lambda').value,dlambda:Math.abs(+$('dlambda').value||0),L:+$('L').value,dL:Math.abs(+$('dL').value||0),res:Math.abs(+$('res').value||1),tube:Math.abs(+$('tube').value||75),hairMin:+$('hairMin').value,hairMax:+$('hairMax').value,m2tol:+$('m2tol').value};}
-function calcA(y_mm,L,lambda_nm,m){if(!(y_mm>0)||!(L>0)||!(lambda_nm>0)||!(m>0))return NaN;const y=y_mm/1000,lam=lambda_nm*1e-9;const s=y/Math.sqrt(L*L+y*y);return (m*lam/s)*1e6;}
-function deriv(f,x,h){const hh=Math.max(Math.abs(h),1e-12);return(f(x+hh)-f(x-hh))/(2*hh);}
-function componentsA(y_mm,c,m){
-  if(!(y_mm>0)||!(c.L>0)||!(c.lambda>0)) return null;
-  const uy=Math.max(c.res/2,0.01);
-  const a=calcA(y_mm,c.L,c.lambda,m);
-  if(!Number.isFinite(a)) return null;
-  const dy=deriv(y=>calcA(y,c.L,c.lambda,m),y_mm,Math.max(0.01,uy/4));
-  const dL=deriv(L=>calcA(y_mm,L,c.lambda,m),c.L,Math.max(1e-5,c.dL/4));
-  const dl=deriv(l=>calcA(y_mm,c.L,l,m),c.lambda,Math.max(0.01,c.dlambda/4));
-  const uRead=Math.abs(dy)*uy;
-  const uCommon=Math.sqrt((dL*c.dL)**2+(dl*c.dlambda)**2);
-  return {a,uRead,uCommon,uTotal:Math.sqrt(uRead*uRead+uCommon*uCommon)};
-}
-function uncA(y_mm,c,m){const q=componentsA(y_mm,c,m);return q?q.uTotal:NaN;}
-function roundUnc(u){
-  if(!Number.isFinite(u)||u<=0) return 1;
-  const p=Math.floor(Math.log10(u));
-  const first=u/10**p;
-  const sig=first<2?2:1;
-  const factor=10**(p-sig+1);
-  return Math.round(u/factor)*factor;
-}
-function format(v,u){
-  if(!Number.isFinite(v)) return '— µm';
-  if(!Number.isFinite(u)||u<=0) return `${v.toFixed(0)} µm`;
-  const ru=roundUnc(u);
-  const dec=Math.max(0,-Math.floor(Math.log10(Math.abs(ru))));
-  const rv=Math.round(v*10**dec)/10**dec;
-  return `${rv.toFixed(dec)} ± ${ru.toFixed(dec)} µm`;
-}
-function std(arr){
-  if(arr.length<2) return 0;
-  const m=arr.reduce((a,b)=>a+b,0)/arr.length;
-  return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/(arr.length-1));
-}
-function rowData(tr,c){
-  const y1=parseFloat($$(tr,'.m1in')?.value);
-  const q1=componentsA(y1,c,1);
-  let y2=parseFloat($$(tr,'.m2in')?.value), q2=null;
-  if(useM2&&y2>0) q2=componentsA(y2,c,2);
-  return {y1,a1:q1?.a??NaN,u1:q1?.uTotal??NaN,uRead1:q1?.uRead??NaN,uCommon1:q1?.uCommon??NaN,y2,a2:q2?.a??NaN,u2:q2?.uTotal??NaN};
-}
-function $$(root,sel){return root.querySelector(sel)}
+/* ---------- cálculo principal ---------- */
 function recalc(){
-  const c=cfg(); const vals=[], yvals=[], uReads=[]; const warnings=[];
-  if(!(c.L>0)||!(c.lambda>0)) warnings.push(['bad','λ y L deben ser mayores que cero.']);
-  if(Math.abs(c.lambda-532)>35) warnings.push(['warn',`λ=${c.lambda.toFixed(0)} nm se aleja mucho del nominal 532 nm del láser verde 303.`]);
-  else if(Math.abs(c.lambda-532)>10) warnings.push(['info',`λ=${c.lambda.toFixed(0)} nm está fuera del ±10 nm nominal configurado para el láser.`]);
-  if(c.L<0.5) warnings.push(['warn',`L=${c.L.toFixed(2)} m: el patrón puede quedar demasiado pequeño para leerlo cómodamente.`]);
+  const c=cfg();
+  const W=[];
+  const add=(level,text)=>W.push([level,text]);
+  $('pillLambda').textContent='λ '+g(c.lambda,1)+' ± '+g(c.dlambda,1)+' nm';
+  $('pillL').textContent='L '+g(c.L,2)+' m';
+
+  if(!(c.L>0)||!(c.lambda>0))add('bad','λ y L deben ser mayores que cero.');
+  if(c.lambda>0){
+    const dl=Math.abs(c.lambda-532);
+    if(dl>35)add('warn','λ='+g(c.lambda,0)+' nm se aleja mucho de los 532 nm nominales del láser verde 303.');
+    else if(dl>10)add('info','λ='+g(c.lambda,0)+' nm está fuera del ±10 nm nominal del láser (532 nm).');
+  }
+  if(c.L>0&&c.L<0.5)add('warn','L='+g(c.L,2)+' m: el patrón puede quedar demasiado pequeño para leerlo cómodamente.');
+
+  const vals=[],ys=[],uReads=[];
+  const radius=c.tube/2;
 
   document.querySelectorAll('#rows tr').forEach((tr,i)=>{
-    const d=rowData(tr,c), result=tr.querySelector('.result'), flag=tr.querySelector('.flag');
+    const d=rowData(tr,c);
+    const label='Fila '+(i+1);
+    const resCell=$$(tr,'.result'),flag=$$(tr,'.flag');
+    const issues=[]; // [texto corto, nivel, mensaje]
+    const y1=d.y[1];
+
     if(Number.isFinite(d.a1)){
-      vals.push(d.a1); yvals.push(d.y1); uReads.push(d.uRead1); result.textContent=format(d.a1,d.u1);
-      let f='OK'; flag.className='flag ok';
-      if(d.a1<c.hairMin||d.a1>c.hairMax){f='REVISAR';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: ${format(d.a1,d.u1)} queda fuera del rango de control ${c.hairMin}–${c.hairMax} µm.`]);}
-      if(d.y1<2){f='y₁ pequeño';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: y₁=${d.y1.toFixed(1)} mm es muy pequeño; revisa que sea el primer mínimo.`]);}
-      const radius=c.tube/2;
-      if(d.y1>0.85*radius){f='cerca del tubo';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: y₁=${d.y1.toFixed(1)} mm queda cerca del borde del tubo Ø${c.tube.toFixed(0)} mm.`]);}
-      if(useM2 && Number.isFinite(d.a2)){
-        const rel=Math.abs(d.a2-d.a1)/((d.a2+d.a1)/2)*100;
-        const pred=expectedY2FromA(d.a1,c);
-        if(rel>c.m2tol){f='m2 ≠ m1';flag.className='flag warn';warnings.push(['warn',`Fila ${i+1}: m=2 difiere de m=1 en ${rel.toFixed(1)}%.`]);}
-        if(Number.isFinite(pred) && Math.abs(d.y2-pred)/pred*100>c.m2tol){warnings.push(['info',`Fila ${i+1}: la posición de m=2 no coincide con la esperada (${pred.toFixed(1)} mm).`]);}
-      }
-      flag.textContent=f;
-    }else{result.textContent='—';flag.textContent='—';flag.className='flag';}
+      vals.push(d.a1);ys.push(y1);uReads.push(d.uRead1);
+      resCell.textContent=fmtResult(d.a1,d.u1);
+      if(y1<2)issues.push(['y₁ pequeño','warn',label+': y(m=1)='+g(y1,1)+' mm es muy pequeño; probablemente se identificó mal el mínimo.']);
+    }else{
+      resCell.textContent='—';
+      if((maxOrder>=2&&d.y[2]>0)||(maxOrder>=3&&d.y[3]>0))
+        issues.push(['falta m=1','info',label+': hay valores de m=2/m=3 sin m=1. Solo sirven de comprobación y no reemplazan el resultado oficial.']);
+    }
+
+    // m=2 y m=3: comprobación contra m=1 de la misma fila
+    [2,3].forEach(m=>{
+      if(maxOrder<m)return;
+      const q=d.q[m];
+      if(!q||!Number.isFinite(d.a1))return;
+      const rel=Math.abs(q.a-d.a1)/d.a1*100;
+      if(rel>c.tol)issues.push(['m'+m+' ≠ m1','warn',label+': m='+m+' da '+fmtResult(q.a,q.uTotal)+' y difiere '+g(rel,1)+'% del valor de m=1 (umbral '+g(c.tol,1)+'%).']);
+    });
+    // orden lógico de los mínimos
+    if(maxOrder>=2&&d.y[2]>0&&d.y[1]>0&&d.y[2]<=d.y[1])
+      issues.push(['orden m2','warn',label+': y(m=2) debería ser mayor que y(m=1).']);
+    if(maxOrder>=3&&d.y[3]>0){
+      const prev=d.y[2]>0?d.y[2]:d.y[1];
+      if(prev>0&&d.y[3]<=prev)issues.push(['orden m3','warn',label+': y(m=3) debería ser mayor que los mínimos anteriores.']);
+    }
+    // cercanía al borde del tubo (solo avisa, no descarta)
+    for(let m=1;m<=maxOrder;m++){
+      const y=d.y[m];
+      if(!(y>0))continue;
+      if(y>=radius)issues.push(['fuera del tubo','warn',label+': y(m='+m+')='+g(y,1)+' mm supera el radio del tubo ('+g(radius,1)+' mm).']);
+      else if(y>0.85*radius)issues.push(['borde tubo','warn',label+': y(m='+m+')='+g(y,1)+' mm queda cerca del borde del tubo (radio '+g(radius,1)+' mm).']);
+    }
+    // rango de control (solo alerta)
+    if(Number.isFinite(d.a1)&&(d.a1<c.hairMin||d.a1>c.hairMax))
+      issues.push(['fuera de rango','warn',label+': '+fmtResult(d.a1,d.u1)+' queda fuera del rango de control '+g(c.hairMin,0)+'–'+g(c.hairMax,0)+' µm.']);
+
+    if(issues.length){
+      const hasWarn=issues.some(x=>x[1]!=='info');
+      flag.textContent=issues[0][0];
+      flag.className='flag '+(hasWarn?'warn':'info');
+      flag.title=issues.map(x=>x[2]).join('\n');
+      issues.forEach(x=>add(x[1],x[2]));
+    }else if(Number.isFinite(d.a1)){
+      flag.textContent='OK';flag.className='flag ok';flag.title='';
+    }else{
+      flag.textContent='—';flag.className='flag';flag.title='';
+    }
   });
 
   const n=vals.length;
+  let m1=NaN,u=NaN,cv=NaN,uRandom=NaN,uCommon=NaN;
   if(n){
-    const mean=vals.reduce((a,b)=>a+b,0)/n;
+    m1=mean(vals);
     const s=std(vals);
-    const sem=n>1?s/Math.sqrt(n):0;
-    const uReadMean=Math.sqrt(uReads.reduce((s0,u)=>s0+u*u,0))/n;
-    const meanY=yvals.reduce((a,b)=>a+b,0)/n;
-    const common=componentsA(meanY,c,1);
-    const uCommon=common?.uCommon||0;
-    const uRandom=Math.sqrt(sem*sem+uReadMean*uReadMean);
-    const u=Math.sqrt(uRandom*uRandom+uCommon*uCommon);
-    $('final').textContent=format(mean,u);$('stickyResult').textContent=format(mean,u);
-    $('finalNote').textContent=n<3?`Preliminar · ${n}/3 mediciones`:n===3?'Resultado listo · 3 mediciones':`Refinado · ${n} mediciones`;
-    if(n>=3){
-      const cv=s/Math.max(Math.abs(mean),1e-9)*100;
-      if(cv>10) warnings.push(['warn',`Dispersión entre mediciones: ${cv.toFixed(1)}%. Conviene tomar una medición extra.`]);
-      else if(cv>5) warnings.push(['info',`Dispersión entre mediciones: ${cv.toFixed(1)}%.`]);
-    }
-    if(mean<c.hairMin||mean>c.hairMax) warnings.push(['warn','El resultado final está fuera del rango de control; la alerta no modifica la medición.']);
-    let status='PRELIMINAR';
-    if(n>=3) status='LISTO';
-    if(warnings.some(w=>w[0]==='bad')) status='REVISAR';
-    else if(warnings.some(w=>w[0]==='warn')) status='REVISAR';
-    $('status').textContent=status;$('status').style.color=status==='LISTO'?'var(--ok)':status==='REVISAR'?'var(--warn)':'var(--muted)';
-  }else{
-    $('final').textContent='— µm';$('stickyResult').textContent='— µm';$('finalNote').textContent='Completa la primera medición para ver una estimación.';$('status').textContent='ESPERANDO';$('status').style.color='var(--muted)';
+    const sem=n>1?s/Math.sqrt(n):0;                                           // repetibilidad
+    const uReadMean=Math.sqrt(uReads.reduce((a,b)=>a+b*b,0))/n;              // lectura promediada
+    const common=componentsA(mean(ys),c,1);
+    uCommon=common?common.uCommon:0;                                          // λ y L: no baja al promediar
+    uRandom=Math.sqrt(sem*sem+uReadMean*uReadMean);
+    u=Math.sqrt(uRandom*uRandom+uCommon*uCommon);
+    cv=n>=2?s/Math.max(Math.abs(m1),1e-12)*100:NaN;
   }
-  if(warnings.length===0) $('alerts').innerHTML='<div class="alert">Sin alertas.</div>';
-  else $('alerts').innerHTML=warnings.map(w=>`<div class="alert ${w[0]}" >${w[1]}</div>`).join('');
-  updateGraphFromRow();
+
+  let status='ESPERANDO';
+  if(n){
+    const txt=fmtResult(m1,u);
+    $('final').textContent=txt;$('stickyResult').textContent=txt;
+    let note=n<3?'Preliminar · '+n+'/3 mediciones':(n===3?'Resultado listo · 3 mediciones':'Refinado · '+n+' mediciones');
+    if(n>=3)note+=' · dispersión '+g(cv,1)+'%';
+    note+=' · u(λ,L) ±'+g(uCommon,1)+' µm';
+    $('finalNote').textContent=note;
+
+    if(n>=3){
+      if(cv>10)add('warn','Dispersión alta ('+g(cv,1)+'%). Revisar el procedimiento o agregar una medición.');
+      else if(cv>5)add('info','Dispersión de '+g(cv,1)+'%. Conviene confirmar con una medición adicional.');
+    }
+    if(m1<c.hairMin||m1>c.hairMax){
+      const outWide=m1<c.wideMin||m1>c.wideMax;
+      add(outWide?'bad':'warn','El resultado final ('+txt+') está fuera del rango de control '+g(c.hairMin,0)+'–'+g(c.hairMax,0)+' µm'+(outWide?' y del rango amplio '+g(c.wideMin,0)+'–'+g(c.wideMax,0)+' µm':'')+'. Es solo una alerta: el valor no se modifica.');
+    }
+    status=n>=3?'LISTO':'PRELIMINAR';
+    if(W.some(w=>w[0]==='bad'||w[0]==='warn'))status='REVISAR';
+  }else{
+    $('final').textContent='— µm';$('stickyResult').textContent='— µm';
+    $('finalNote').textContent='Ingresa la primera medición para ver una estimación.';
+  }
+  const st=$('status');
+  st.textContent=status;
+  st.style.color=status==='LISTO'?'var(--ok)':status==='REVISAR'?'var(--warn)':status==='PRELIMINAR'?'var(--info)':'var(--muted)';
+
+  $('alerts').innerHTML=W.length?W.map(w=>'<div class="alert '+(w[0]==='info'?'':w[0])+'">'+w[1]+'</div>').join(''):'<div class="alert">Sin alertas.</div>';
+
+  lastResult={n:n,mean:m1,u:u,uRandom:uRandom,uCommon:uCommon,cv:cv,status:status,alerts:W.map(w=>w[0]+': '+w[1])};
+  updateGraphReadout();
+  drawGraph();
 }
 
-function expectedY2FromA(a_um,c){if(!(a_um>0))return NaN;const q=2*c.lambda/a_um/1000; if(q>=1)return NaN;return c.L*Math.tan(Math.asin(q))*1000;}
+/* ---------- ¿Es razonable? (solo aviso visual) ---------- */
+function showToast(text,cls){
+  const t=$('toast');
+  t.textContent=text;t.className='toast show '+(cls||'');
+  clearTimeout(toastId);
+  toastId=setTimeout(()=>{t.className='toast';},1100);
+}
+$('sanityBtn').addEventListener('click',()=>{
+  recalc();
+  const c=cfg(),r=lastResult;
+  if(!r||!r.n||!Number.isFinite(r.mean))showToast('Sin resultado todavía','');
+  else if(r.mean>=c.hairMin&&r.mean<=c.hairMax)showToast('Valor razonable','ok');
+  else if(r.mean>=c.wideMin&&r.mean<=c.wideMax)showToast('Plausible, pero revisar','warn');
+  else showToast('Conviene revisar','bad');
+});
+
+/* ---------- gráfica interactiva ---------- */
+function graphRange(c){return Math.max(40,Math.ceil((c.tube/2+3)/5)*5);}
+function setGraphInputs(){
+  [1,2,3].forEach(k=>{const el=$('g'+k+'in');if(document.activeElement!==el)el.value=graphState.m[k].toFixed(1);});
+}
+function updateGraphReadout(){
+  const c=cfg();
+  const a=calcA(graphState.m[1],c.L,c.lambda,1);
+  $('ga').textContent=Number.isFinite(a)?g(a,1)+' µm':'— µm';
+  const e2=expectedY(a,2,c),e3=expectedY(a,3,c);
+  $('gexp').textContent=(Number.isFinite(e2)?g(e2,1):'—')+' / '+(Number.isFinite(e3)?g(e3,1):'—')+' mm';
+}
 function updateGraphFromRow(){
-  const tr=selectedRow||document.querySelector('#rows tr'); if(!tr)return;const c=cfg();const y1=parseFloat($$(tr,'.m1in').value);const y2=parseFloat($$(tr,'.m2in')?.value);if(Number.isFinite(y1)&&y1>0)graphState.m1=y1;else graphState.m1=11; if(useM2&&Number.isFinite(y2)&&y2>0)graphState.m2=y2;else graphState.m2=null;
-  $('g1').textContent=Number.isFinite(graphState.m1)?graphState.m1.toFixed(1)+' mm':'— mm';$('g2').textContent=graphState.m2?graphState.m2.toFixed(1)+' mm':'— mm';$('ga').textContent=Number.isFinite(graphState.m1)?calcA(graphState.m1,c.L,c.lambda,1).toFixed(1)+' µm':'— µm';$('g2exp').textContent=Number.isFinite(graphState.m1)?(expectedY2FromA(calcA(graphState.m1,c.L,c.lambda,1),c)||NaN).toFixed(1)+' mm':'— mm';drawGraph();
+  const tr=selectedRow||document.querySelector('#rows tr');
+  if(!tr)return;
+  [1,2,3].forEach(m=>{const v=readVal(tr,'.in'+m);if(v>0)graphState.m[m]=v;});
+  setGraphInputs();updateGraphReadout();drawGraph();
 }
-
 function drawGraph(){
-  const svg=$('graph'),W=800,H=355,centerX=370,bottom=318,top=20,scaleX=330/graphState.range;let html='';
-  for(let mm=-graphState.range;mm<=graphState.range;mm+=5){const x=centerX+mm*scaleX;html+=`<line x1="${x}" y1="28" x2="${x}" y2="318" class="gridline" opacity="${mm%10===0?'.55':'.25'}"/><text x="${x}" y="340" text-anchor="middle" class="axis-label">${mm}</text>`}
-  html+=`<line x1="${centerX}" y1="22" x2="${centerX}" y2="318" class="center-line"/><text x="${centerX}" y="16" text-anchor="middle" class="axis-label">máximo central</text>`;
-  const pts=[];const firstZero=Math.max(graphState.m1,3);for(let i=0;i<=700;i+=4){const mm=-graphState.range+i*(2*graphState.range/700);const u=Math.PI*mm/firstZero||1e-6;const I=(Math.sin(u)/u)**2;const x=centerX+mm*scaleX;const y=265-215*I;pts.push([x,y]);}
-  let d=`M${pts[0][0]},318`;pts.forEach(p=>d+=` L${p[0]},${p[1]}`);d+=` L${pts[pts.length-1][0]},318 Z`;html+=`<path d="${d}" class="lobe"/><polyline points="${pts.map(p=>p.join(',')).join(' ')}" class="beam"/>`;
-  const drawMarker=(mm,label,cls,ypos,enabled)=>{if(!enabled)return '';const x=centerX+mm*scaleX;return `<g class="marker" data-marker="${label}" transform="translate(${x} ${ypos})"><line x1="0" y1="0" x2="0" y2="48" class="${cls}" stroke-width="3"/><circle cx="0" cy="54" r="8" class="${cls}"/><rect x="-55" y="-24" width="110" height="22" class="label-bg" fill="${cls==='m1'?'#63b3ff':'#ffc15c'}" opacity=".95"/><text x="0" y="-9" text-anchor="middle" class="marker-label">${label} ${mm.toFixed(1)} mm</text></g>`};
-  html+=drawMarker(graphState.m1,'m=1','m1',62,true); if(useM2)html+=drawMarker(graphState.m2||Math.max(graphState.m1*2,2),'m=2','m2',154,true); svg.innerHTML=html;
+  const c=cfg();
+  const range=graphRange(c);
+  graphState.range=range;
+  const svg=$('graph'),centerX=370,scaleX=330/range;
+  let html='';
+  for(let mm=-range;mm<=range;mm+=5){
+    const x=centerX+mm*scaleX;
+    html+='<line x1="'+x+'" y1="28" x2="'+x+'" y2="318" class="gridline" opacity="'+(mm%10===0?'.55':'.25')+'"/><text x="'+x+'" y="340" text-anchor="middle" class="axis-label">'+mm+'</text>';
+  }
+  const tubeR=c.tube/2;
+  [-1,1].forEach(sg=>{const x=centerX+sg*tubeR*scaleX;html+='<line x1="'+x+'" y1="28" x2="'+x+'" y2="318" class="tube-edge"/>';});
+  html+='<text x="'+(centerX+tubeR*scaleX-4)+'" y="40" text-anchor="end" class="axis-label" fill="#ff7272">borde del tubo</text>';
+  html+='<line x1="'+centerX+'" y1="22" x2="'+centerX+'" y2="318" class="center-line"/><text x="'+centerX+'" y="16" text-anchor="middle" class="axis-label">máximo central</text>';
+
+  const pts=[];
+  const firstZero=Math.max(graphState.m[1],3);
+  for(let i=0;i<=700;i+=4){
+    const mm=-range+i*(2*range/700);
+    const u=Math.PI*mm/firstZero||1e-6;
+    const I=Math.pow(Math.sin(u)/u,2);
+    pts.push([centerX+mm*scaleX,265-215*I]);
+  }
+  let d='M'+pts[0][0]+',318';
+  pts.forEach(p=>{d+=' L'+p[0]+','+p[1];});
+  d+=' L'+pts[pts.length-1][0]+',318 Z';
+  html+='<path d="'+d+'" class="lobe"/><polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" class="beam"/>';
+
+  for(let m=1;m<=maxOrder;m++){
+    const v=graphState.m[m];
+    const xv=Math.min(v,range);
+    const x=centerX+xv*scaleX,xl=centerX-xv*scaleX,yp=YPOS[m];
+    html+='<line x1="'+xl+'" y1="28" x2="'+xl+'" y2="318" stroke="'+COLORS[m]+'" stroke-width="1" stroke-dasharray="3 4" opacity=".45"/>';
+    html+='<g class="marker" data-marker="'+m+'" transform="translate('+x+' '+yp+')">'+
+      '<line x1="0" y1="0" x2="0" y2="48" class="m'+m+'" stroke-width="3"/>'+
+      '<circle cx="0" cy="54" r="9" class="m'+m+'"/>'+
+      '<circle cx="0" cy="54" r="18" fill="transparent" stroke="none"/>'+
+      '<rect x="-55" y="-24" width="110" height="22" class="label-bg" fill="'+COLORS[m]+'" opacity=".95"/>'+
+      '<text x="0" y="-9" text-anchor="middle" class="marker-label">m='+m+' '+fx(v,1)+' mm</text></g>';
+  }
+  svg.innerHTML=html;
   svg.querySelectorAll('.marker').forEach(el=>el.addEventListener('pointerdown',beginDrag));
 }
-function beginDrag(e){const el=e.currentTarget;const rect=$('graph').getBoundingClientRect();graphState.drag={id:el.dataset.marker,pointerId:e.pointerId,rect};el.setPointerCapture?.(e.pointerId);el.addEventListener('pointermove',dragMove);el.addEventListener('pointerup',endDrag,{once:true});}
-function dragMove(e){if(!graphState.drag)return;const rect=graphState.drag.rect;let px=e.clientX-rect.left;px=Math.max(40,Math.min(rect.width-40,px));const centerX=rect.width*(370/800);const scale=(rect.width*(330/800))/graphState.range;let mm=(px-centerX)/scale;mm=Math.max(0.5,Math.min(graphState.range,mm));if(graphState.drag.id==='m=1')graphState.m1=mm;else graphState.m2=mm;updateGraphReadoutOnly();drawGraph();}
-function endDrag(){graphState.drag=null}
-function updateGraphReadoutOnly(){const c=cfg();$('g1').textContent=graphState.m1.toFixed(1)+' mm';$('g2').textContent=graphState.m2?graphState.m2.toFixed(1)+' mm':'— mm';$('ga').textContent=calcA(graphState.m1,c.L,c.lambda,1).toFixed(1)+' µm';const e=expectedY2FromA(calcA(graphState.m1,c.L,c.lambda,1),c);$('g2exp').textContent=Number.isFinite(e)?e.toFixed(1)+' mm':'— mm';}
-function useGraphic(cls){if(!selectedRow)selectRow(document.querySelector('#rows tr'));const inp=selectedRow?.querySelector(cls);if(!inp)return;inp.value=(cls==='.m1in'?graphState.m1:graphState.m2||graphState.m1*2).toFixed(1);recalc();inp.focus();}
+function beginDrag(e){
+  e.preventDefault();
+  graphState.drag={m:+e.currentTarget.dataset.marker};
+}
+function dragMove(e){
+  const dr=graphState.drag;
+  if(!dr)return;
+  const rect=$('graph').getBoundingClientRect();
+  if(!rect.width)return;
+  const range=graphState.range;
+  const centerPx=rect.width*(370/800),scalePx=rect.width*(330/800)/range;
+  let mm=(e.clientX-rect.left-centerPx)/scalePx;
+  mm=Math.max(0.5,Math.min(range,mm));
+  graphState.m[dr.m]=Math.round(mm*10)/10;
+  setGraphInputs();updateGraphReadout();drawGraph();
+}
+function endDrag(){graphState.drag=null;}
+// los listeners van en window: el SVG se redibuja en cada movimiento y el marcador original desaparece
+window.addEventListener('pointermove',dragMove);
+window.addEventListener('pointerup',endDrag);
+window.addEventListener('pointercancel',endDrag);
 
-function updateM2Visibility(){document.querySelectorAll('.m2col').forEach(el=>el.style.display=useM2?'table-cell':'none');}
-$('useM2').addEventListener('change',e=>{useM2=e.target.checked;updateM2Visibility();recalc();});
-['lambda','dlambda','L','res','dL','tube','hairMin','hairMax','m2tol'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',recalc);});
+[1,2,3].forEach(k=>{
+  $('g'+k+'in').addEventListener('input',e=>{
+    const v=parseFloat(e.target.value);
+    if(Number.isFinite(v)&&v>0){graphState.m[k]=v;updateGraphReadout();drawGraph();}
+  });
+});
+function useGraphic(m){
+  if(maxOrder<m)setMode(m);
+  if(!selectedRow)selectRow(document.querySelector('#rows tr'),true);
+  if(!selectedRow)return;
+  const inp=$$(selectedRow,'.in'+m);
+  if(!inp)return;
+  inp.value=graphState.m[m].toFixed(1);
+  recalc();
+  inp.focus();
+}
+$('useG1').addEventListener('click',()=>useGraphic(1));
+$('useG2').addEventListener('click',()=>useGraphic(2));
+$('useG3').addEventListener('click',()=>useGraphic(3));
+$('resetGraph').addEventListener('click',()=>{
+  graphState.m[1]=10.6;graphState.m[2]=21.3;graphState.m[3]=32.0;
+  setGraphInputs();updateGraphReadout();drawGraph();
+});
+
+/* ---------- controles generales ---------- */
+$('modeSel').addEventListener('change',e=>setMode(parseInt(e.target.value,10)||1));
+['lambda','dlambda','L','dL','res','tube','hairMin','hairMax','wideMin','wideMax','tol'].forEach(id=>{
+  $(id).addEventListener('input',recalc);
+});
 $('settingsBtn').addEventListener('click',()=>$('settings').classList.toggle('open'));
-$('extraBtn').addEventListener('click',()=>{const tr=addRow(true);tr.querySelector('.m1in').focus();});
-$('clearBtn').addEventListener('click',()=>{if(!confirm('¿Borrar todas las mediciones?'))return;$('rows').innerHTML='';extraRows=0;selectedRow=null;for(let i=0;i<3;i++)addRow();recalc();});
-$('resetGraph').addEventListener('click',()=>{graphState.m1=11;graphState.m2=22;updateGraphReadoutOnly();drawGraph();});
-$('useG1').addEventListener('click',()=>useGraphic('.m1in'));$('useG2').addEventListener('click',()=>{if(!useM2){$('useM2').checked=true;useM2=true;updateM2Visibility();}useGraphic('.m2in');});
+$('extraBtn').addEventListener('click',()=>{const tr=addRow();$$(tr,'.in1').focus();});
+$('clearBtn').addEventListener('click',()=>{
+  if(!confirm('¿Borrar todas las mediciones?'))return;
+  $('rows').innerHTML='';rowCount=0;selectedRow=null;
+  for(let i=0;i<3;i++)addRow();
+  recalc();
+});
 
-function tick(){timer=Math.max(0,timer-1);$('timer').textContent=String(Math.floor(timer/60)).padStart(2,'0')+':'+String(timer%60).padStart(2,'0');$('timer').classList.toggle('warn',timer<=120&&timer>30);$('timer').classList.toggle('crit',timer<=30);if(timer===0){clearInterval(timerId);timerId=null;$('start').style.display='inline-block';$('pause').style.display='none';$('start').textContent='Terminado';}}
-$('start').addEventListener('click',()=>{if(timerId)return;$('start').style.display='none';$('pause').style.display='inline-block';timerId=setInterval(tick,1000);});$('pause').addEventListener('click',()=>{clearInterval(timerId);timerId=null;$('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Reanudar';});$('reset').addEventListener('click',()=>{clearInterval(timerId);timerId=null;timer=300;$('timer').textContent='05:00';$('timer').className='timer';$('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Iniciar';});
-$('csvBtn').addEventListener('click',()=>{recalc();const c=cfg();const lines=['Medidor de grosor por difraccion de Fraunhofer','','Configuracion',`lambda_nm,${c.lambda}`,`dlambda_nm,${c.dlambda}`,`L_m,${c.L}`,`dL_m,${c.dL}`,`resolucion_mm,${c.res}`,`diametro_tubo_mm,${c.tube}`,'','','Datos','fila,y_m1_mm,y_m2_mm,a_m1_um,u_m1_um'];document.querySelectorAll('#rows tr').forEach((tr,i)=>{const d=rowData(tr,c);lines.push([i+1,d.y1||'',d.y2||'',Number.isFinite(d.a1)?d.a1.toFixed(5):'',Number.isFinite(d.u1)?d.u1.toFixed(5):''].join(','));});const vals=[...document.querySelectorAll('#rows tr')].map(tr=>rowData(tr,c).a1).filter(Number.isFinite);if(vals.length){const m=vals.reduce((a,b)=>a+b,0)/vals.length;lines.push('','','Resultado_final_um',m.toFixed(5));}const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='medicion_cabello_'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);});
+/* ---------- cronómetro ---------- */
+function updateTimer(){
+  $('timer').textContent=String(Math.floor(timer/60)).padStart(2,'0')+':'+String(timer%60).padStart(2,'0');
+  $('timer').classList.toggle('warn',timer<=120&&timer>30);
+  $('timer').classList.toggle('crit',timer<=30);
+}
+function tick(){
+  timer=Math.max(0,timer-1);
+  updateTimer();
+  if(timer===0){
+    clearInterval(timerId);timerId=null;
+    $('start').style.display='inline-block';$('pause').style.display='none';$('start').textContent='Terminado';
+  }
+}
+$('start').addEventListener('click',()=>{
+  if(timerId)return;
+  if(timer===0){timer=300;updateTimer();}
+  $('start').style.display='none';$('pause').style.display='inline-block';
+  timerId=setInterval(tick,1000);
+});
+$('pause').addEventListener('click',()=>{
+  clearInterval(timerId);timerId=null;
+  $('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Continuar';
+});
+$('reset').addEventListener('click',()=>{
+  clearInterval(timerId);timerId=null;timer=300;updateTimer();
+  $('pause').style.display='none';$('start').style.display='inline-block';$('start').textContent='Iniciar';
+});
 
-// iniciar con 3 filas y gráfico
-for(let i=0;i<3;i++)addRow();updateM2Visibility();drawGraph();recalc();
+/* ---------- exportación CSV ---------- */
+$('csvBtn').addEventListener('click',()=>{
+  recalc();
+  const c=cfg();
+  const L=['\ufeffMedidor de grosor por difraccion de Fraunhofer','',
+    'Configuracion',
+    'lambda_nm,'+c.lambda,'dlambda_nm,'+c.dlambda,'L_m,'+c.L,'dL_m,'+c.dL,
+    'resolucion_mm,'+c.res,'diametro_tubo_mm,'+c.tube,'',
+    'Datos',
+    'fila,y_m1_mm,y_m2_mm,y_m3_mm,grosor_m1_um,incertidumbre_m1_um,control_m2_um,control_m3_um'];
+  document.querySelectorAll('#rows tr').forEach((tr,i)=>{
+    const d=rowData(tr,c);
+    const hasData=d.y[1]>0||(maxOrder>=2&&d.y[2]>0)||(maxOrder>=3&&d.y[3]>0);
+    if(!hasData)return;
+    L.push([i+1,
+      d.y[1]>0?d.y[1]:'',
+      maxOrder>=2&&d.y[2]>0?d.y[2]:'',
+      maxOrder>=3&&d.y[3]>0?d.y[3]:'',
+      csvNum(d.a1,4),csvNum(d.u1,4),csvNum(d.a2,4),csvNum(d.a3,4)].join(','));
+  });
+  const r=lastResult;
+  L.push('','Resultado_oficial_m1');
+  if(r&&r.n){
+    L.push('n_mediciones_m1,'+r.n,'grosor_final_um,'+csvNum(r.mean,4),'incertidumbre_um,'+csvNum(r.u,4),
+      'u_aleatoria_um,'+csvNum(r.uRandom,4),'u_comun_lambda_L_um,'+csvNum(r.uCommon,4),
+      'dispersion_relativa_pct,'+csvNum(r.cv,2),'estado,'+r.status,'resultado_formateado,"'+fmtResult(r.mean,r.u)+'"');
+  }else{L.push('sin_resultado,');}
+  L.push('','Alertas');
+  (r?r.alerts:[]).forEach(a=>L.push('"'+a.replace(/"/g,'""')+'"'));
+  const blob=new Blob([L.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='medicion_cabello_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),500);
+});
+
+/* ---------- inicio: 3 filas vacías ---------- */
+for(let i=0;i<3;i++)addRow();
+setGraphInputs();
+setMode(1);
+updateTimer();
 </script>
 </body>
 </html>
