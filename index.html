@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Inventario de Organizadores</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --container-bg: #2d2d2d;
+            --drawer-bg: #3d3d3d;
+            --drawer-hover: #4d4d4d;
+            --accent: #3498db;
+            --text: #f5f5f5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            background-color: var(--container-bg);
+            color: var(--text);
+            box-sizing: border-box;
+            outline: none;
+        }
+        .search-box:focus {
+            border-color: var(--accent);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--container-bg);
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover { background-color: var(--drawer-hover); }
+        .tab-btn.active {
+            background-color: var(--accent);
+            color: white;
+        }
+        .badge {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+        .organizer-container {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+        .organizer-container.active {
+            display: grid;
+            gap: 8px;
+        }
+        .drawer {
+            background-color: var(--drawer-bg);
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+        .drawer:hover { background-color: var(--drawer-hover); }
+        .drawer.highlight {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+            background-color: #5c4e16;
+        }
+        
+        /* Simulación del tirador físico inferior de los cajones */
+        .handle {
+            width: 40px;
+            height: 6px;
+            background-color: #222;
+            position: absolute;
+            bottom: 4px;
+            border-radius: 4px;
+        }
+        .code {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 10px;
+            color: #aaa;
+            font-weight: bold;
+        }
+        .label-box {
+            background-color: white;
+            color: black;
+            width: 85%;
+            padding: 4px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0.1;
+            transition: 0.2s;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+            pointer-events: none;
+        }
+        .drawer.has-content .label-box {
+            opacity: 1;
+        }
+
+        /* Ventana Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: var(--container-bg);
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content h3 { margin-top: 0; }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background: var(--bg-color);
+            color: white;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-cancel { background-color: #555; color: white; }
+        .btn-save { background-color: var(--accent); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Gestor de Inventario Kong.3d</h2>
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Buscar componente (ej. ESP32, Arduino, filamento TPU...)" onkeyup="performSearch()">
+    </div>
+
+    <div class="tabs" id="tabs-container"></div>
+    <div id="views-container"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Cajón</h3>
+            <input type="text" id="modal-input" placeholder="¿Qué vas a guardar aquí?" autocomplete="off">
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-save" onclick="saveContent()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const organizers = [
+            { id: 'easy1', name: 'Gris 1 (Hacks & Racks)', gridCols: 6 },
+            { id: 'easy2', name: 'Gris 2 (Hacks & Racks)', gridCols: 6 },
+            { id: 'bauker', name: 'Colores (Bauker)', gridCols: 15 } // Base 15 para alinear simétricamente 5 columnas y 3 columnas
+        ];
+
+        let db = JSON.parse(localStorage.getItem('drawerDB')) || {};
+        let currentDrawerId = null;
+
+        function generateDrawers() {
+            // Generar layout exacto para los 2 organizadores Easy
+            ['easy1', 'easy2'].forEach(id => {
+                let org = organizers.find(o => o.id === id);
+                org.drawers = [];
+                // 5 filas (A-E) de 6 cajones pequeños
+                for(let r=0; r<5; r++) {
+                    let rowChar = String.fromCharCode(65 + r);
+                    for(let c=1; c<=6; c++) {
+                        org.drawers.push({ id: `${id}-${rowChar}${c}`, code: `${rowChar}${c}`, span: 1, type: 'small' });
+                    }
+                }
+                // 2 filas (F-G) de 3 cajones grandes
+                for(let r=0; r<2; r++) {
+                    let rowChar = String.fromCharCode(70 + r);
+                    for(let c=1; c<=3; c++) {
+                        org.drawers.push({ id: `${id}-${rowChar}${c}`, code: `${rowChar}${c}`, span: 2, type: 'large' });
+                    }
+                }
+            });
+
+            // Generar layout exacto para el Bauker
+            let bauker = organizers.find(o => o.id === 'bauker');
+            bauker.drawers = [];
+            // 6 filas (A-F) de 5 cajones pequeños
+            for(let r=0; r<6; r++) {
+                let rowChar = String.fromCharCode(65 + r);
+                for(let c=1; c<=5; c++) {
+                    bauker.drawers.push({ id: `bauker-${rowChar}${c}`, code: `${rowChar}${c}`, span: 3, type: 'small' });
+                }
+            }
+            // 3 filas (G-I) de 3 cajones grandes
+            for(let r=0; r<3; r++) {
+                let rowChar = String.fromCharCode(71 + r);
+                for(let c=1; c<=3; c++) {
+                    bauker.drawers.push({ id: `bauker-${rowChar}${c}`, code: `${rowChar}${c}`, span: 5, type: 'large' });
+                }
+            }
+        }
+
+        function renderUI() {
+            const tabsContainer = document.getElementById('tabs-container');
+            const viewsContainer = document.getElementById('views-container');
+            tabsContainer.innerHTML = '';
+            viewsContainer.innerHTML = '';
+
+            organizers.forEach((org, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${index === 0 ? 'active' : ''}`;
+                btn.id = `tab-${org.id}`;
+                btn.innerHTML = org.name;
+                btn.onclick = () => switchTab(org.id);
+                tabsContainer.appendChild(btn);
+
+                const view = document.createElement('div');
+                view.className = `organizer-container ${index === 0 ? 'active' : ''}`;
+                view.id = `view-${org.id}`;
+                view.style.gridTemplateColumns = `repeat(${org.gridCols}, 1fr)`;
+
+                org.drawers.forEach(d => {
+                    const drawer = document.createElement('div');
+                    drawer.className = `drawer ${d.type}`;
+                    drawer.id = `drawer-${d.id}`;
+                    drawer.style.gridColumn = `span ${d.span}`;
+                    
+                    const content = db[d.id] || '';
+                    if(content) drawer.classList.add('has-content');
+
+                    drawer.innerHTML = `
+                        <div class="code">${d.code}</div>
+                        <div class="label-box">${content}</div>
+                        <div class="handle"></div>
+                    `;
+                    drawer.onclick = () => openModal(d.id, org.name, d.code);
+                    view.appendChild(drawer);
+                });
+
+                viewsContainer.appendChild(view);
+            });
+            performSearch();
+        }
+
+        function switchTab(orgId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.organizer-container').forEach(v => v.classList.remove('active'));
+            document.getElementById(`tab-${orgId}`).classList.add('active');
+            document.getElementById(`view-${orgId}`).classList.add('active');
+        }
+
+        function openModal(id, orgName, code) {
+            currentDrawerId = id;
+            document.getElementById('modal-title').innerText = `${orgName} - Cajón ${code}`;
+            document.getElementById('modal-input').value = db[id] || '';
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-input').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveContent() {
+            const val = document.getElementById('modal-input').value.trim();
+            if(val) {
+                db[currentDrawerId] = val;
+            } else {
+                delete db[currentDrawerId];
+            }
+            localStorage.setItem('drawerDB', JSON.stringify(db));
+            closeModal();
+            renderUI();
+        }
+
+        function performSearch() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            let tabCounts = { easy1: 0, easy2: 0, bauker: 0 };
+
+            organizers.forEach(org => {
+                org.drawers.forEach(d => {
+                    const el = document.getElementById(`drawer-${d.id}`);
+                    el.classList.remove('highlight');
+                    const content = db[d.id] || '';
+                    
+                    if(q && content.toLowerCase().includes(q)) {
+                        el.classList.add('highlight');
+                        tabCounts[org.id]++;
+                    }
+                });
+
+                const btn = document.getElementById(`tab-${org.id}`);
+                if(q && tabCounts[org.id] > 0) {
+                    btn.innerHTML = `${org.name} <span class="badge">${tabCounts[org.id]}</span>`;
+                } else {
+                    btn.innerHTML = org.name;
+                }
+            });
+        }
+
+        document.getElementById('modal-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') saveContent();
+        });
+
+        generateDrawers();
+        renderUI();
+    </script>
+</body>
+</html>
