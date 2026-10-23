@@ -1,765 +1,466 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Kong.3D Pro</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0c0c0f;--surface:#141418;--card:#1a1a20;--input:#222228;
-  --border:#2a2a35;--focus:#007aff;
-  --blue:#007aff;--green:#30d158;--orange:#ff9f0a;
-  --red:#ff453a;--purple:#bf5af2;--teal:#5ac8fa;--priority:#ff6b35;
-  --text:#f2f2f7;--sub:#aeaeb2;--muted:#636366;
-  --r:12px;--rs:8px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kong.3D - Calculadora Pro</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12;
+            --surface-color: #1c1c21;
+            --primary-color: #007aff;
+            --accent-color: #ff9500;
+            --success-color: #34c759;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a5;
+            --border-radius: 14px;
+        }
 
-/* HEADER */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
-.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
-.logo em{color:var(--blue);font-style:normal}
-.badge{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--card);border:1px solid var(--border);color:var(--muted);letter-spacing:.06em}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-/* TABS */
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;padding:0 12px;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:11px 14px;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            padding-bottom: 80px;
+        }
 
-/* PAGES */
-.page{display:none;padding:14px;max-width:1100px;margin:0 auto}
-.page.active{display:block;animation:fu .2s ease}
-@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
-/* ── CALC LAYOUT: 3 columns on desktop ── */
-/* left=inputs, mid=options, right=results (sticky) */
-.calc-grid{display:grid;grid-template-columns:1fr 280px 320px;gap:12px;align-items:start}
-.col-right-sticky{position:sticky;top:58px}/* below header */
-@media(max-width:900px){
-  .calc-grid{grid-template-columns:1fr 1fr}
-  .col-results{grid-column:1/-1}
-  .col-right-sticky{position:static}
-}
-@media(max-width:580px){
-  .calc-grid{grid-template-columns:1fr}
-  .col-results{grid-column:1}
-}
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
 
-/* CARDS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px;margin-bottom:10px}
-.card:last-child{margin-bottom:0}
-.card-title{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:11px}
+        .header span {
+            color: var(--primary-color);
+        }
 
-/* FORM */
-.fg{margin-bottom:10px}
-.fg:last-child{margin-bottom:0}
-label{font-size:.73rem;font-weight:600;color:var(--sub);display:block;margin-bottom:4px}
-input[type=number],select{
-  width:100%;padding:9px 11px;
-  background:var(--input);border:1px solid var(--border);border-radius:var(--rs);
-  color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;
-  transition:border-color .15s;-webkit-appearance:none;appearance:none
-}
-input[type=number]:focus,select:focus{outline:none;border-color:var(--focus)}
-select{cursor:pointer;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23636366'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px}
-select option{background:var(--card)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background-color: var(--surface-color);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
 
-/* MODE */
-.mode-wrap{display:grid;grid-template-columns:1fr 1fr;background:var(--input);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:10px}
-.mode-btn{padding:9px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;background:none;border:none;color:var(--muted);cursor:pointer;transition:all .15s}
-.mode-btn.m-normal{color:var(--blue);background:var(--card)}
-.mode-btn.m-priority{color:var(--priority);background:var(--card)}
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
 
-/* PRIORITY BANNER */
-.prio-banner{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:var(--rs);padding:9px 12px;font-size:.76rem;color:var(--priority);display:none;gap:7px;align-items:flex-start;margin-bottom:10px}
-.prio-banner.on{display:flex}
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-/* SWITCH ROWS */
-.sw-item{border-bottom:1px solid var(--border)}
-.sw-item:last-child{border-bottom:none}
-.sw-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;user-select:none}
-.sw-label{font-size:.8rem;font-weight:600}
-.sw-toggle{width:36px;height:20px;background:var(--border);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
-.sw-toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s}
-.sw-toggle.on{background:var(--blue)}
-.sw-toggle.on::after{left:19px}
-.sw-body{display:none;padding-bottom:10px}
-.sw-body.open{display:block}
+        .section {
+            display: none;
+        }
 
-/* SLIDERS */
-.sl-group{margin-bottom:9px}
-.sl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.sl-row label{margin:0}
-.sl-val{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:500}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;padding:0;border:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--blue);border-radius:50%;transition:transform .1s}
-input[type=range].sl-orange::-webkit-slider-thumb{background:var(--orange)}
-input[type=range].sl-red::-webkit-slider-thumb{background:var(--priority)}
+        .section.active {
+            display: block;
+        }
 
-/* CALC BUTTON */
-.btn-calc{width:100%;padding:13px;background:var(--blue);color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;transition:all .15s;margin-top:2px}
-.btn-calc:active{transform:scale(.98)}
-.btn-calc:hover{filter:brightness(1.1)}
+        /* Form */
+        .card {
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
 
-/* RESULTS COLUMN (always visible on desktop) */
-.result-placeholder{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:30px 15px;text-align:center;color:var(--muted);font-size:.8rem}
+        .input-group {
+            margin-bottom: 18px;
+        }
+        
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
 
-/* PRICE BLOCKS */
-.pb{border-radius:var(--rs);padding:12px 14px;margin-bottom:7px}
-.pb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
-.pb-val{font-size:1.5rem;font-weight:800;font-family:'DM Mono',monospace;line-height:1}
-.pb-sub{font-size:.68rem;margin-top:3px;color:var(--sub)}
-.pb-green{background:rgba(48,209,88,.07);border:1px solid rgba(48,209,88,.2)}
-.pb-green .pb-lbl{color:var(--green)}.pb-green .pb-val{color:var(--green)}
-.pb-blue{background:rgba(0,122,255,.07);border:1px solid rgba(0,122,255,.2)}
-.pb-blue .pb-lbl{color:var(--blue)}.pb-blue .pb-val{color:var(--blue)}
-.pb-orange{background:rgba(255,159,10,.07);border:1px solid rgba(255,159,10,.2);display:none}
-.pb-orange .pb-lbl{color:var(--orange)}.pb-orange .pb-val{color:var(--orange)}
-.pb-purple{background:rgba(191,90,242,.07);border:1px solid rgba(191,90,242,.2);display:none}
-.pb-purple .pb-lbl{color:var(--purple)}.pb-purple .pb-val{color:var(--purple)}
+        label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-/* METRICS */
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
-.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:9px;text-align:center}
-.m-val{font-size:.95rem;font-weight:800;font-family:'DM Mono',monospace}
-.m-lbl{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:3px}
+        .time-group {
+            display: flex;
+            gap: 12px;
+        }
 
-/* COST TABLE */
-.ct{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:8px}
-.ct-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid var(--border);font-size:.76rem}
-.ct-row:last-child{border-bottom:none;font-weight:700}
-.ct-l{color:var(--sub)}
-.ct-v{font-family:'DM Mono',monospace;font-size:.74rem}
+        input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background-color: #2c2c2e;
+            color: white;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
 
-/* ACTION BUTTONS */
-.act-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.btn-s{padding:7px 11px;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;background:none;border:1px solid var(--border);color:var(--text);transition:all .15s}
-.btn-s:hover{border-color:var(--blue);color:var(--blue)}
-.btn-s.danger{border-color:var(--red);color:var(--red)}
-.btn-green-full{width:100%;padding:12px;background:var(--green);color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer}
-.btn-outline-full{width:100%;padding:10px;background:none;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;border-radius:var(--rs);cursor:pointer;margin-top:7px}
-.btn-outline-full:hover{border-color:var(--blue);color:var(--blue)}
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(255,149,0,0.15) 0%, rgba(255,149,0,0.05) 100%);
+            border: 1px solid rgba(255,149,0,0.3);
+            border-radius: 12px;
+            margin-bottom: 22px;
+            cursor: pointer;
+        }
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.show{display:flex}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;width:100%;max-width:360px}
-.modal h3{font-size:1rem;margin-bottom:14px}
-.modal input[type=text]{width:100%;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem}
-.modal input[type=text]:focus{outline:none;border-color:var(--focus)}
-.modal-btns{display:flex;gap:8px;margin-top:14px}
-.modal-btns button{flex:1;padding:11px;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;border:none}
-.modal-confirm{background:var(--blue);color:#fff}
-.modal-cancel{background:var(--surface);color:var(--sub);border:1px solid var(--border) !important}
+        .checkbox-group input {
+            width: 22px;
+            height: 22px;
+            margin-right: 14px;
+            accent-color: var(--accent-color);
+        }
 
-/* ALERTS */
-.alert{padding:8px 11px;border-radius:var(--rs);font-size:.73rem;margin-bottom:9px}
-.alert-warn{background:rgba(255,159,10,.07);border:1px solid rgba(255,159,10,.2);color:var(--orange)}
-.alert-info{background:rgba(0,122,255,.07);border:1px solid rgba(0,122,255,.2);color:var(--teal)}
+        .checkbox-group label {
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            margin: 0;
+        }
 
-/* HISTORIAL */
-.hi{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
-.hi.hi-n{border-left:3px solid var(--blue)}
-.hi.hi-p{border-left:3px solid var(--priority)}
-.hi-name{font-size:.88rem;font-weight:700;margin-bottom:4px}
-.tag{display:inline-block;font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;margin-right:3px;margin-bottom:2px}
-.tag-blue{background:rgba(0,122,255,.15);color:var(--blue)}
-.tag-p{background:rgba(255,107,53,.15);color:var(--priority)}
-.tag-g{background:rgba(48,209,88,.12);color:var(--green)}
-.tag-m{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+        button {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
 
-/* CONFIG */
-.cfg-note{font-size:.68rem;color:var(--muted);margin-top:3px}
-.section-title{font-size:1.1rem;font-weight:800;margin-bottom:3px}
-.section-sub{color:var(--sub);font-size:.78rem;margin-bottom:12px}
+        button:active {
+            transform: scale(0.98);
+        }
 
-/* ETHICS */
-.eth{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.eth:last-child{border-bottom:none}
-.eth-icon{font-size:15px;flex-shrink:0;margin-top:2px}
-.eth strong{font-size:.8rem;display:block;margin-bottom:2px}
-.eth p{font-size:.72rem;color:var(--sub);line-height:1.5;margin:0}
+        .btn-save { background-color: var(--success-color); }
 
-/* MARKET */
-.mr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.8rem}
-.mr:last-child{border-bottom:none}
-.mr-r{font-family:'DM Mono',monospace;color:var(--sub);font-size:.74rem}
+        /* Results */
+        .results-container {
+            display: none;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .results-container.visible { display: block; }
 
-hr{border:none;border-top:1px solid var(--border);margin:10px 0}
-</style>
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .result-row:last-child { border-bottom: none; }
+
+        .price-main {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--success-color);
+        }
+        
+        .price-sub {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .ganancia-tag {
+            background-color: rgba(255, 159, 10, 0.15);
+            color: #ff9f0a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #333;
+            margin: 15px 0;
+        }
+    </style>
 </head>
 <body>
 
-<!-- MODAL nombre -->
-<div class="modal-overlay" id="modal-nombre">
-  <div class="modal">
-    <h3>Nombre del modelo</h3>
-    <input type="text" id="input-nombre" placeholder="Ej: Soporte iPhone / Figura Kong..." maxlength="60">
-    <div class="modal-btns">
-      <button class="modal-cancel" onclick="cerrarModal()">Cancelar</button>
-      <button class="modal-confirm" onclick="confirmarGuardar()">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<div class="hdr">
-  <div class="logo">
-    <img src="data:image/png;base64,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" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">
-    KONG<em>.3D</em>
-  </div>
-  <span class="badge">PRO v3</span>
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="showPage('calc',this)">Calcular</div>
-  <div class="tab" onclick="showPage('hist',this)">Historial</div>
-  <div class="tab" onclick="showPage('cfg',this)">Configurar</div>
-  <div class="tab" onclick="showPage('mkt',this)">Mercado</div>
-  <div class="tab" onclick="showPage('eth',this)">Ética</div>
-</div>
-
-<!-- ═══ CALCULADORA ═══ -->
-<div class="page active" id="page-calc">
-
-  <div class="mode-wrap">
-    <button class="mode-btn m-normal" id="btn-n" onclick="setMode('normal')">Normal</button>
-    <button class="mode-btn" id="btn-p" onclick="setMode('priority')">⚡ Prioritaria</button>
-  </div>
-  <div class="prio-banner" id="prio-banner">
-    <span>⚡</span><span>Modo prioritario — salta la cola. <strong>Siempre avisa al cliente antes.</strong></span>
-  </div>
-
-  <div class="calc-grid">
-
-    <!-- COL 1: Inputs principales -->
-    <div>
-      <div class="card">
-        <div class="card-title">Datos del slicer</div>
-        <div class="fg">
-          <label>Tiempo de impresión</label>
-          <div class="row2">
-            <input type="number" id="h_imp" inputmode="numeric" placeholder="Horas" min="0" tabindex="1">
-            <input type="number" id="m_imp" inputmode="numeric" placeholder="Minutos" min="0" max="59" tabindex="2">
-          </div>
-        </div>
-        <div class="fg">
-          <label>Gramos totales (pieza + purga del slicer)</label>
-          <input type="number" id="peso_total" inputmode="decimal" step="0.1" placeholder="Ej: 110" min="0" tabindex="3">
-          <div class="cfg-note">Copia el total de Bambu Studio — incluye soporte y purga.</div>
-        </div>
-        <div class="fg">
-          <label>Cantidad de piezas en esta impresión</label>
-          <input type="number" id="cantidad" inputmode="numeric" placeholder="1" min="1" value="1" tabindex="4">
-          <div class="cfg-note" id="hint-qty"></div>
-        </div>
-        <div class="fg">
-          <label>Tipo de impresión</label>
-          <select id="tipo" onchange="onTipo()" tabindex="5">
-            <option value="single">Single color</option>
-            <option value="multi">Multicolor — AMS</option>
-          </select>
-        </div>
-        <div id="g-ams" style="display:none" class="alert alert-warn">
-          Modo AMS — gramos totales ya incluyen purga. Se aplica recargo por complejidad.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Margen y cobro</div>
-        <div class="sl-group">
-          <div class="sl-row"><label>Margen ganancia</label><span class="sl-val" id="lbl-mg">55%</span></div>
-          <input type="range" id="sl-mg" min="20" max="80" value="55" step="1"
-            oninput="document.getElementById('lbl-mg').textContent=this.value+'%'">
-        </div>
-        <div class="sl-group">
-          <div class="sl-row"><label>Recargo tarjeta / MP</label><span class="sl-val sl-orange" id="lbl-tc">25%</span></div>
-          <input type="range" class="sl-orange" id="sl-tc" min="0" max="50" value="25" step="1"
-            oninput="document.getElementById('lbl-tc').textContent=this.value+'%'">
-        </div>
-        <div id="sl-prio-wrap" style="display:none" class="sl-group">
-          <div class="sl-row"><label style="color:var(--priority)">⚡ Recargo prioritario</label><span class="sl-val" id="lbl-pr" style="color:var(--priority)">20%</span></div>
-          <input type="range" class="sl-red" id="sl-pr" min="10" max="100" value="20" step="5"
-            oninput="document.getElementById('lbl-pr').textContent=this.value+'%'">
-        </div>
-        <div class="fg" style="margin-top:10px">
-          <label>Envío / despacho (CLP) — 0 si retira</label>
-          <input type="number" id="envio" inputmode="numeric" placeholder="0" min="0" value="0" tabindex="10">
-        </div>
-      </div>
-
-      <button class="btn-calc" onclick="calcular()" tabindex="20">Calcular precio →</button>
+    <div class="header">
+        <h1>KONG<span>.3D</span> CALC</h1>
     </div>
 
-    <!-- COL 2: Switches opciones -->
-    <div>
-      <div class="card">
-        <div class="card-title">Opciones extra</div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('calc')">Calculadora</div>
+        <div class="tab" onclick="switchTab('config')">Configuración</div>
+    </div>
 
-        <div class="sw-item">
-          <div class="sw-header" onclick="toggleSw('sw-diseño','tog-diseño')">
-            <span class="sw-label">Diseño / modelado</span>
-            <div class="sw-toggle" id="tog-diseño"></div>
-          </div>
-          <div class="sw-body" id="sw-diseño">
-            <div class="fg"><label>Horas de diseño</label>
-            <input type="number" id="h-diseño" inputmode="decimal" step="0.25" placeholder="Ej: 1.5" min="0" tabindex="6"></div>
-          </div>
-        </div>
-
-        <div class="sw-item">
-          <div class="sw-header" onclick="toggleSw('sw-post','tog-post')">
-            <span class="sw-label">Post-proceso / lijado</span>
-            <div class="sw-toggle" id="tog-post"></div>
-          </div>
-          <div class="sw-body" id="sw-post">
-            <div class="fg"><label>Horas de trabajo</label>
-            <input type="number" id="h-post" inputmode="decimal" step="0.25" placeholder="Ej: 0.5" min="0" tabindex="7"></div>
-          </div>
-        </div>
-
-        <div class="sw-item">
-          <div class="sw-header" onclick="toggleSw('sw-pint','tog-pint')">
-            <span class="sw-label">Pintura a mano</span>
-            <div class="sw-toggle" id="tog-pint"></div>
-          </div>
-          <div class="sw-body" id="sw-pint">
-            <div class="fg"><label>N° de colores</label>
-            <input type="number" id="n-pint" inputmode="numeric" placeholder="Ej: 2" min="1" tabindex="8"></div>
-          </div>
-        </div>
-
-        <div class="sw-item">
-          <div class="sw-header" onclick="toggleSw('sw-hw','tog-hw')">
-            <span class="sw-label">Hardware extra</span>
-            <div class="sw-toggle" id="tog-hw"></div>
-          </div>
-          <div class="sw-body" id="sw-hw">
-            <div class="alert alert-info" style="margin-bottom:9px">Imanes, switches, LEDs… Total = N° × costo unitario.</div>
-            <div class="row2" style="margin-bottom:6px">
-              <div class="fg" style="margin:0"><label>Costo / unidad (CLP)</label>
-              <input type="number" id="hw-unit" inputmode="numeric" placeholder="Ej: 50" min="0" tabindex="9"></div>
-              <div class="fg" style="margin:0"><label>N° de unidades</label>
-              <input type="number" id="hw-qty" inputmode="numeric" placeholder="Ej: 20" min="1" value="1" tabindex="10"></div>
+    <!-- SECCIÓN CALCULADORA -->
+    <div id="calc-section" class="section active card">
+        <div class="input-group">
+            <label>Tiempo de Impresión (Slicer)</label>
+            <div class="time-group">
+                <input type="number" id="h_impresion" inputmode="numeric" placeholder="Horas">
+                <input type="number" id="m_impresion" inputmode="numeric" placeholder="Minutos">
             </div>
-            <div class="cfg-note" id="hw-preview"></div>
-          </div>
+        </div>
+        
+        <div class="input-group">
+            <label>Gramos Totales (Pieza + Purga del Slicer)</label>
+            <input type="number" id="peso" inputmode="decimal" step="0.1" placeholder="Ej: 150">
+        </div>
+        
+        <div class="input-group">
+            <label>Post-Procesado / Diseño (Horas)</label>
+            <input type="number" id="h_post" inputmode="decimal" step="0.1" placeholder="Tu tiempo activo">
+        </div>
+        
+        <div class="input-group">
+            <label>Colores Pintados / Extras</label>
+            <input type="number" id="colores" inputmode="numeric" placeholder="Cantidad">
         </div>
 
-        <div class="sw-item">
-          <div class="sw-header" onclick="toggleSw('sw-iva','tog-iva')">
-            <span class="sw-label">Boleta / Factura (+19% IVA)</span>
-            <div class="sw-toggle" id="tog-iva"></div>
-          </div>
-          <div class="sw-body" id="sw-iva">
-            <div class="cfg-note">Se mostrará el precio con IVA en los resultados.</div>
-          </div>
+        <div class="checkbox-group" onclick="toggleExpress()">
+            <input type="checkbox" id="express" onclick="event.stopPropagation()">
+            <label for="express">🚀 PRIORIDAD EXPRESS (+Recargo)</label>
         </div>
 
-      </div>
+        <button id="btn-calcular" onclick="calcular()">CALCULAR PRESUPUESTO</button>
+
+        <div id="results" class="results-container card" style="background-color: #16161a;">
+            <div class="result-row">
+                <span class="label">Total Inversión (Costos)</span>
+                <span id="res_costo">$0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="result-row" style="flex-direction: column; align-items: center; gap: 5px;">
+                <span style="font-size: 13px; color: var(--text-muted);">PRECIO EFECTIVO / TRANSFERENCIA</span>
+                <span id="res_efectivo" class="price-main">$0</span>
+            </div>
+            <div class="result-row" style="flex-direction: column; align-items: center; gap: 5px;">
+                <span style="font-size: 13px; color: var(--text-muted);">PRECIO TARJETA</span>
+                <span id="res_tarjeta" class="price-sub">$0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="result-row">
+                <span class="label">Empresa (Reinversión 65%) <span class="ganancia-tag">PRO</span></span>
+                <span id="res_empresa" style="color: #ff9f0a; font-weight: 700;">$0</span>
+            </div>
+            <div class="result-row">
+                <span class="label">Sueldo Personal (35%)</span>
+                <span id="res_personal" style="color: #ff9f0a; font-weight: 700;">$0</span>
+            </div>
+        </div>
     </div>
 
-    <!-- COL 3: Resultados (sticky en desktop) -->
-    <div class="col-results">
-      <div class="col-right-sticky">
-
-        <div id="result-placeholder" class="result-placeholder">
-          ← Ingresa los datos y presiona<br><strong>Calcular precio</strong>
+    <!-- SECCIÓN CONFIGURACIÓN -->
+    <div id="config-section" class="section card">
+        <h3 style="margin-bottom: 15px; font-size: 16px;">Parámetros de Negocio</h3>
+        
+        <div class="input-group">
+            <label>Costo de Preparación (Set-up Fee CLP)</label>
+            <input type="number" id="cfg_setup" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Costo Luz por Hora (CLP)</label>
+            <input type="number" id="cfg_luz" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Costo Filamento por Gramo (CLP)</label>
+            <input type="number" id="cfg_fila" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Amortización Máquina por Hora (CLP)</label>
+            <input type="number" id="cfg_maq" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Insumos Fijos (Caja/Laca/Alcohol)</label>
+            <input type="number" id="cfg_insumos" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Valor Hora Tuya (Mano de Obra)</label>
+            <input type="number" id="cfg_mano" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Factor de Error (Ej: 1.15)</label>
+            <input type="number" id="cfg_error" inputmode="decimal" step="0.01">
+        </div>
+        <div class="input-group">
+            <label>Margen Ganancia (Ej: 0.55)</label>
+            <input type="number" id="cfg_margen" inputmode="decimal" step="0.01">
+        </div>
+        <div class="input-group">
+            <label>Recargo Tarjeta (Ej: 1.25)</label>
+            <input type="number" id="cfg_tarjeta" inputmode="decimal" step="0.01">
+        </div>
+        <div class="input-group">
+            <label>Recargo Prioridad (Ej: 1.50)</label>
+            <input type="number" id="cfg_express" inputmode="decimal" step="0.01">
         </div>
 
-        <div id="result-wrap" style="display:none">
-          <div class="pb pb-green">
-            <div class="pb-lbl">Contado / Transferencia</div>
-            <div class="pb-val" id="r-ef">—</div>
-            <div class="pb-sub" id="r-ef-u"></div>
-          </div>
-          <div class="pb pb-blue">
-            <div class="pb-lbl">Tarjeta / MercadoPago</div>
-            <div class="pb-val" id="r-tc">—</div>
-            <div class="pb-sub" id="r-tc-u"></div>
-          </div>
-          <div class="pb pb-orange" id="pb-prio">
-            <div class="pb-lbl">⚡ Prioritario — Contado</div>
-            <div class="pb-val" id="r-pr">—</div>
-          </div>
-          <div class="pb pb-purple" id="pb-iva">
-            <div class="pb-lbl">Con IVA (19%)</div>
-            <div class="pb-val" id="r-iva">—</div>
-            <div class="pb-sub" id="r-iva-u"></div>
-          </div>
-
-          <div class="metrics">
-            <div class="metric"><div class="m-val" style="color:var(--green)" id="m-per">—</div><div class="m-lbl">Tu sueldo</div></div>
-            <div class="metric"><div class="m-val" style="color:var(--orange)" id="m-emp">—</div><div class="m-lbl">Empresa</div></div>
-            <div class="metric"><div class="m-val" style="color:var(--blue)" id="m-mg">—</div><div class="m-lbl">Margen</div></div>
-          </div>
-
-          <div class="ct">
-            <div class="ct-row"><span class="ct-l">Set-up</span><span class="ct-v" id="c-setup">—</span></div>
-            <div class="ct-row"><span class="ct-l">Luz + máquina</span><span class="ct-v" id="c-luz">—</span></div>
-            <div class="ct-row"><span class="ct-l">Filamento / purga</span><span class="ct-v" id="c-fil">—</span></div>
-            <div class="ct-row" id="cr-ams" style="display:none"><span class="ct-l">Recargo AMS</span><span class="ct-v" id="c-ams">—</span></div>
-            <div class="ct-row" id="cr-diseño" style="display:none"><span class="ct-l">Diseño</span><span class="ct-v" id="c-diseño">—</span></div>
-            <div class="ct-row" id="cr-post" style="display:none"><span class="ct-l">Post-proceso</span><span class="ct-v" id="c-post">—</span></div>
-            <div class="ct-row" id="cr-pint" style="display:none"><span class="ct-l">Pintura</span><span class="ct-v" id="c-pint">—</span></div>
-            <div class="ct-row" id="cr-hw" style="display:none"><span class="ct-l">Hardware</span><span class="ct-v" id="c-hw">—</span></div>
-            <div class="ct-row"><span class="ct-l">Insumos fijos</span><span class="ct-v" id="c-ins">—</span></div>
-            <div class="ct-row"><span class="ct-l">Envío</span><span class="ct-v" id="c-env">—</span></div>
-            <div class="ct-row"><span class="ct-l">Total inversión/pieza</span><span class="ct-v" id="c-tot">—</span></div>
-          </div>
-
-          <div class="act-row">
-            <button class="btn-s" onclick="pedirNombre()">Guardar</button>
-            <button class="btn-s" onclick="genPDF()">PDF</button>
-            <button class="btn-s" onclick="copiar()">WA</button>
-            <button class="btn-s danger" onclick="resetForm()">Limpiar</button>
-          </div>
-        </div>
-
-      </div>
+        <button class="btn-save" onclick="guardarConfig()">GUARDAR PARÁMETROS</button>
     </div>
 
-  </div>
-</div>
+    <script>
+        const DEFAULT_CONFIG = {
+            setup: 1500,
+            luz: 28,
+            fila: 20,
+            maq: 300,
+            insumos: 500,
+            mano: 4000,
+            pintura: 500,
+            error: 1.15,
+            margen: 0.55,
+            tarjeta: 1.25,
+            express: 1.50
+        };
 
-<!-- ═══ HISTORIAL ═══ -->
-<div class="page" id="page-hist">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-    <div><div class="section-title">Historial</div><p class="section-sub">Cotizaciones guardadas</p></div>
-    <div style="display:flex;gap:7px">
-      <button class="btn-s" onclick="exportCSV()">CSV</button>
-      <button class="btn-s danger" onclick="limpiarHist()">Limpiar</button>
-    </div>
-  </div>
-  <div id="hist-list"></div>
-</div>
+        const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 
-<!-- ═══ CONFIGURAR ═══ -->
-<div class="page" id="page-cfg">
-  <div class="section-title">Configuración</div>
-  <p class="section-sub">Ajusta los parámetros a tu operación real</p>
-  <div class="card">
-    <div class="card-title">Costos operativos</div>
-    <div class="fg"><label>Set-up Fee por pedido (CLP)</label><input type="number" id="cfg-setup" value="1000"><div class="cfg-note">Preparación de la impresora por trabajo.</div></div>
-    <div class="fg"><label>Costo Luz (CLP/h)</label><input type="number" id="cfg-luz" value="29"><div class="cfg-note">P1S ~120W × $0.24/Wh ≈ $29/h (Enel RM 2026)</div></div>
-    <div class="fg"><label>Costo Filamento (CLP/g)</label><input type="number" id="cfg-fila" value="20"><div class="cfg-note">PLA 1kg ~$20.000 → $20/g</div></div>
-    <div class="fg"><label>Desgaste Máquina y Repuestos (CLP/h)</label><input type="number" id="cfg-maq" value="500"><div class="cfg-note">Amortización P1S + nozzle, PEI, correas, PTFE</div></div>
-    <div class="fg"><label>Insumos Fijos por impresión (CLP)</label><input type="number" id="cfg-ins" value="300"><div class="cfg-note">Alcohol, laca, consumibles menores</div></div>
-    <div class="fg"><label>Tu Mano de Obra (CLP/h)</label><input type="number" id="cfg-mano" value="3500"></div>
-    <div class="fg"><label>Diseño / Modelado (CLP/h)</label><input type="number" id="cfg-diseño" value="5000"></div>
-    <div class="fg"><label>Pintura Base × Color (CLP)</label><input type="number" id="cfg-pint" value="500"></div>
-    <div class="fg"><label>Recargo Complejidad AMS (%)</label><input type="number" id="cfg-ams" value="5"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Factores</div>
-    <div class="fg"><label>Factor de Error (Ej: 1.15 = 15%)</label><input type="number" id="cfg-err" step="0.01" value="1.15"></div>
-    <div class="fg"><label>Margen Ganancia por defecto (Ej: 0.55)</label><input type="number" id="cfg-mg" step="0.01" value="0.55"></div>
-    <div class="fg"><label>Recargo Express por defecto (Ej: 1.20)</label><input type="number" id="cfg-exp" step="0.05" value="1.20"></div>
-    <div class="fg"><label>Split personal (% ganancia que es tuya)</label><input type="number" id="cfg-split" min="0" max="100" value="35"></div>
-  </div>
-  <button class="btn-green-full" onclick="guardarCfg()">Guardar configuración</button>
-  <button class="btn-outline-full" onclick="resetCfg()">Restaurar por defecto</button>
-  <div id="cfg-ok" style="display:none;color:var(--green);font-size:.8rem;margin-top:10px;text-align:center">✓ Guardado</div>
-</div>
+        window.onload = () => {
+            cargarConfig();
+            setupNav();
+        };
 
-<!-- ═══ MERCADO ═══ -->
-<div class="page" id="page-mkt">
-  <div class="section-title">Referencia de mercado</div>
-  <p class="section-sub">Chile 2025 — MercadoLibre, servicios locales</p>
-  <div class="card">
-    <div class="card-title">Precios por tipo de pieza</div>
-    <div class="mr"><span>PLA simple, pequeña (&lt;20g)</span><span class="mr-r">$2.000–$6.000</span></div>
-    <div class="mr"><span>PLA simple, mediana</span><span class="mr-r">$5.000–$15.000</span></div>
-    <div class="mr"><span>Figurine multicolor AMS</span><span class="mr-r">$10.000–$40.000</span></div>
-    <div class="mr"><span>Pieza técnica / funcional</span><span class="mr-r">$12.000–$60.000+</span></div>
-    <div class="mr"><span>Prototipo + diseño incluido</span><span class="mr-r">$25.000–$120.000</span></div>
-    <div class="mr"><span>Lote 10+ unidades</span><span class="mr-r">−20% a −35%</span></div>
-    <div class="mr"><span>Recargo prioritario típico</span><span class="mr-r">+20% a +50%</span></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Insumos referencia</div>
-    <div class="mr"><span>Filamento PLA 1kg (básico)</span><span class="mr-r">$15.000–$22.000</span></div>
-    <div class="mr"><span>Filamento PLA 1kg (Bambu / Polymaker)</span><span class="mr-r">$22.000–$35.000</span></div>
-    <div class="mr"><span>Filamento PETG 1kg</span><span class="mr-r">$20.000–$30.000</span></div>
-    <div class="mr"><span>Nozzle acero P1S</span><span class="mr-r">$8.000–$15.000</span></div>
-    <div class="mr"><span>Placa PEI P1S</span><span class="mr-r">$18.000–$30.000</span></div>
-    <div class="mr"><span>kWh Enel RM (feb 2026)</span><span class="mr-r">~$236 CLP</span></div>
-    <div class="mr"><span>P1S consumo imprimiendo</span><span class="mr-r">~100–130 W</span></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Comisiones plataformas</div>
-    <div class="mr"><span>MercadoLibre</span><span class="mr-r">15%–18%</span></div>
-    <div class="mr"><span>Transbank / MercadoPago</span><span class="mr-r">2.5%–3.5%</span></div>
-    <div class="mr"><span>Instagram / WhatsApp directo</span><span class="mr-r">0%</span></div>
-  </div>
-</div>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            if(tab === 'calc') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('calc-section').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('config-section').classList.add('active');
+            }
+        }
 
-<!-- ═══ ÉTICA ═══ -->
-<div class="page" id="page-eth">
-  <div class="section-title">Ética y estructura</div>
-  <p class="section-sub">Para construir un negocio sólido y justo</p>
-  <div class="card">
-    <div class="card-title">Ética del precio</div>
-    <div class="eth"><div class="eth-icon">💬</div><div><strong>Transparencia total</strong><p>Explica qué incluye el precio. Clientes que entienden el proceso pagan mejor y repiten.</p></div></div>
-    <div class="eth"><div class="eth-icon">⚡</div><div><strong>Modo prioritario: avisa siempre</strong><p>El recargo es justo solo si el cliente lo sabe antes de aceptar.</p></div></div>
-    <div class="eth"><div class="eth-icon">⚖️</div><div><strong>No hagas dumping</strong><p>Vender bajo costo destruye el mercado. Compite en calidad y servicio.</p></div></div>
-    <div class="eth"><div class="eth-icon">📄</div><div><strong>Cotización antes, cobro después</strong><p>Envía el PDF antes de imprimir. Protege al cliente y a ti.</p></div></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Lo que muchos no cuentan</div>
-    <div class="eth"><div class="eth-icon">🖨️</div><div><strong>Amortización de la impresora</strong><p>P1S ~$1.100.000 CLP ÷ 2000h ≈ $550/h. Si no lo contabilizas, regalas la máquina en cuotas.</p></div></div>
-    <div class="eth"><div class="eth-icon">🔩</div><div><strong>Repuestos e insumos</strong><p>Nozzles, placas PEI, correas, PTFE. ~$150/h mínimo.</p></div></div>
-    <div class="eth"><div class="eth-icon">🎨</div><div><strong>Purga AMS</strong><p>Bambu Studio ya te da el total — úsalo directamente. El recargo AMS cubre la complejidad extra.</p></div></div>
-    <div class="eth"><div class="eth-icon">📑</div><div><strong>Tributación</strong><p>Emite boletas desde el primer día. El SII puede notificar ventas no declaradas.</p></div></div>
-  </div>
-</div>
+        function cargarConfig() {
+            const saved = JSON.parse(localStorage.getItem('kong3d_v2_cfg')) || DEFAULT_CONFIG;
+            document.getElementById('cfg_setup').value = saved.setup;
+            document.getElementById('cfg_luz').value = saved.luz;
+            document.getElementById('cfg_fila').value = saved.fila;
+            document.getElementById('cfg_maq').value = saved.maq;
+            document.getElementById('cfg_insumos').value = saved.insumos;
+            document.getElementById('cfg_mano').value = saved.mano;
+            document.getElementById('cfg_error').value = saved.error;
+            document.getElementById('cfg_margen').value = saved.margen;
+            document.getElementById('cfg_tarjeta').value = saved.tarjeta;
+            document.getElementById('cfg_express').value = saved.express;
+            return saved;
+        }
 
-<!-- ═══ JS ═══ -->
-<script>
-const clp=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
-const DEFS={'cfg-setup':1000,'cfg-luz':29,'cfg-fila':20,'cfg-maq':500,'cfg-ins':300,'cfg-mano':3500,'cfg-diseño':5000,'cfg-pint':500,'cfg-ams':5,'cfg-err':1.15,'cfg-mg':0.55,'cfg-exp':1.20,'cfg-split':35};
-let CFG={},HIST=[],MODO='normal',LAST=null;
+        function guardarConfig() {
+            const cfg = {
+                setup: parseFloat(document.getElementById('cfg_setup').value),
+                luz: parseFloat(document.getElementById('cfg_luz').value),
+                fila: parseFloat(document.getElementById('cfg_fila').value),
+                maq: parseFloat(document.getElementById('cfg_maq').value),
+                insumos: parseFloat(document.getElementById('cfg_insumos').value),
+                mano: parseFloat(document.getElementById('cfg_mano').value),
+                error: parseFloat(document.getElementById('cfg_error').value),
+                margen: parseFloat(document.getElementById('cfg_margen').value),
+                tarjeta: parseFloat(document.getElementById('cfg_tarjeta').value),
+                express: parseFloat(document.getElementById('cfg_express').value)
+            };
+            localStorage.setItem('kong3d_v2_cfg', JSON.stringify(cfg));
+            alert('Configuración guardada para Kong.3D');
+            switchTab('calc');
+        }
 
-window.onload=()=>{loadCfg();loadHist();renderHist();setupEnter();['hw-unit','hw-qty'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateHwPreview)});};
+        function toggleExpress() {
+            const cb = document.getElementById('express');
+            cb.checked = !cb.checked;
+        }
 
-function loadCfg(){try{CFG=JSON.parse(localStorage.getItem('k3d_cfg_v3')||'null')||{...DEFS};}catch(e){CFG={...DEFS};}for(const k in DEFS){const el=document.getElementById(k);if(el)el.value=CFG[k];}const mg=Math.round((CFG['cfg-mg']||0.55)*100);document.getElementById('sl-mg').value=mg;document.getElementById('lbl-mg').textContent=mg+'%';}
+        function setupNav() {
+            const inputs = Array.from(document.querySelectorAll('#calc-section input, #btn-calcular'));
+            inputs.forEach((input, i) => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if(input.id === 'btn-calcular') return calcular();
+                        const next = inputs[i+1];
+                        if(next) next.focus();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const prev = inputs[i-1];
+                        if(prev) prev.focus();
+                    }
+                });
+            });
+        }
 
-function guardarCfg(){for(const k in DEFS){const el=document.getElementById(k);if(el)CFG[k]=parseFloat(el.value)||DEFS[k];}localStorage.setItem('k3d_cfg_v3',JSON.stringify(CFG));const ok=document.getElementById('cfg-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2000);}
+        function calcular() {
+            const cfg = cargarConfig();
+            
+            const h = parseFloat(document.getElementById('h_impresion').value) || 0;
+            const m = parseFloat(document.getElementById('m_impresion').value) || 0;
+            const h_total = h + (m/60);
+            
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+            const h_post = parseFloat(document.getElementById('h_post').value) || 0;
+            const colores = parseInt(document.getElementById('colores').value) || 0;
+            const isExpress = document.getElementById('express').checked;
 
-function resetCfg(){CFG={...DEFS};for(const k in DEFS){const el=document.getElementById(k);if(el)el.value=CFG[k];}localStorage.setItem('k3d_cfg_v3',JSON.stringify(CFG));}
+            if(h_total === 0 && peso === 0) return alert('Datos insuficientes');
 
-function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(btn)btn.classList.add('active');window.scrollTo(0,0);}
+            // Lógica Pro
+            const costo_mat = peso * cfg.fila;
+            const costo_luz = h_total * cfg.luz;
+            const costo_maq = h_total * cfg.maq;
+            
+            // Inversión base ajustada por error
+            const inversion_base = (costo_mat + costo_luz) * cfg.error;
+            
+            // Suma de fijos y mano de obra
+            const inversion_total = inversion_base + costo_maq + (h_post * cfg.mano) + cfg.insumos + cfg.setup;
 
-function setMode(m){MODO=m;const bn=document.getElementById('btn-n'),bp=document.getElementById('btn-p');bn.className='mode-btn'+(m==='normal'?' m-normal':'');bp.className='mode-btn'+(m==='priority'?' m-priority':'');document.getElementById('prio-banner').classList.toggle('on',m==='priority');document.getElementById('sl-prio-wrap').style.display=m==='priority'?'block':'none';}
+            let precio = inversion_total / (1 - cfg.margen);
+            if(isExpress) precio *= cfg.express;
 
-function toggleSw(bodyId,togId){const body=document.getElementById(bodyId);const tog=document.getElementById(togId);const open=body.classList.toggle('open');tog.classList.toggle('on',open);}
-function swIsOn(bodyId){return document.getElementById(bodyId).classList.contains('open');}
+            const ganancia = precio - inversion_total;
 
-function onTipo(){const multi=document.getElementById('tipo').value==='multi';document.getElementById('g-ams').style.display=multi?'block':'none';}
+            document.getElementById('res_costo').innerText = clp.format(inversion_total);
+            document.getElementById('res_efectivo').innerText = clp.format(precio);
+            document.getElementById('res_tarjeta').innerText = clp.format(precio * cfg.tarjeta);
+            document.getElementById('res_empresa').innerText = clp.format(ganancia * 0.65);
+            document.getElementById('res_personal').innerText = clp.format(ganancia * 0.35);
 
-function updateHwPreview(){const u=parseFloat(document.getElementById('hw-unit').value)||0;const q=parseFloat(document.getElementById('hw-qty').value)||1;const prev=document.getElementById('hw-preview');if(u>0&&q>0)prev.textContent='Total hardware: '+clp.format(u*q);else prev.textContent='';}
-
-function setupEnter(){const fields=['h_imp','m_imp','peso_total','cantidad','tipo','h-diseño','h-post','n-pint','hw-unit','hw-qty','envio'];fields.forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();let j=i+1;while(j<fields.length){const next=document.getElementById(fields[j]);if(next&&next.offsetParent!==null){next.focus();break;}j++;}if(j>=fields.length)calcular();}})});}
-
-function calcular(){
-  const cfg=CFG;
-  const h=parseFloat(document.getElementById('h_imp').value)||0;
-  const min=parseFloat(document.getElementById('m_imp').value)||0;
-  const tH=h+min/60;
-  const pesoTotal=parseFloat(document.getElementById('peso_total').value)||0;
-  const qty=Math.max(1,parseInt(document.getElementById('cantidad').value)||1);
-  const isMulti=document.getElementById('tipo').value==='multi';
-  const envio=parseFloat(document.getElementById('envio').value)||0;
-
-  const hasDiseño=swIsOn('sw-diseño');
-  const hDiseño=hasDiseño?(parseFloat(document.getElementById('h-diseño').value)||0):0;
-  const hasPost=swIsOn('sw-post');
-  const hPost=hasPost?(parseFloat(document.getElementById('h-post').value)||0):0;
-  const hasPint=swIsOn('sw-pint');
-  const nPint=hasPint?(parseInt(document.getElementById('n-pint').value)||0):0;
-  const hasHW=swIsOn('sw-hw');
-  const hwUnit=hasHW?(parseFloat(document.getElementById('hw-unit').value)||0):0;
-  const hwQty=hasHW?(parseFloat(document.getElementById('hw-qty').value)||1):0;
-  const hasIva=swIsOn('sw-iva');
-
-  const margen=parseFloat(document.getElementById('sl-mg').value)/100;
-  const recTc=parseFloat(document.getElementById('sl-tc').value)/100;
-  const recPrio=parseFloat(document.getElementById('sl-pr').value)/100;
-
-  if(tH===0&&pesoTotal===0){alert('Ingresa el tiempo o los gramos.');return;}
-
-  const cSetup=cfg['cfg-setup'];
-  const cLuz=tH*cfg['cfg-luz'];
-  const cMaq=tH*cfg['cfg-maq'];
-  const cFil=pesoTotal*cfg['cfg-fila'];
-  const cDiseño=hDiseño*cfg['cfg-diseño'];
-  const cPost=hPost*cfg['cfg-mano'];
-  const cPint=nPint*cfg['cfg-pint'];
-  const cHW=hwUnit*hwQty;
-  const cIns=cfg['cfg-ins'];
-
-  const baseErr=(cLuz+cMaq+cFil)*cfg['cfg-err'];
-  const cAMS=isMulti?(baseErr*cfg['cfg-ams']/100):0;
-  const invTotal=baseErr+cSetup+cDiseño+cPost+cPint+cHW+cIns+cAMS;
-
-  const precioBase=invTotal/(1-margen);
-  const precioUnitBase=precioBase/qty;
-  const precioFinal=precioUnitBase+envio;
-  const precioTarjeta=precioFinal*(1+recTc);
-  const precioPriority=precioFinal*(1+recPrio);
-  const precioIva=precioFinal*1.19;
-
-  const invUnit=invTotal/qty;
-  const ganancia=precioUnitBase-invUnit;
-  const ganPer=ganancia*cfg['cfg-split']/100;
-  const ganEmp=ganancia*(1-cfg['cfg-split']/100);
-  const mgReal=(ganancia/precioUnitBase*100);
-
-  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  const sh=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'flex':'none';};
-
-  s('r-ef',clp.format(precioFinal));
-  s('r-tc',clp.format(precioTarjeta));
-  s('r-pr',clp.format(precioPriority));
-  s('r-iva',clp.format(precioIva));
-  s('r-iva-u','Neto: '+clp.format(precioFinal)+' + IVA: '+clp.format(precioFinal*0.19));
-
-  if(qty>1){s('r-ef-u','×'+qty+' piezas — precio por unidad');s('r-tc-u','Tarjeta por unidad: '+clp.format(precioTarjeta));}
-  else{s('r-ef-u','');s('r-tc-u','');}
-  document.getElementById('hint-qty').textContent=qty>1?'Precio mostrado es por pieza individual.':'';
-
-  document.getElementById('pb-prio').style.display=MODO==='priority'?'block':'none';
-  document.getElementById('pb-iva').style.display=hasIva?'block':'none';
-
-  s('m-per',clp.format(ganPer));s('m-emp',clp.format(ganEmp));s('m-mg',Math.round(mgReal)+'%');
-
-  const p=v=>clp.format(v/qty);
-  s('c-setup',p(cSetup));s('c-luz',p(cLuz+cMaq));s('c-fil',p(cFil));
-  s('c-ins',p(cIns));s('c-env',clp.format(envio));s('c-tot',clp.format(invUnit+envio));
-  sh('cr-ams',isMulti);s('c-ams',p(cAMS));
-  sh('cr-diseño',hasDiseño);s('c-diseño',p(cDiseño));
-  sh('cr-post',hasPost);s('c-post',p(cPost));
-  sh('cr-pint',hasPint);s('c-pint',p(cPint));
-  sh('cr-hw',hasHW);s('c-hw',clp.format(cHW/qty));
-
-  document.getElementById('result-placeholder').style.display='none';
-  document.getElementById('result-wrap').style.display='block';
-
-  LAST={fecha:new Date().toLocaleString('es-CL'),nombre:'Sin nombre',modo:MODO,tipo:isMulti?'Multicolor':'Single',h:tH,gramos:pesoTotal,qty,envio,invUnit,precioFinal,precioTarjeta,precioPriority,precioIva,ganancia,mgReal,hasIva,hasDiseño,hDiseño,hasPost,hPost,hasPint,nPint,hasHW,hwUnit,hwQty};
-}
-
-/* MODAL */
-function pedirNombre(){
-  if(!LAST){alert('Primero calcula.');return;}
-  const modal=document.getElementById('modal-nombre');
-  const inp=document.getElementById('input-nombre');
-  inp.value='';
-  modal.classList.add('show');
-  setTimeout(()=>inp.focus(),100);
-  inp.onkeydown=e=>{if(e.key==='Enter')confirmarGuardar();};
-}
-function cerrarModal(){document.getElementById('modal-nombre').classList.remove('show');}
-function confirmarGuardar(){
-  const nombre=document.getElementById('input-nombre').value.trim()||'Sin nombre';
-  cerrarModal();
-  LAST.nombre=nombre;
-  HIST.unshift({...LAST});
-  saveHist();renderHist();
-  showPage('hist',document.querySelectorAll('.tab')[1]);
-}
-
-/* HISTORIAL */
-function loadHist(){try{HIST=JSON.parse(localStorage.getItem('k3d_hist_v3')||'[]');}catch(e){HIST=[];}}
-function saveHist(){localStorage.setItem('k3d_hist_v3',JSON.stringify(HIST));}
-
-function renderHist(){
-  const el=document.getElementById('hist-list');
-  if(!HIST.length){el.innerHTML='<div style="text-align:center;padding:2.5rem;color:var(--muted)">No hay cotizaciones aún.</div>';return;}
-  el.innerHTML=HIST.map((h,i)=>`
-    <div class="hi hi-${h.modo==='priority'?'p':'n'}">
-      <div>
-        <div class="hi-name">${h.nombre||'Sin nombre'}</div>
-        <div style="margin-bottom:4px">
-          <span class="tag tag-${h.modo==='priority'?'p':'blue'}">${h.modo==='priority'?'⚡ Express':'Normal'}</span>
-          <span class="tag tag-m">${h.tipo}</span>
-          ${h.hasIva?'<span class="tag tag-g">+IVA</span>':''}
-        </div>
-        <div style="font-size:.7rem;color:var(--muted)">${h.fecha} · ${h.h.toFixed(1)}h · ${h.gramos}g · ×${h.qty}</div>
-        <div style="margin-top:4px;font-weight:700;font-size:.85rem">
-          ${clp.format(h.precioFinal)} <span style="color:var(--muted);font-weight:400">contado</span>
-          &nbsp;·&nbsp;<span style="color:var(--blue)">${clp.format(h.precioTarjeta)}</span>
-        </div>
-      </div>
-      <button class="btn-s danger" onclick="borrarHist(${i})">✕</button>
-    </div>`).join('');
-}
-
-function borrarHist(i){HIST.splice(i,1);saveHist();renderHist();}
-function limpiarHist(){if(confirm('¿Borrar todo?')){HIST=[];saveHist();renderHist();}}
-
-function exportCSV(){
-  if(!HIST.length){alert('No hay datos.');return;}
-  const h=['Nombre','Fecha','Modo','Tipo','Horas','Gramos','Cantidad','Contado','Tarjeta','Margen%'];
-  const r=HIST.map(h=>[h.nombre,h.fecha,h.modo,h.tipo,h.h.toFixed(2),h.gramos,h.qty,Math.round(h.precioFinal),Math.round(h.precioTarjeta),Math.round(h.mgReal)]);
-  const csv='﻿'+[h,...r].map(r=>r.join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  a.download='kong3d_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
-}
-
-/* PDF */
-function genPDF(){
-  if(!LAST){alert('Primero calcula.');return;}
-  const h=LAST,fecha=new Date().toLocaleDateString('es-CL');
-  const extras=[];
-  if(h.hasDiseño)extras.push(`Diseño: ${h.hDiseño}h`);
-  if(h.hasPost)extras.push(`Post-proceso: ${h.hPost}h`);
-  if(h.hasPint)extras.push(`Pintura: ${h.nPint} color(es)`);
-  if(h.hasHW)extras.push(`Hardware: ${h.hwQty}× ${clp.format(h.hwUnit)} c/u`);
-  if(h.envio>0)extras.push(`Envío: ${clp.format(h.envio)}`);
-  const ivaHtml=h.hasIva?`<tr><td style="padding:5px 0;color:#555">Con IVA (19%)</td><td style="text-align:right;padding:5px 0;font-weight:700;color:#bf5af2">${clp.format(h.precioIva)}</td></tr>`:'';
-  const prioHtml=h.modo==='priority'?`<tr><td style="padding:5px 0;color:#555">Precio prioritario</td><td style="text-align:right;padding:5px 0;font-weight:700;color:#ff6b35">${clp.format(h.precioPriority)}</td></tr>`:'';
-  const html=`<div style="font-family:Helvetica,Arial,sans-serif;padding:40px;background:#ffffff;color:#1a1a1a;max-width:680px;margin:0 auto">
-  <table width="100%" style="border-bottom:3px solid #007aff;padding-bottom:16px;margin-bottom:20px"><tr>
-    <td><span style="font-size:24px;font-weight:900;letter-spacing:-1px">KONG</span><span style="color:#007aff;font-size:24px;font-weight:900">.3D</span><br><span style="font-size:11px;color:#888">Servicio Profesional de Impresión 3D</span></td>
-    <td align="right"><span style="font-size:11px;color:#555"><strong>Cotización</strong><br>${fecha}</span></td>
-  </tr></table>
-  ${h.nombre&&h.nombre!=='Sin nombre'?`<p style="font-size:16px;font-weight:700;margin:0 0 16px">Modelo: ${h.nombre}</p>`:''}
-  <div style="background:#f4f5f7;padding:16px;border-radius:8px;margin-bottom:18px">
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin:0 0 10px">Detalles del trabajo</p>
-    <table width="100%" style="font-size:12px;border-collapse:collapse">
-      <tr><td style="color:#555;padding:3px 0;width:150px">Tiempo</td><td style="font-weight:600">${Math.floor(h.h)}h ${Math.round((h.h%1)*60)}m</td></tr>
-      <tr><td style="color:#555;padding:3px 0">Gramos totales</td><td style="font-weight:600">${h.gramos}g</td></tr>
-      <tr><td style="color:#555;padding:3px 0">Tipo</td><td style="font-weight:600">${h.tipo}</td></tr>
-      <tr><td style="color:#555;padding:3px 0">Piezas</td><td style="font-weight:600">${h.qty} unidad(es)</td></tr>
-      <tr><td style="color:#555;padding:3px 0">Modalidad</td><td style="font-weight:600">${h.modo==='priority'?'⚡ PRIORIDAD EXPRESS':'Estándar'}</td></tr>
-      ${extras.map(e=>`<tr><td style="color:#555;padding:3px 0">Extra</td><td style="font-weight:600">${e}</td></tr>`).join('')}
-    </table>
-  </div>
-  <div style="border:1px solid #e0e0e0;padding:20px;border-radius:8px;text-align:right">
-    <table width="100%" style="font-size:12px;border-collapse:collapse;margin-bottom:14px">${prioHtml}
-      <tr><td style="padding:5px 0;color:#555">Con tarjeta / MP</td><td style="text-align:right;padding:5px 0;font-weight:700;color:#007aff">${clp.format(h.precioTarjeta)}</td></tr>${ivaHtml}
-    </table>
-    <p style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.08em;margin:0 0 5px">Total — Contado / Transferencia</p>
-    <p style="font-size:32px;font-weight:900;color:#30d158;margin:0">${clp.format(h.precioFinal)}</p>
-  </div>
-  <div style="margin-top:32px;padding-top:14px;border-top:1px solid #eee;text-align:center">
-    <p style="font-size:10px;color:#aaa;margin:0;line-height:1.6">Cotización válida 15 días · Valores sujetos a revisión del modelo 3D · Bambu Lab P1S</p>
-  </div></div>`;
-  const div=document.createElement('div');
-  div.style.cssText='position:fixed;left:-9999px;top:0;background:#fff';
-  div.innerHTML=html;
-  document.body.appendChild(div);
-  html2pdf().set({margin:0,filename:`Cotizacion_Kong3D_${h.nombre||'modelo'}_${fecha.replace(/\//g,'-')}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(div).save().then(()=>document.body.removeChild(div));
-}
-
-/* COPIAR */
-function copiar(){
-  if(!LAST){alert('Primero calcula.');return;}
-  const h=LAST;
-  const lines=['📦 *KONG.3D — Cotización*',h.nombre&&h.nombre!=='Sin nombre'?`🏷️ Modelo: ${h.nombre}`:'','─────────────',`📅 ${h.fecha}`,`🖨️ ${h.tipo} | ${h.modo==='priority'?'⚡ Prioritaria':'Normal'}`,`⏱️ ${Math.floor(h.h)}h ${Math.round((h.h%1)*60)}m | ${h.gramos}g | ×${h.qty} pieza(s)`,'─────────────',`💵 Contado: *${clp.format(h.precioFinal)}*`,`💳 Tarjeta/MP: ${clp.format(h.precioTarjeta)}`,h.modo==='priority'?`⚡ Express: ${clp.format(h.precioPriority)}`:null,h.hasIva?`📋 Con IVA: ${clp.format(h.precioIva)}`:null,'─────────────','_Válida por 15 días._'].filter(Boolean).join('\n');
-  navigator.clipboard.writeText(lines).then(()=>alert('✓ Copiado para WhatsApp'));
-}
-
-/* RESET */
-function resetForm(){
-  ['h_imp','m_imp','peso_total','h-diseño','h-post','n-pint','hw-unit'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('cantidad').value='1';document.getElementById('hw-qty').value='1';document.getElementById('envio').value='0';
-  document.getElementById('tipo').value='single';document.getElementById('g-ams').style.display='none';
-  ['sw-diseño','sw-post','sw-pint','sw-hw','sw-iva'].forEach(id=>document.getElementById(id).classList.remove('open'));
-  ['tog-diseño','tog-post','tog-pint','tog-hw','tog-iva'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  document.getElementById('result-wrap').style.display='none';
-  document.getElementById('result-placeholder').style.display='block';
-  document.getElementById('hw-preview').textContent='';document.getElementById('hint-qty').textContent='';
-  LAST=null;document.getElementById('h_imp').focus();
-}
-</script>
+            document.getElementById('results').classList.add('visible');
+            document.getElementById('results').scrollIntoView({behavior:'smooth'});
+        }
+    </script>
 </body>
 </html>
