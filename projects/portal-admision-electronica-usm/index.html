@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#002A54">
+  <meta name="description" content="Ingeniería Civil Electrónica USM — Puertas Abiertas 2026. Conoce la carrera, áreas de especialidad, admisión, prácticas, campo laboral y malla curricular.">
+  <meta name="color-scheme" content="dark">
+  <title>Ingeniería Civil Electrónica · USM | Puertas Abiertas 2026</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy-0: #001426;
+      --navy-1: #001F3D;
+      --navy-2: #002A54;
+      --blue: #0056A3;
+      --blue-hi: #0B8BFF;
+      --yellow: #F2A900;
+      --yellow-hi: #FFD45A;
+      --pcb: #55E88F;
+      --pcb-hi: #9BFFC0;
+      --pcb-deep: #164D36;
+      --text: #F2FAFF;
+      --muted: #A8C1D1;
+      --muted-2: #7797AB;
+      --line: rgba(85, 232, 143, .22);
+      --line-blue: rgba(11, 139, 255, .34);
+      --panel: rgba(3, 42, 76, .82);
+      --panel-deep: rgba(0, 25, 47, .72);
+      --shadow: 0 20px 55px rgba(0,0,0,.30);
+      --radius: 23px;
+      --max: 570px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 50% -8%, rgba(11,139,255,.25), transparent 36%),
+        radial-gradient(circle at 102% 38%, rgba(85,232,143,.12), transparent 30%),
+        linear-gradient(180deg, var(--navy-0) 0%, var(--navy-2) 47%, #001A31 100%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, black, transparent 86%);
+    }
+
+    a, button { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+
+    .pcb-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .82;
+    }
+    .pcb-bg svg { width: 100%; height: 100%; display: block; }
+    .trace-green { fill: none; stroke: var(--pcb); stroke-width: 1.5; opacity: .28; }
+    .trace-blue { fill: none; stroke: var(--blue-hi); stroke-width: 1.25; opacity: .28; }
+    .trace-yellow { fill: none; stroke: var(--yellow-hi); stroke-width: 1.2; opacity: .22; }
+    .node-green { fill: var(--pcb); opacity: .72; }
+    .node-blue { fill: var(--blue-hi); opacity: .64; }
+    .node-yellow { fill: var(--yellow-hi); opacity: .76; }
+
+    .page {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      padding: 13px 13px 34px;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 19px 18px 21px;
+      border: 1px solid rgba(85,232,143,.30);
+      border-radius: 28px;
+      background:
+        linear-gradient(146deg, rgba(5,54,91,.95), rgba(0,29,55,.93)),
+        repeating-linear-gradient(90deg, transparent, transparent 24px, rgba(85,232,143,.03) 25px);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50%;
+      filter: blur(1px);
+    }
+    .hero::before {
+      width: 290px; height: 290px;
+      right: -175px; top: -185px;
+      background: radial-gradient(circle, rgba(85,232,143,.22), transparent 67%);
+    }
+    .hero::after {
+      width: 180px; height: 180px;
+      left: -120px; bottom: -120px;
+      background: radial-gradient(circle, rgba(0,118,220,.18), transparent 66%);
+    }
+
+    .hero-top {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .official-logo {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #05365B;
+      box-shadow: 0 8px 22px rgba(0, 12, 29, .12);
+    }
+
+    .identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .chip-mark {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      border: 1px solid rgba(85,232,143,.55);
+      background: rgba(85,232,143,.07);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), 0 0 24px rgba(85,232,143,.08);
+    }
+    .chip-mark svg { width: 36px; height: 36px; }
+
+    .dept-text {
+      min-width: 0;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      line-height: 1.28;
+      letter-spacing: .12em;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--pcb-hi);
+    }
+
+    .event-pill {
+      align-self: flex-end;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(242,169,0,.55);
+      background: rgba(242,169,0,.10);
+      color: var(--yellow-hi);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      margin-top: 25px;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-size: 9px;
+    }
+
+    h1 {
+      margin: 6px 0 9px;
+      max-width: 520px;
+      font-size: clamp(34px, 10vw, 48px);
+      line-height: .92;
+      letter-spacing: -.055em;
+    }
+    h1 span { display: block; color: var(--pcb); }
+
+    .hero-lead {
+      margin: 0;
+      max-width: 485px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    .signal-line {
+      margin-top: 17px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #C6FFDA;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 8px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .signal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pcb);
+      box-shadow: 0 0 11px rgba(85,232,143,.8);
+    }
+    .signal-line::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: linear-gradient(90deg, rgba(85,232,143,.45), transparent);
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin: 13px 0;
+    }
+
+    .cta {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 68px;
+      padding: 14px 15px;
+      border-radius: 19px;
+      border: 1px solid rgba(255,255,255,.10);
+      text-decoration: none;
+      overflow: hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .cta:hover { transform: translateY(-2px); }
+    .cta:focus-visible,
+    .source-link:focus-visible,
+    .faq-item summary:focus-visible {
+      outline: 3px solid rgba(242,169,0,.74);
+      outline-offset: 3px;
+    }
+    .cta::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 15%, rgba(255,255,255,.09), transparent 85%);
+      transform: translateX(-130%);
+      transition: transform .65s ease;
+    }
+    .cta:hover::after { transform: translateX(130%); }
+
+    .cta-primary {
+      color: #082644;
+      background: linear-gradient(135deg, #FFD866, var(--yellow));
+      border-color: rgba(255,216,102,.82);
+      box-shadow: 0 12px 33px rgba(242,169,0,.15);
+    }
+    .cta-secondary {
+      color: #EDF9FF;
+      background: linear-gradient(135deg, rgba(0,89,167,.88), rgba(0,47,88,.88));
+      border-color: rgba(11,139,255,.54);
+    }
+
+    .cta-icon {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(0,0,0,.11);
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 600;
+      font-size: 17px;
+    }
+    .cta-copy { flex: 1; min-width: 0; }
+    .cta-title { display: block; font-size: 14px; font-weight: 700; line-height: 1.24; }
+    .cta-sub { display: block; margin-top: 4px; font-size: 9px; letter-spacing: .10em; text-transform: uppercase; opacity: .74; }
+    .cta-arrow { font-size: 21px; opacity: .82; }
+
+    .section,
+    .sources {
+      margin-top: 13px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.07);
+      background: linear-gradient(180deg, rgba(4,48,83,.80), rgba(1,28,51,.76));
+      box-shadow: var(--shadow);
+    }
+
+    .inner { padding: 19px 15px; }
+    .section-kicker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      color: var(--pcb-hi);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .section-kicker::before {
+      content: "";
+      width: 19px;
+      height: 2px;
+      background: var(--pcb);
+      box-shadow: 7px 0 0 rgba(85,232,143,.38), 14px 0 0 rgba(85,232,143,.18);
+    }
+    .section h2 { margin: 0; font-size: 24px; line-height: 1.05; letter-spacing: -.035em; }
+    .section-intro { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.56; }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 13px;
+    }
+    .fact {
+      padding: 11px 7px;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid rgba(85,232,143,.17);
+      background: rgba(0,23,43,.50);
+      position: relative;
+      overflow: hidden;
+    }
+    .fact::after {
+      content: "";
+      position: absolute;
+      left: 12px; right: 12px; bottom: 5px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(85,232,143,.40), transparent);
+    }
+    .fact strong { display: block; color: var(--pcb); font-size: 21px; letter-spacing: -.04em; }
+    .fact span { display: block; margin-top: 2px; color: var(--muted-2); font-size: 8px; line-height: 1.25; text-transform: uppercase; letter-spacing: .07em; }
+
+    .special-grid {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+    .special-card {
+      position: relative;
+      overflow: hidden;
+      padding: 14px 13px 13px 16px;
+      border-radius: 17px;
+      border: 1px solid rgba(85,232,143,.18);
+      background: linear-gradient(135deg, rgba(8,61,79,.72), rgba(2,35,59,.76));
+    }
+    .special-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(var(--pcb), rgba(85,232,143,0));
+      box-shadow: 0 0 17px rgba(85,232,143,.24);
+    }
+    .special-card::after {
+      content: "";
+      position: absolute;
+      width: 58px; height: 58px;
+      right: -16px; top: -18px;
+      border: 1px solid rgba(85,232,143,.10);
+      border-radius: 50%;
+    }
+    .special-card strong { display: block; padding-right: 18px; font-size: 13.5px; line-height: 1.28; }
+    .special-card p { margin: 6px 0 0; color: var(--muted); font-size: 10.8px; line-height: 1.5; }
+    .special-no { position: absolute; top: 9px; right: 10px; color: rgba(85,232,143,.62); font-family: "IBM Plex Mono", monospace; font-size: 8px; z-index: 1; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .chip {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(85,232,143,.20);
+      background: rgba(85,232,143,.055);
+      color: #C9FFDA;
+      font-size: 9.5px;
+    }
+
+    .faq-list { display: grid; gap: 7px; margin-top: 13px; }
+    .faq-item {
+      overflow: hidden;
+      border-radius: 17px;
+      border: 1px solid rgba(11,139,255,.35);
+      background: rgba(2,38,70,.70);
+    }
+    .faq-item[open] {
+      border-color: rgba(85,232,143,.38);
+      background: linear-gradient(135deg, rgba(6,67,83,.70), rgba(2,40,71,.78));
+    }
+    .faq-item summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 11px 12px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-no {
+      width: 29px; height: 29px; flex: 0 0 29px;
+      display: grid; place-items: center;
+      border-radius: 9px;
+      color: var(--pcb);
+      border: 1px solid rgba(85,232,143,.20);
+      background: rgba(85,232,143,.055);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 9px;
+      font-weight: 600;
+    }
+    .faq-q { flex: 1; min-width: 0; font-size: 11.8px; font-weight: 600; line-height: 1.35; }
+    .faq-plus {
+      width: 23px; height: 23px; flex: 0 0 23px;
+      display: grid; place-items: center;
+      color: var(--pcb);
+      font-size: 19px;
+      line-height: 1;
+      transition: transform .18s ease;
+    }
+    .faq-item[open] .faq-plus { transform: rotate(45deg); }
+    .faq-answer {
+      padding: 0 12px 14px 51px;
+      color: #C2D5E0;
+      font-size: 11px;
+      line-height: 1.62;
+    }
+    .faq-answer p { margin: 0 0 8px; }
+    .faq-answer p:last-child { margin-bottom: 0; }
+    .faq-answer strong { color: var(--text); }
+
+    .answer-grid { display: grid; gap: 6px; margin-top: 8px; }
+    .answer-card {
+      padding: 8px 9px;
+      border-radius: 11px;
+      border: 1px solid rgba(85,232,143,.14);
+      background: rgba(0,24,44,.38);
+    }
+    .answer-card b { color: #C9FFDA; }
+
+    .paes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
+    .paes-cell {
+      display: flex;
+      justify-content: space-between;
+      gap: 7px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(85,232,143,.13);
+      background: rgba(0,25,47,.40);
+    }
+    .paes-cell span:first-child { color: var(--muted); }
+    .paes-cell span:last-child { color: #E8FFF0; font-family: "IBM Plex Mono", monospace; font-size: 9px; }
+
+    .mini-note {
+      margin-top: 9px;
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: 1px solid rgba(242,169,0,.22);
+      background: rgba(242,169,0,.055);
+      color: #F5DB98;
+      font-size: 9.5px;
+      line-height: 1.52;
+    }
+
+    .registration {
+      border: 1px dashed rgba(242,169,0,.35);
+      background: linear-gradient(135deg, rgba(87,64,14,.18), rgba(242,169,0,.035));
+    }
+    .registration .status {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: 1px solid rgba(242,169,0,.17);
+      color: #F2D58B;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 8.5px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .form-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      min-height: 39px;
+      padding: 0 12px;
+      border-radius: 11px;
+      background: var(--yellow);
+      color: #082644;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .sources { padding: 16px 14px; }
+    .sources h3 { margin: 0; font-size: 14px; }
+    .sources p { margin: 5px 0 10px; color: var(--muted); font-size: 9.5px; line-height: 1.5; }
+    .source-links { display: grid; gap: 6px; }
+    .source-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(0,49,89,.46);
+      text-decoration: none;
+      font-size: 9.5px;
+    }
+    .source-link span:last-child { color: var(--pcb); }
+
+    .footer {
+      padding: 21px 10px 4px;
+      text-align: center;
+      color: rgba(178,206,221,.62);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 8px;
+      line-height: 1.7;
+      letter-spacing: .07em;
+    }
+    .footer-circuit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+    .footer-circuit i { display: block; width: 27px; height: 2px; background: var(--blue-hi); }
+    .footer-circuit i:nth-child(2) { width: 11px; background: var(--pcb); box-shadow: 0 0 11px rgba(85,232,143,.62); }
+    .footer-circuit i:nth-child(3) { width: 27px; background: var(--yellow); }
+
+    @media (min-width: 700px) {
+      .page { padding-top: 26px; }
+      .actions { grid-template-columns: repeat(2, 1fr); }
+      .special-grid { grid-template-columns: repeat(2, 1fr); }
+      .cta { min-height: 73px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pcb-bg" aria-hidden="true">
+    <svg viewBox="0 0 600 1500" preserveAspectRatio="none">
+      <path class="trace-green" d="M0 110H52V141H115V172H162V204H213"/>
+      <circle class="node-green" cx="52" cy="141" r="4"/>
+      <circle class="node-green" cx="213" cy="204" r="4"/>
+
+      <path class="trace-blue" d="M600 205H552V236H506V267H455V298H431"/>
+      <circle class="node-blue" cx="552" cy="236" r="4"/>
+
+      <path class="trace-yellow" d="M0 450H37V482H102V512H149"/>
+      <circle class="node-yellow" cx="102" cy="512" r="4"/>
+
+      <path class="trace-green" d="M600 548H565V581H510V617H467V650H426"/>
+      <circle class="node-green" cx="510" cy="617" r="4"/>
+
+      <path class="trace-blue" d="M0 825H55V856H115V890H169"/>
+      <circle class="node-blue" cx="115" cy="856" r="4"/>
+
+      <path class="trace-yellow" d="M600 934H563V967H514V1004H469"/>
+      <circle class="node-yellow" cx="563" cy="967" r="4"/>
+
+      <path class="trace-green" d="M0 1191H72V1223H126V1260H191"/>
+      <circle class="node-green" cx="126" cy="1223" r="4"/>
+
+      <path class="trace-blue" d="M600 1361H541V1394H486V1426H423"/>
+      <circle class="node-blue" cx="486" cy="1426" r="4"/>
+
+      <path class="trace-green" d="M130 330H164V300H199V271H231"/>
+      <path class="trace-blue" d="M480 740H449V713H416V685H382"/>
+    </svg>
+  </div>
+
+  <main class="page">
+    <header class="hero">
+      <div class="hero-top">
+        <img class="official-logo" src="logo-oficial-departamento.png" alt="Universidad Técnica Federico Santa María · Departamento de Electrónica">
+        <div class="event-pill">Puertas Abiertas 2026</div>
+      </div>
+
+      <div class="eyebrow">Casa Central · Valparaíso</div>
+      <h1>Ingeniería Civil <span>Electrónica</span></h1>
+      <p class="hero-lead">Diseña, controla y conecta sistemas donde el hardware, el software y el mundo físico trabajan juntos.</p>
+      <div class="signal-line"><span class="signal-dot"></span> CONTROL · HARDWARE · ENERGÍA · COMPUTACIÓN · COMUNICACIONES</div>
+    </header>
+
+    <nav class="actions" aria-label="Acciones principales">
+      <a class="cta cta-primary" id="formLink" href="#registro">
+        <span class="cta-icon" aria-hidden="true">↗</span>
+        <span class="cta-copy">
+          <span class="cta-title">Inscríbete en las Rutas y Talleres</span>
+          <span class="cta-sub">Vive la experiencia USM</span>
+        </span>
+        <span class="cta-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="cta cta-secondary" id="mallaLink" href="https://usm.cl/admision/carreras/ingenieria-civil-electronica/" target="_blank" rel="noopener noreferrer">
+        <span class="cta-icon" aria-hidden="true">▤</span>
+        <span class="cta-copy">
+          <span class="cta-title">Consulta la Malla Curricular</span>
+          <span class="cta-sub">Página oficial de la carrera · USM</span>
+        </span>
+        <span class="cta-arrow" aria-hidden="true">↗</span>
+      </a>
+    </nav>
+
+    <section class="section">
+      <div class="inner">
+        <div class="section-kicker">La carrera en un vistazo</div>
+        <h2>Ingeniería para conectar el mundo físico y digital</h2>
+        <p class="section-intro">La USM describe una formación que integra hardware, software y sistemas físicos, con posibilidad de profundizar en áreas de especialidad. Se imparte en régimen diurno en Campus Casa Central Valparaíso.</p>
+
+        <div class="facts">
+          <div class="fact"><strong>5</strong><span>años</span></div>
+          <div class="fact"><strong>10</strong><span>semestres</span></div>
+          <div class="fact"><strong>4</strong><span>áreas de especialidad</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="inner">
+        <div class="section-kicker">Especialización</div>
+        <h2>¿Hacia dónde puedes llevarla?</h2>
+        <p class="section-intro">La información oficial de Admisión presenta cuatro áreas de especialidad para Ingeniería Civil Electrónica.</p>
+
+        <div class="special-grid">
+          <article class="special-card">
+            <span class="special-no">01</span>
+            <strong>Control e Instrumentación</strong>
+            <p>Automatización, sensores, actuadores y control de procesos industriales y otros sistemas.</p>
+          </article>
+          <article class="special-card">
+            <span class="special-no">02</span>
+            <strong>Estructuras y Sistemas Computacionales</strong>
+            <p>Hardware, software, firmware, máquinas digitales y sistemas embebidos conectados.</p>
+          </article>
+          <article class="special-card">
+            <span class="special-no">03</span>
+            <strong>Electrónica de Potencia y Conversión de Energía</strong>
+            <p>Conversión y control de energía, accionamientos, almacenamiento y energías renovables.</p>
+          </article>
+          <article class="special-card">
+            <span class="special-no">04</span>
+            <strong>Telecomunicaciones y Procesamiento de Señales</strong>
+            <p>Comunicaciones, procesamiento digital de señales, transmisión y tecnologías inalámbricas.</p>
+          </article>
+        </div>
+
+        <div class="chips" aria-label="Intereses relacionados">
+          <span class="chip">Robótica</span>
+          <span class="chip">Hardware</span>
+          <span class="chip">Programación</span>
+          <span class="chip">Automatización</span>
+          <span class="chip">Energía</span>
+          <span class="chip">Telecomunicaciones</span>
+          <span class="chip">I+D</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="inner">
+        <div class="section-kicker">Preguntas frecuentes</div>
+        <h2>Lo que probablemente quieres saber</h2>
+        <p class="section-intro">Toca una pregunta para ver la respuesta. Solo una puede quedar abierta a la vez.</p>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary><span class="faq-no">01</span><span class="faq-q">¿Cuánto dura la carrera y dónde se imparte?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>La USM informa una duración de <strong>5 años (10 semestres académicos)</strong>, en régimen <strong>diurno</strong>, en el <strong>Campus Casa Central Valparaíso</strong>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">02</span><span class="faq-q">¿Qué título y grado académico obtengo?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Al completar la carrera obtienes el título profesional de <strong>Ingeniero Civil Electrónico / Ingeniera Civil Electrónica</strong> y el grado académico de <strong>Licenciado/a en Ciencias de la Ingeniería Electrónica</strong>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">03</span><span class="faq-q">¿Qué especialidades puedo elegir?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>La información oficial de Admisión presenta cuatro áreas de especialidad:</p>
+              <div class="answer-grid">
+                <div class="answer-card"><b>Control e Instrumentación</b></div>
+                <div class="answer-card"><b>Estructuras y Sistemas Computacionales</b></div>
+                <div class="answer-card"><b>Electrónica de Potencia y Conversión de Energía</b></div>
+                <div class="answer-card"><b>Telecomunicaciones y Procesamiento de Señales</b></div>
+              </div>
+              <p style="margin-top:8px">El perfil oficial señala que la formación en una de estas áreas comienza <strong>a partir del octavo semestre</strong>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">04</span><span class="faq-q">¿Qué pruebas PAES necesito?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Para Admisión 2026, la USM indica que <strong>M2 es obligatoria</strong> para postular a las ingenierías y licenciaturas, salvo Ingeniería Comercial. La tabla de ponderaciones para carreras que exigen M2 es:</p>
+              <div class="paes-grid">
+                <div class="paes-cell"><span>NEM</span><span>15%</span></div>
+                <div class="paes-cell"><span>Ranking</span><span>20%</span></div>
+                <div class="paes-cell"><span>M1</span><span>35%</span></div>
+                <div class="paes-cell"><span>M2</span><span>10%</span></div>
+                <div class="paes-cell"><span>Lectora</span><span>10%</span></div>
+                <div class="paes-cell"><span>Ciencias / Historia</span><span>10%</span></div>
+              </div>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">05</span><span class="faq-q">¿Necesito un puntaje mínimo para postular?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Sí. Para el proceso de Admisión 2026, la USM exige un <strong>promedio mínimo de 485 puntos</strong> entre Competencia Lectora y Competencia Matemática 1 para poder postular por la vía centralizada.</p>
+              <p>Para Ingeniería Civil Electrónica, la tabla oficial de Admisión 2026 establece además un <strong>puntaje ponderado mínimo de 600</strong>.</p>
+              <div class="mini-note">El puntaje ponderado mínimo es un requisito de postulación; no corresponde necesariamente al puntaje de corte o al último seleccionado.</div>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">06</span><span class="faq-q">¿Existen otras formas de ingresar?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Sí. La USM también cuenta con <strong>Admisión Especial</strong>, con distintas vías y requisitos según cada modalidad.</p>
+              <p>Como los mecanismos, cupos y condiciones pueden cambiar entre procesos, esta landing enlaza directamente la página oficial de Admisión Especial para revisar la convocatoria vigente.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">07</span><span class="faq-q">¿Se realizan prácticas profesionales durante la carrera?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Sí. Ingeniería Civil Electrónica contempla <strong>dos prácticas universitarias obligatorias</strong>: una <strong>Práctica Industrial</strong> y una <strong>Práctica Profesional</strong>.</p>
+              <p>Cada una corresponde a <strong>8 semanas (320 horas / 2 meses a jornada completa)</strong>. El Departamento señala realizarlas al finalizar el <strong>6.º semestre</strong> y el <strong>10.º semestre</strong>, respectivamente.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">08</span><span class="faq-q">¿Qué diferencia hay con Ingeniería Civil Informática?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>Ambas carreras comparten programación y computación, pero el foco cambia.</p>
+              <p>En Electrónica, el software se combina con <strong>hardware y sistemas físicos</strong>: circuitos, sensores, actuadores, control, comunicaciones, sistemas embebidos y electrónica de potencia. En Informática, el centro de gravedad está más en <strong>software, algoritmos, datos y sistemas computacionales</strong>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">09</span><span class="faq-q">¿En qué puedo trabajar?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>La propia USM describe la Ingeniería Civil Electrónica como una disciplina transversal, presente en una amplia variedad de actividades industriales y tecnológicas. Algunos ejemplos de salida laboral son:</p>
+              <div class="answer-grid">
+                <div class="answer-card"><b>Automatización y control</b> · procesos industriales, instrumentación y supervisión.</div>
+                <div class="answer-card"><b>Energía y electrónica de potencia</b> · conversión, accionamientos, almacenamiento y renovables.</div>
+                <div class="answer-card"><b>Computación embebida</b> · hardware, firmware, sistemas digitales y dispositivos inteligentes.</div>
+                <div class="answer-card"><b>Telecomunicaciones y señales</b> · transmisión, procesamiento de señales y sistemas inalámbricos.</div>
+                <div class="answer-card"><b>I+D y proyectos</b> · diseño, integración, innovación y participación en proyectos multidisciplinarios.</div>
+              </div>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-no">10</span><span class="faq-q">¿Qué voy a estudiar?</span><span class="faq-plus" aria-hidden="true">+</span></summary>
+            <div class="faq-answer">
+              <p>La formación combina <strong>ciencias básicas, ciencias de la ingeniería y aplicaciones electrónicas</strong>.</p>
+              <p>Entre los temas aparecen matemáticas, física, programación, teoría de redes eléctricas, electrónica, sistemas digitales, control automático, estructuras de computadores, electromagnetismo, comunicaciones, probabilidad, sistemas electromecánicos y formación en gestión, además de asignaturas que puedes escoger según tu trayectoria.</p>
+              <p>La malla oficial es la mejor referencia para revisar la distribución completa del plan.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section registration" id="registro">
+      <div class="inner">
+        <div class="section-kicker">Próximo paso</div>
+        <h2>Rutas y Talleres</h2>
+        <p class="section-intro">Inscríbete en el formulario para participar en las Rutas y Talleres de Puertas Abiertas.</p>
+        <div class="status" id="formStatus">FORMULARIO CONECTADO</div>
+        <a class="form-button" id="formPlaceholder" href="https://docs.google.com/forms/d/e/1FAIpQLSd4UFGf00I-WM-z5zX388JEKWCmCSONkZ4B6BtSGy7MIjSTSQ/viewform?usp=publish-editory" target="_blank" rel="noopener noreferrer">Abrir formulario <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="sources">
+      <h3>Información oficial</h3>
+      <p>La landing resume información útil para visitantes, pero los requisitos de admisión y documentos deben verificarse en los canales oficiales de la Universidad.</p>
+      <div class="source-links">
+        <a class="source-link" href="https://usm.cl/admision/carreras/ingenieria-civil-electronica/" target="_blank" rel="noopener noreferrer"><span>Ingeniería Civil Electrónica · USM</span><span>↗</span></a>
+        <a class="source-link" href="https://usm.cl/admision/admision-centralizada-paes/" target="_blank" rel="noopener noreferrer"><span>Admisión Centralizada · PAES</span><span>↗</span></a>
+        <a class="source-link" href="https://usm.cl/admision/admision-especial/" target="_blank" rel="noopener noreferrer"><span>Admisión Especial</span><span>↗</span></a>
+        <a class="source-link" href="https://electronica.usm.cl/pregrado/tipos-de-practicas/" target="_blank" rel="noopener noreferrer"><span>Prácticas · Departamento de Electrónica</span><span>↗</span></a>
+        <a class="source-link" href="https://electronica.usm.cl/" target="_blank" rel="noopener noreferrer"><span>Departamento de Electrónica USM</span><span>↗</span></a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-circuit" aria-hidden="true"><i></i><i></i><i></i></div>
+      INGENIERÍA CIVIL ELECTRÓNICA · USM<br>
+      CASA CENTRAL VALPARAÍSO · PUERTAS ABIERTAS 2026
+    </footer>
+  </main>
+
+  <script>
+    // ======================================================
+    // CONFIGURACIÓN
+    // El formulario abre en una nueva pestaña.
+    // La malla lleva a la página oficial USM, donde se publica
+    // el enlace de descarga de la malla académica.
+    // ======================================================
+    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSd4UFGf00I-WM-z5zX388JEKWCmCSONkZ4B6BtSGy7MIjSTSQ/viewform?usp=publish-editory";
+    const MALLA_URL = "https://usm.cl/admision/carreras/ingenieria-civil-electronica/";
+
+    const formLink = document.getElementById("formLink");
+    const formStatus = document.getElementById("formStatus");
+    const formPlaceholder = document.getElementById("formPlaceholder");
+    const mallaLink = document.getElementById("mallaLink");
+
+    [formLink, formPlaceholder].forEach((link) => {
+      if (!link) return;
+      link.href = FORM_URL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    });
+
+    if (formStatus) {
+      formStatus.textContent = "FORMULARIO CONECTADO · SE ABRIRÁ EN UNA NUEVA PESTAÑA";
+      formStatus.style.color = "#C9FFDA";
+      formStatus.style.borderColor = "rgba(85,232,143,.24)";
+      formStatus.style.background = "rgba(85,232,143,.055)";
+    }
+
+    if (formPlaceholder) {
+      formPlaceholder.removeAttribute("aria-disabled");
+      formPlaceholder.removeAttribute("onclick");
+      formPlaceholder.innerHTML = "Abrir formulario <span>→</span>";
+    }
+
+    if (mallaLink) {
+      mallaLink.href = MALLA_URL;
+      mallaLink.target = "_blank";
+      mallaLink.rel = "noopener noreferrer";
+    }
+
+    // Mantiene solo una pregunta abierta a la vez.
+    const faqItems = document.querySelectorAll(".faq-item");
+    faqItems.forEach((item) => {
+      item.addEventListener("toggle", () => {
+        if (!item.open) return;
+        faqItems.forEach((other) => {
+          if (other !== item) other.open = false;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

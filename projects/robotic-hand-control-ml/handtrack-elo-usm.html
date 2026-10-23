@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HandTrack Pro Master Edition — ELO USM HUD</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<style>
+:root { --bg:#020805; --panel:rgba(8,20,12,.88); --accent:#39d353; --warn:#ff3366; --text:#d4f5dc; --empty:#0a1f0e; --line:rgba(57,211,83,.2); --muted:#6aab78; }
+*{box-sizing:border-box} body{font-family:Rajdhani,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:18px;display:flex;gap:18px;min-height:100vh;overflow:auto}
+h1,h3,h4{margin:0;text-transform:uppercase;letter-spacing:2px} h1{font-size:24px;color:var(--accent)} h3{font-size:15px;color:var(--accent);margin-bottom:10px} h4{font:12px 'Share Tech Mono',monospace;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:15px;box-shadow:0 10px 30px #0008;display:flex;flex-direction:column;position:relative} #video-panel{flex:1;min-width:0} #camera-container{position:relative;flex:1;min-height:360px;background:#000;border:1px solid var(--line);border-radius:7px;overflow:hidden;transform:scaleX(-1)} canvas{width:100%;height:100%;object-fit:contain} #control-panel{width:340px;max-width:42vw;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:12px;justify-content:flex-end;margin-bottom:14px;min-height:45px}.brand-logo{max-height:38px;max-width:120px;object-fit:contain;filter:brightness(0) invert(1)}.brand-label{font:10px 'Share Tech Mono',monospace;color:var(--accent);letter-spacing:1px}.brand-mark{font-size:22px;font-weight:700;letter-spacing:3px;color:var(--accent)}
+button{cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:6px;width:100%;margin-bottom:9px;padding:11px}.main-btn{background:#39d35318;border:1px solid var(--accent);color:var(--accent);font-size:14px}.sec-btn{background:transparent;border:1px solid #34513b;color:#91b89b;font:11px 'Share Tech Mono',monospace}.pause-btn{display:none;background:#ffaa0018;border:1px solid #ffaa00;color:#ffaa00;font-size:12px}.pause-btn.paused{border-color:#ff1744;color:#ff1744;background:#ff174422}
+.status-text{font:12px 'Share Tech Mono',monospace;margin:8px 0 14px;display:flex;justify-content:space-between;gap:8px}#serialStatus{color:#ff1744;font-weight:bold}hr{border:0;border-top:1px solid var(--line);margin:12px 0}.finger{margin-bottom:10px}.finger-info{display:flex;justify-content:space-between;font:12px 'Share Tech Mono',monospace;margin-bottom:4px}.bar-container{height:10px;background:var(--empty);border:1px solid var(--line);border-radius:3px;overflow:hidden}.bar-fill{height:100%;width:0;background:var(--accent);transition:width .1s}
+#calibration-wrapper{display:none;padding:10px;background:#0005;border:1px solid var(--line);border-radius:6px}.calib-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;font:11px 'Share Tech Mono',monospace}.calib-label{width:55px}.slider{flex:1;min-width:0}.calib-val{width:28px;text-align:right;color:var(--warn)}
+@media(max-width:800px){body{display:block;padding:10px}.panel{margin-bottom:12px}#control-panel{width:auto;max-width:none}#camera-container{min-height:260px}.brand{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div id="video-panel" class="panel">
+  <div class="brand"><div><div class="brand-label">UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</div><div class="brand-mark">UTFSM · ELO</div><div class="brand-label">DEPARTAMENTO DE INGENIERÍA CIVIL ELECTRÓNICA</div></div></div>
+  <h1>HANDTRACK // MASTER</h1>
+  <div id="camera-container"><video id="input_video" playsinline style="display:none"></video><canvas id="output_canvas" width="640" height="480"></canvas></div>
+</div>
+<div id="control-panel" class="panel">
+  <button id="fullscreenBtn" class="sec-btn" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
+  <button id="connectBtn" class="main-btn">🔌 Iniciar secuencia (USB)</button>
+  <button id="pauseBtn" class="pause-btn">⏸️ Pausar cámara</button>
+  <div class="status-text"><span>ENLACE DE DATOS:</span><span id="serialStatus">[ OFFLINE ]</span></div>
+  <hr><h3>Telemetría de servos</h3><div id="bars"></div>
+  <hr><button id="toggleCalibBtn" class="sec-btn" onclick="toggleCalibracion()">⚙ Ajustes avanzados ▼</button>
+  <div id="calibration-wrapper"><h4>Sensibilidad en vivo</h4><div id="calibration-panel"></div></div>
+  <p style="font:11px 'Share Tech Mono',monospace;color:var(--muted);line-height:1.5">La cámara se procesa en el navegador. La conexión serie requiere un navegador compatible y autorización explícita del usuario.</p>
+</div>
+<script>
+'use strict';
+function toggleFullScreen(){if(!document.fullscreenElement){document.documentElement.requestFullscreen?.().catch(e=>alert('Pantalla completa no disponible: '+e.message));}else{document.exitFullscreen?.();}}
+function toggleCalibracion(){const p=document.getElementById('calibration-wrapper'),b=document.getElementById('toggleCalibBtn');const open=p.style.display!=='block';p.style.display=open?'block':'none';b.textContent=open?'⚙ Ajustes avanzados ▲':'⚙ Ajustes avanzados ▼';}
+let port=null,writer=null;let targetAngles=[0,0,0,0,0],smoothedAngles=[0,0,0,0,0];let ultimaVezMano=Date.now(),camaraPausada=false;
+const sensibilidades=[40,80,55,80,80],NOMBRES_DEDOS=['PULGAR','ÍNDICE','MEDIO','ANULAR','MEÑIQUE'];
+const barsContainer=document.getElementById('bars'),calibContainer=document.getElementById('calibration-panel');
+NOMBRES_DEDOS.forEach((n,i)=>{barsContainer.insertAdjacentHTML('beforeend',`<div class="finger"><div class="finger-info"><span>${n}</span><span id="val-${i}">ABIERTO</span></div><div class="bar-container"><div class="bar-fill" id="bar-${i}"></div></div></div>`);calibContainer.insertAdjacentHTML('beforeend',`<div class="calib-row"><span class="calib-label">${n.substring(0,3)}</span><input type="range" min="20" max="120" value="${sensibilidades[i]}" class="slider" id="slider-${i}" aria-label="Sensibilidad ${n}"><span class="calib-val" id="sval-${i}">${sensibilidades[i]}</span></div>`);document.getElementById(`slider-${i}`).addEventListener('input',e=>{sensibilidades[i]=Number.parseInt(e.target.value,10);document.getElementById(`sval-${i}`).textContent=e.target.value;});});
+const connectBtn=document.getElementById('connectBtn'),pauseBtn=document.getElementById('pauseBtn'),serialStatus=document.getElementById('serialStatus');
+connectBtn.addEventListener('click',async()=>{try{if(!('serial' in navigator))throw new Error('Este navegador no permite Web Serial. Prueba Chrome/Edge en HTTPS o localhost.');port=await navigator.serial.requestPort();await port.open({baudRate:9600});writer=port.writable.getWriter();connectBtn.style.display='none';pauseBtn.style.display='block';serialStatus.textContent='[ ONLINE / TX ]';serialStatus.style.color='var(--accent)';await camera.start();}catch(err){serialStatus.textContent='[ OFFLINE ]';alert('No se pudo iniciar la conexión/cámara: '+err.message);}});
+pauseBtn.addEventListener('click',()=>{camaraPausada=!camaraPausada;pauseBtn.classList.toggle('paused',camaraPausada);pauseBtn.textContent=camaraPausada?'▶ Reanudar cámara':'⏸ Pausar cámara';if(camaraPausada)targetAngles=[0,0,0,0,0];});
+function vec3(a,b){return{x:b.x-a.x,y:b.y-a.y,z:b.z-a.z};}function mag(v){return Math.hypot(v.x,v.y,v.z);}function dot(a,b){return a.x*b.x+a.y*b.y+a.z*b.z;}function getFingerAngle(A,B,C){const ba=vec3(B,A),bc=vec3(B,C),den=mag(ba)*mag(bc);if(!den)return 0;return Math.acos(Math.max(-1,Math.min(1,dot(ba,bc)/den)))*180/Math.PI;}
+setInterval(async()=>{let command='';if(!camaraPausada&&Date.now()-ultimaVezMano>1500)targetAngles=[0,0,0,0,0];for(let i=0;i<5;i++){smoothedAngles[i]+=(targetAngles[i]-smoothedAngles[i])*.45;const closed=smoothedAngles[i]>80;command+=closed?'0':'1';const bar=document.getElementById(`bar-${i}`);document.getElementById(`val-${i}`).textContent=closed?'CERRADO':'ABIERTO';bar.style.width=Math.min(100,smoothedAngles[i]/180*100)+'%';bar.style.background=closed?'var(--warn)':'var(--accent)';}if(writer){try{await writer.write(new TextEncoder().encode(command+'\n'));}catch(err){serialStatus.textContent='[ ERROR TX ]';console.error('Error serie:',err);}}},50);
+const hands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.85,minTrackingConfidence:.4});
+hands.onResults(results=>{const canvas=document.getElementById('output_canvas'),ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);if(results.image)ctx.drawImage(results.image,0,0,canvas.width,canvas.height);if(results.multiHandLandmarks?.length){ultimaVezMano=Date.now();const h=results.multiHandLandmarks[0];drawConnectors(ctx,h,HAND_CONNECTIONS,{color:camaraPausada?'rgba(255,23,68,.4)':getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),lineWidth:4});drawLandmarks(ctx,h,{color:'#fff',fillColor:camaraPausada?'#ff1744':'#ff3366',lineWidth:2,radius:4});if(!camaraPausada){const map=(a,b,c,i)=>Math.max(0,Math.min(180,(180-getFingerAngle(h[a],h[b],h[c]))*(180/sensibilidades[i])));targetAngles=[map(0,2,4,0),map(0,5,8,1),map(0,9,12,2),map(0,13,16,3),map(0,17,20,4)];}}});
+const camera=new Camera(document.getElementById('input_video'),{onFrame:async()=>{await hands.send({image:document.getElementById('input_video')});},width:640,height:480});
+window.addEventListener('beforeunload',async()=>{try{if(writer){await writer.close();}if(port?.opened)await port.close();}catch(e){/* best effort on page close */}});
+</script>
+</body></html>
