@@ -36,15 +36,9 @@ El manual del operador del Arcade de Menciones fue desarrollado por Vicente Bohl
 
 El portal de admisión usa identidad gráfica institucional y enlaces públicos de la UTFSM; se conserva únicamente como muestra de trabajo en el contexto autorizado.
 
-## Revisión antes de hacer público
 
-* Comprobar permisos para publicar cada proyecto y recursos institucionales/de terceros.
-* No incluir `.env`, contraseñas, tokens, claves privadas ni exportaciones del inventario real.
-* La copia del inventario usa marcadores en lugar de las credenciales/URL de Supabase.
-* Mantener explícito qué carpetas son documentación y cuáles contienen código.
-* Elegir una licencia solo cuando se hayan revisado las colaboraciones y los recursos incluidos.
 
 ## English summary
 
-A selected portfolio of web software and engineering projects by Vicente Bohle Alveal. Several projects include runnable source code; other folders remain documentation-only until their original implementation files are added and reviewed. Review permissions, dependencies and secrets before making the repository public.
+A selected portfolio of web software and engineering projects by Vicente Bohle Alveal. Several projects include runnable source code; other folders remain documentation-only until their original implementation files are added and reviewed. 
 
