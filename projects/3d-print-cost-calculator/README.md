@@ -1,5 +1,7 @@
 # Kong.3D Pro — calculadora de costos de impresión 3D
 
+![Cotizador Kong.3D Pro](../../docs/img/calculadora.png)
+
 Versión web basada en el HTML compartido por el autor. Calcula precio al contado y con recargo de pago, opción prioritaria, lote de piezas, material y purga, tiempo de máquina, mano de obra, diseño, post-proceso, pintura, hardware, envío e IVA. También incluye configuración local, historial, exportación CSV, copia de texto y generación de PDF.
 
 ## Seguridad y privacidad

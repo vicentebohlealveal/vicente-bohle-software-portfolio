@@ -1,5 +1,7 @@
 # Arcade de Menciones — Ingeniería Civil Electrónica UTFSM
 
+![Arcade de Menciones en uso](../../docs/img/arcade.gif)
+
 Juego educativo web para actividades de divulgación de Ingeniería Civil Electrónica. Integra cuatro minijuegos asociados a áreas de la carrera y una interfaz física con Makey Makey.
 
 ## Ejecutar

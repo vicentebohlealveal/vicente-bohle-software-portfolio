@@ -1,5 +1,7 @@
 # Medidor de grosor de cabello — FIS140
 
+![Medidor de grosor de cabello](../../docs/img/medidor.png)
+
 Herramienta web para registrar mediciones experimentales y apoyar el análisis/calibración del grosor de cabello. La interfaz permite trabajar con datos de medición y exportar resultados en formatos reutilizables.
 
 ## Ejecutar

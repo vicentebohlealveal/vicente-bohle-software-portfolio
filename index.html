@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vicente Bohle Alveal — Electrónica y software</title>
+<meta name="description" content="Proyectos de Vicente Bohle Alveal, estudiante de Ingeniería Civil Electrónica (UTFSM): interfaz cerebro-computador, sistemas embebidos y herramientas web para ingeniería.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F5F7; --ink:#14213D; --muted:#55627A; --rule:#C9D1DA;
+    --kapton:#C98A0B; --signal:#2457D6; --white:#FFFFFF;
+    --measure:68ch;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;font-size:1.0625rem;line-height:1.55;font-variation-settings:"wdth" 100}
+  a{color:var(--signal);text-underline-offset:.18em}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--kapton);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+
+  /* Hero: el nombre sobre una traza EEG real del proyecto principal */
+  header.hero{padding-top:clamp(48px,9vw,112px)}
+  h1{font-size:clamp(2.6rem,7.4vw,6.2rem);line-height:.92;font-weight:800;font-variation-settings:"wdth" 125;letter-spacing:-.02em;margin:0;max-width:12ch}
+  .lede{max-width:var(--measure);font-size:clamp(1.1rem,1.6vw,1.3rem);color:var(--muted);margin:28px 0 0}
+  .contact{display:flex;flex-wrap:wrap;gap:12px 28px;margin:24px 0 0;padding:0;list-style:none;font-weight:600}
+  .trace{display:block;width:100%;height:auto;margin-top:clamp(28px,5vw,56px)}
+  .trace path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+  #eeg{stroke:var(--signal);stroke-width:2.2;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 3.2s cubic-bezier(.45,.05,.2,1) .2s forwards}
+  #base{stroke:var(--rule);stroke-width:1}
+  .blink{fill:var(--kapton);opacity:0;animation:pop .3s ease-out forwards}
+  .trace text{font:600 13px "Archivo",sans-serif;fill:var(--muted)}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes pop{to{opacity:1}}
+  .caption{font-size:.9rem;color:var(--muted);margin:8px 0 0;max-width:var(--measure)}
+
+  /* Proyectos destacados: filas anchas, imagen grande */
+  main{padding-bottom:40px}
+  h2{font-size:clamp(1.6rem,3vw,2.2rem);font-variation-settings:"wdth" 112;font-weight:750;letter-spacing:-.01em;margin:0 0 6px}
+  .section{padding-top:clamp(64px,9vw,104px)}
+  .section > p.intro{color:var(--muted);max-width:var(--measure);margin:0 0 36px}
+  .feature{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start;padding:40px 0;border-top:1px solid var(--rule)}
+  .feature:nth-of-type(even) .media{order:2}
+  .media{margin:0}
+  .media img{width:100%;height:auto;display:block;background:#0E1626;border:1px solid var(--rule)}
+  .media figcaption{font-size:.88rem;color:var(--muted);margin-top:8px}
+  h3{font-size:1.5rem;line-height:1.2;font-variation-settings:"wdth" 108;font-weight:720;margin:0 0 12px}
+  .feature p{margin:0 0 14px}
+  .stack{color:var(--muted);font-size:.95rem}
+  .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .btn{display:inline-block;padding:10px 16px;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:650;background:var(--white)}
+  .btn.primary{background:var(--ink);color:var(--paper)}
+  .btn:hover{border-color:var(--signal);color:var(--signal)}
+  .btn.primary:hover{background:var(--signal);color:var(--white)}
+
+  /* Índice completo: tabla, no tarjetas */
+  table{width:100%;border-collapse:collapse;font-size:1rem}
+  th{text-align:left;font-weight:650;color:var(--muted);font-size:.9rem;padding:10px 12px 10px 0;border-bottom:2px solid var(--ink)}
+  td{padding:14px 12px 14px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  td:first-child{font-weight:650;width:26%}
+  td:last-child{white-space:nowrap;width:1%}
+  .docs-only{color:var(--muted);margin-top:18px;max-width:var(--measure)}
+
+  .skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px 40px;margin:0;padding:0;list-style:none}
+  .skills li{border-left:3px solid var(--kapton);padding-left:14px}
+  .skills strong{display:block;margin-bottom:2px}
+  .skills span{color:var(--muted);font-size:.95rem}
+
+  footer.wrap{margin-top:clamp(64px,9vw,104px);border-top:1px solid var(--rule);padding-top:28px;padding-bottom:48px;color:var(--muted);font-size:.92rem}
+  footer p{max-width:var(--measure);margin:0 0 8px}
+
+  @media (max-width:820px){
+    .feature{grid-template-columns:1fr}
+    .feature:nth-of-type(even) .media{order:0}
+    td:first-child{width:auto}
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tr{border-bottom:1px solid var(--rule);padding:12px 0}
+    td{border:0;padding:2px 0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #eeg{animation:none;stroke-dashoffset:0}
+    .blink{animation:none;opacity:1}
+  }
+</style>
+</head>
+<body>
+<header class="hero wrap">
+  <h1>Vicente Bohle Alveal</h1>
+  <p class="lede">Estudiante de Ingeniería Civil Electrónica en la UTFSM, Chile. Diseño prototipos donde el hardware y el software se encuentran: una interfaz que mueve un brazo robótico con señales cerebrales, firmware para sistemas embebidos y herramientas web para el laboratorio.</p>
+  <ul class="contact">
+    <li><a href="https://www.linkedin.com/in/vicente-bohle-alveal-b38317203/">LinkedIn</a></li>
+    <li><a href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio">Código en GitHub</a></li>
+    <li><a href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/main/README.md">English</a></li>
+  </ul>
+  <svg class="trace" viewBox="0 0 1200 190" role="img" aria-label="Señal EEG con tres parpadeos que cambian el eje activo del brazo robótico">
+    <path id="base" d="M0 110 H1200"/>
+    <path id="eeg" d=""/>
+  </svg>
+  <p class="caption">Señal del electrodo frontal con tres parpadeos voluntarios: cada pico cambia la articulación que controla la interfaz cerebro-computador.</p>
+</header>
+
+<main class="wrap">
+  <section class="section" id="destacados" aria-labelledby="h-dest">
+    <h2 id="h-dest">Proyectos destacados</h2>
+    <p class="intro">Tres proyectos que se pueden probar ahora mismo, sin instalar nada o con un solo comando.</p>
+
+    <article class="feature">
+      <figure class="media">
+        <img src="docs/img/bci-demo.gif" width="720" height="384" alt="Gemelo digital del brazo robótico: el brazo cambia de articulación con cada parpadeo y se mueve según el índice beta/alfa" loading="lazy">
+        <figcaption>Gemelo digital ejecutando el código real con EEG sintético.</figcaption>
+      </figure>
+      <div>
+        <h3>Interfaz cerebro-computador para un brazo robótico</h3>
+        <p>La señal EEG de una diadema Muse S se procesa en Python y controla un brazo de tres ejes con pinza a través de un ESP32. Un parpadeo voluntario cambia de articulación, la relación de potencia beta/alfa define el ángulo y una capa de seguridad desarma el brazo si la señal es mala o la cabeza se mueve.</p>
+        <p>Pensado como tecnología de asistencia para personas con ELA; es un prototipo experimental, no un dispositivo médico.</p>
+        <p class="stack">Python, NumPy, SciPy, BrainFlow, Matplotlib, ESP32, UDP</p>
+        <div class="links">
+          <a class="btn primary" href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/tree/main/projects/bci-brain-computer-interface-arm">Ver código y cómo ejecutarlo</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="feature">
+      <figure class="media">
+        <img src="docs/img/arcade.gif" width="560" height="350" alt="Arcade de Menciones: menú con las cuatro menciones y el minijuego de circuitos" loading="lazy">
+        <figcaption>En las ferias se juega tocando frutas conectadas a un Makey Makey; aquí, con el teclado.</figcaption>
+      </figure>
+      <div>
+        <h3>Arcade de Menciones</h3>
+        <p>Un arcade educativo para las actividades de difusión de la UTFSM. Cuatro minijuegos presentan cada mención de la carrera: llevar energía de un generador a una carga, sintonizar una señal, programar un computador y estabilizar un sistema de control.</p>
+        <p>Se entregó a la universidad junto con un manual de operador.</p>
+        <p class="stack">HTML, JavaScript, Canvas, Web Audio, Makey Makey</p>
+        <div class="links">
+          <a class="btn primary" href="projects/arcade-menciones/">Jugar en el navegador</a>
+          <a class="btn" href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/tree/main/projects/arcade-menciones">Ver código</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="feature">
+      <figure class="media">
+        <img src="docs/img/medidor.png" width="1100" height="687" alt="Medidor de grosor de cabello con tres mediciones y un resultado de 70,0 ± 3,2 micrómetros" loading="lazy">
+        <figcaption>Tres mediciones de ejemplo dan 70,0 ± 3,2 µm.</figcaption>
+      </figure>
+      <div>
+        <h3>Medidor de grosor de cabello por difracción láser</h3>
+        <p>Herramienta para la competencia de física FIS140. Calcula el grosor de un cabello a partir del patrón de difracción de un láser, propaga la incertidumbre de cada medición y avisa cuando los datos no son consistentes entre sí.</p>
+        <p class="stack">HTML, JavaScript, óptica, análisis de incertidumbre</p>
+        <div class="links">
+          <a class="btn primary" href="projects/medidor-grosor-cabello/">Abrir el medidor</a>
+          <a class="btn" href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/tree/main/projects/medidor-grosor-cabello">Ver código</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="section" id="todos" aria-labelledby="h-todos">
+    <h2 id="h-todos">Todos los proyectos</h2>
+    <p class="intro">Cada uno tiene su propio README con lo que hace, cómo probarlo y sus limitaciones.</p>
+    <table>
+      <thead><tr><th scope="col">Proyecto</th><th scope="col">Qué hace</th><th scope="col">Probar</th></tr></thead>
+      <tbody>
+        <tr><td>Interfaz cerebro-computador</td><td>Control de un brazo robótico con EEG, embrague por parpadeo, lógica de seguridad y gemelo digital.</td><td><a href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/tree/main/projects/bci-brain-computer-interface-arm">Código</a></td></tr>
+        <tr><td>Estación de carga solar</td><td>Firmware ESP32 que programa la carga de baterías externas con un relé, un encoder y una pantalla OLED.</td><td><a href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/tree/main/projects/solar-home-charging-automation">Código</a></td></tr>
+        <tr><td>Arcade de Menciones</td><td>Arcade educativo con cuatro minijuegos que se controlan con un Makey Makey.</td><td><a href="projects/arcade-menciones/">Jugar</a></td></tr>
+        <tr><td>Contador agrícola de frutos</td><td>Cuenta limones en vivo con la cámara usando un modelo YOLO propio que corre en el navegador.</td><td><a href="https://luminous-bubblegum-27933a.netlify.app/">Demo</a></td></tr>
+        <tr><td>HandTrack Pro</td><td>Detecta la mano con la cámara y envía el estado de cada dedo por puerto serie a una mano robótica.</td><td><a href="projects/robotic-hand-control-ml/">Abrir</a></td></tr>
+        <tr><td>Medidor de grosor de cabello</td><td>Medición por difracción láser con calibración y análisis de incertidumbre.</td><td><a href="projects/medidor-grosor-cabello/">Abrir</a></td></tr>
+        <tr><td>Inventario de taller Kong.3d</td><td>Organiza componentes por gaveta y compartimento, con buscador y sincronización entre teléfono y computador.</td><td><a href="https://reliable-unicorn-74e1be.netlify.app/">Demo</a></td></tr>
+        <tr><td>Cotizador Kong.3D Pro</td><td>Calcula costos y precios de impresión 3D, con historial y exportación a PDF y CSV.</td><td><a href="projects/3d-print-cost-calculator/">Abrir</a></td></tr>
+        <tr><td>Portal de admisión UTFSM</td><td>Página para celular a la que se llega con un código QR en las jornadas de puertas abiertas.</td><td><a href="https://elegant-kringle-ac50f4.netlify.app/">Demo</a></td></tr>
+      </tbody>
+    </table>
+    <p class="docs-only">También documentados, todavía sin los archivos originales: una plataforma robótica e IoT de gran escala, y un cargador para vehículos eléctricos con una UPS on-line.</p>
+  </section>
+
+  <section class="section" aria-labelledby="h-skills">
+    <h2 id="h-skills">Lo que muestran estos proyectos</h2>
+    <p class="intro">Más allá del código, mi formación incluye electrónica de potencia, control automático y diseño digital en FPGA.</p>
+    <ul class="skills">
+      <li><strong>Sistemas embebidos</strong><span>ESP32 y Arduino en C++, interrupciones, máquinas de estado, comunicación UDP y serie.</span></li>
+      <li><strong>Procesamiento de bioseñales</strong><span>Filtrado de EEG y EMG, potencia por bandas, calibración por usuario.</span></li>
+      <li><strong>Visión por computador</strong><span>Modelos YOLO exportados a ONNX y MediaPipe, ejecutados en el navegador.</span></li>
+      <li><strong>Herramientas para el laboratorio</strong><span>Interfaces web que miden, calculan incertidumbre y exportan datos.</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>© 2026 Vicente Bohle Alveal. Todos los derechos reservados. El código se publica para revisarlo como portafolio; para reutilizarlo hace falta autorización escrita. <a href="https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/main/LICENSE">Licencia</a></p>
+  <p>El manual del Arcade y el portal de admisión usan la identidad de la UTFSM y se muestran con autorización, solo como muestra de trabajo.</p>
+</footer>
+
+<script>
+  // Traza EEG: alfa + beta + ruido, con tres parpadeos que marcan cambios de eje.
+  (function(){
+    const W=1200, H=190, mid=110, blinks=[300,640,960];
+    let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647-.5;};
+    let d='';
+    for(let x=0;x<=W;x+=3){
+      let y=mid+9*Math.sin(x/9.5)+4*Math.sin(x/3.1+1.3)+5*rnd();
+      for(const b of blinks){const k=(x-b)/16;y-=88*Math.exp(-k*k);}
+      d+=(x?'L':'M')+x+' '+y.toFixed(1);
+    }
+    const p=document.getElementById('eeg'); p.setAttribute('d',d);
+    const len=p.getTotalLength(); p.style.setProperty('--len',len);
+    const svg=p.ownerSVGElement, ns='http://www.w3.org/2000/svg';
+    const names=['hombro','codo','pinza'];
+    blinks.forEach((b,i)=>{
+      const c=document.createElementNS(ns,'circle');
+      c.setAttribute('cx',b);c.setAttribute('cy',mid-88+5);c.setAttribute('r',6);c.setAttribute('class','blink');
+      c.style.animationDelay=(0.2+3.2*(b/W)*0.92)+'s';svg.appendChild(c);
+      const t=document.createElementNS(ns,'text');t.setAttribute('x',b+12);t.setAttribute('y',mid-78);
+      t.textContent='parpadeo: '+names[i];t.setAttribute('class','blink');t.style.animationDelay=c.style.animationDelay;svg.appendChild(t);
+    });
+  })();
+</script>
+</body>
+</html>
