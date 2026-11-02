@@ -17,3 +17,5 @@ Thumbs.db
 *.pfx
 secrets/
 .netlify/
+# notas internas locales
+NOTAS.md

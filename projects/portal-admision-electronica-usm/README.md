@@ -9,7 +9,7 @@ Abrir `index.html` en un navegador. Para desplegar como sitio estático, publica
 ## Archivos
 
 - `index.html`: página principal.
-- `logo-oficial-departamento.png` y `.jpg`: recursos de identidad visual usados por la página.
+- `logo-oficial-departamento.png`: logo del departamento usado por la página.
 
 ## Nota
 

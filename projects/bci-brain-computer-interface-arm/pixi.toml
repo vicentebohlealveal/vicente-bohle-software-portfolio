@@ -1,0 +1,16 @@
+[workspace]
+channels = ["conda-forge"]
+name = "tesis-bci"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.15.0,<3.16"
+numpy = ">=2.5.4,<3"
+scipy = ">=1.18.1,<2"
+matplotlib = ">=3.11.2,<4"
+
+[pypi-dependencies]
+brainflow = ">=5.23.0, <6"

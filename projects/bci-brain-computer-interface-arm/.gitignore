@@ -1,0 +1,6 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# calibracion personal generada en tiempo de ejecucion
+calib.json
