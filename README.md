@@ -65,6 +65,10 @@ Documentation only (source files not yet added): [large-scale robotics & IoT pla
 
 Embedded systems (ESP32, Arduino/C++, interrupts, state machines) · biosignal processing (EEG/EMG filtering, band power) · computer vision in the browser (YOLO/ONNX, MediaPipe) · web tools for the lab and the field (JavaScript, Canvas, Web Serial) · Python for prototyping.
 
+## Version history
+
+Older versions of several projects are kept in separate branches, one commit per saved version, each with a `VERSIONES.md` summary: [hair-thickness meter](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-medidor/VERSIONES.md) · [HandTrack Pro](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-handtrack/VERSIONES.md) · [Kong.3D Pro quoting tool](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-calculadora/VERSIONES.md) · [inventory](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-inventario/VERSIONES.md). The BCI, the Arcade and the fruit counter have a `historial` branch in their own repositories.
+
 ## License
 
 © 2026 Vicente Bohle Alveal. **All rights reserved.** This repository is public so it can be reviewed as a portfolio. Copying, modifying, redistributing or reusing its content, in whole or in part, requires the author's written permission. See [LICENSE](LICENSE).

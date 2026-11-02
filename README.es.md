@@ -61,6 +61,10 @@ Solo documentación (faltan los archivos originales): [plataforma robótica e Io
 
 **Notas:** el contador de frutos necesita su modelo entrenado `best.onnx`, que no está en este repositorio; la sincronización del inventario requiere configurar tu propio proyecto de Supabase.
 
+## Historial de versiones
+
+Las versiones antiguas de varios proyectos están en ramas aparte, un commit por cada versión guardada y con un resumen `VERSIONES.md`: [medidor de cabello](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-medidor/VERSIONES.md) · [HandTrack Pro](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-handtrack/VERSIONES.md) · [cotizador Kong.3D Pro](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-calculadora/VERSIONES.md) · [inventario](https://github.com/vicentebohlealveal/vicente-bohle-software-portfolio/blob/historial-inventario/VERSIONES.md). La BCI, el Arcade y el contador de frutos tienen una rama `historial` en sus propios repositorios.
+
 ## Licencia
 
 © 2026 Vicente Bohle Alveal. **Todos los derechos reservados.** Este repositorio es público para que se pueda revisar como portafolio. No se permite copiar, modificar, redistribuir ni reutilizar su contenido, total o parcialmente, sin autorización escrita del autor. Ver [LICENSE](LICENSE).
