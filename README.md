@@ -59,7 +59,7 @@ Documentation only (source files not yet added): [large-scale robotics & IoT pla
   <img src="docs/img/bci-gemelo-digital.png" width="49%" alt="BCI digital twin">
 </p>
 
-**Notes:** the fruit counter needs its trained `best.onnx` model, which is not in this repository; the inventory's cloud sync requires your own Supabase project.
+**Notes:** the fruit counter's trained model (`best.onnx`) is in [its own repository](https://github.com/vicentebohlealveal/contador-agricola-yolo); the inventory's cloud sync requires your own Supabase project.
 
 ## Skills shown here
 

@@ -59,7 +59,7 @@ Solo documentación (faltan los archivos originales): [plataforma robótica e Io
   <img src="docs/img/bci-gemelo-digital.png" width="49%" alt="Gemelo digital de la BCI">
 </p>
 
-**Notas:** el contador de frutos necesita su modelo entrenado `best.onnx`, que no está en este repositorio; la sincronización del inventario requiere configurar tu propio proyecto de Supabase.
+**Notas:** el modelo entrenado del contador de frutos (`best.onnx`) está en [su repositorio propio](https://github.com/vicentebohlealveal/contador-agricola-yolo); la sincronización del inventario requiere configurar tu propio proyecto de Supabase.
 
 ## Historial de versiones
 

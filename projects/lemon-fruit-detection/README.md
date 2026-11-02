@@ -2,9 +2,9 @@
 
 Aplicación web para cámara y conteo acumulativo por árbol mediante un modelo YOLO convertido a ONNX. La inferencia se ejecuta en el navegador con ONNX Runtime Web y el conteo se guarda en `localStorage` del dispositivo.
 
-## Falta un archivo necesario
+## Modelo
 
-El código busca `./best.onnx`. El HTML incluido **no funcionará como detector hasta incorporar el modelo real** con el nombre exacto `best.onnx` en esta misma carpeta. No se ha creado un modelo de reemplazo. Antes de añadirlo a GitHub, comprueba tamaño, licencia/derechos de uso y que no contenga materiales confidenciales. Si excede los límites de GitHub, estudia Git LFS o alojamiento apropiado.
+El modelo entrenado (`best.onnx`, YOLO11s de una clase, 38 MB) está en el repositorio propio del proyecto: [contador-agricola-yolo](https://github.com/vicentebohlealveal/contador-agricola-yolo). Para probarlo desde esta carpeta, copia ese archivo junto a `index.html`.
 
 ## Ejecución
 
